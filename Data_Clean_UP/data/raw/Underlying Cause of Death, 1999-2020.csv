@@ -1,0 +1,69 @@
+<script type='text/javascript' src='https://wonder.cdc.gov/_F8157AcfWLPEikk7PnLHIXflCTv7gW490FW0VnroKMW47Nv8BIZeOoihkXqWhNGDn2WZWry8sboT5W1Vw4E7mWd4ss5MDmIBo0Nwl5HXDViWNXV5V2qpUTeKzWswzoTgoWp5hHaxWwULnBUC0M8JzzF_3bL99y9WGifq4COEWW-0e4w909Nz1AW9gWbt12NrlNojHY2a7sftew5EYoPQxDS23s1t9Z-XIK9_7SeRsfV5QpaID2hNR0k6smD3woH3HDTooCPUbjW10BrALajLrrU29snL_OcJtSk318ZTkCkS99PKDTWBF_mJbNbwmSiSNNDWWw9mDSQJd3mbVsVtUc4T09XO5Ex_CRfmge8a-XTKF2ljpCrsMG3qwgukWyDgcMZxtj0-qidy7dGoZ-a1XRdHqIV9myrisbEQ5pr-JXRVBotdxfsyFjlOV2yVI4RTe2UKX8Ey9kxVfdZxqe7Ep7xhLczu-m3uEpeIvBWTd3OkoM93w9bxOPs_2vciwVe9vvZbURfLsWvGWy5NSr7xIxKGlyAQ4k'></script>"Notes","Year","Year Code",Deaths,Population,Crude Rate
+,"2007","2007",1917,301231207,0.6
+,"2008","2008",1935,304093966,0.6
+,"2009","2009",1960,306771529,0.6
+,"2010","2010",1991,308745538,0.6
+,"2011","2011",2101,311591917,0.7
+,"2012","2012",2127,313914040,0.7
+,"2013","2013",2233,316128839,0.7
+,"2014","2014",2285,318857056,0.7
+,"2015","2015",2339,321418820,0.7
+,"2016","2016",2344,323127513,0.7
+,"2017","2017",2493,325719178,0.8
+,"2018","2018",2509,327167434,0.8
+"Total",,,26234,3778767037,0.7
+"---"
+"Dataset: Underlying Cause of Death, 1999-2020"
+"Query Parameters:"
+"ICD-10 Codes: W10 (Fall on and from stairs and steps)"
+"Year/Month: 2007; 2008; 2009; 2010; 2011; 2012; 2013; 2014; 2015; 2016; 2017; 2018"
+"Group By: Year"
+"Show Totals: True"
+"Show Zero Values: False"
+"Show Suppressed: False"
+"Calculate Rates Per: 100,000"
+"Rate Options: Default intercensal populations for years 2001-2009 (except Infant Age Groups)"
+"---"
+"Help: See http://wonder.cdc.gov/wonder/help/ucd.html for more information."
+"---"
+"Query Date: Oct 10, 2026 5:51:31 PM"
+"---"
+"Suggested Citation: Centers for Disease Control and Prevention, National Center for Health Statistics. National Vital Statistics"
+"System, Mortality 1999-2020 on CDC WONDER Online Database, released in 2021. Data are from the Multiple Cause of Death Files,"
+"1999-2020, as compiled from data provided by the 57 vital statistics jurisdictions through the Vital Statistics Cooperative"
+"Program. Accessed at http://wonder.cdc.gov/ucd-icd10.html on Oct 10, 2026 5:51:31 PM"
+"---"
+Caveats:
+"1. As of April 3, 2017, the underlying cause of death has been revised for 125 deaths in 2014. More information:"
+"http://wonder.cdc.gov/wonder/help/ucd.html#2014-Revision."
+"2. Circumstances in Georgia for the years 2008 and 2009 have resulted in unusually high death counts for the ICD-10 cause of"
+"death code R99, ""Other ill-defined and unspecified causes of mortality."" Caution should be used in interpreting these data."
+"More information: http://wonder.cdc.gov/wonder/help/ucd.html#Georgia-Reporting-Anomalies."
+"3. Circumstances in New Jersey for the year 2009 have resulted in unusually high death counts for the ICD-10 cause of death code"
+"R99, ""Other ill-defined and unspecified causes of mortality"" and therefore unusually low death counts in other ICD-10 codes,"
+"most notably R95, ""Sudden Infant Death Syndrome"" and X40-X49, ""Unintentional poisoning."" Caution should be used in"
+"interpreting these data. More information: http://wonder.cdc.gov/wonder/help/ucd.html#New-Jersey-Reporting-Anomalies."
+"4. The population figures for year 2020 are bridged-race estimates of the July 1 resident population, from the Vintage 2020"
+"postcensal series released by NCHS on September 22, 2021. The population figures for year 2019 are bridged-race estimates of the"
+"July 1 resident population, from the Vintage 2019 postcensal series released by NCHS on July 9, 2020. The population figures for"
+"year 2018 are bridged-race estimates of the July 1 resident population, from the Vintage 2018 postcensal series released by NCHS"
+"on June 25, 2019. The population figures for year 2017 are bridged-race estimates of the July 1 resident population, from the"
+"Vintage 2017 postcensal series released by NCHS on June 27, 2018. The population figures for year 2016 are bridged-race"
+"estimates of the July 1 resident population, from the Vintage 2016 postcensal series released by NCHS on June 26, 2017. The"
+"population figures for year 2015 are bridged-race estimates of the July 1 resident population, from the Vintage 2015 postcensal"
+"series released by NCHS on June 28, 2016. The population figures for year 2014 are bridged-race estimates of the July 1 resident"
+"population, from the Vintage 2014 postcensal series released by NCHS on June 30, 2015. The population figures for year 2013 are"
+"bridged-race estimates of the July 1 resident population, from the Vintage 2013 postcensal series released by NCHS on June 26,"
+"2014. The population figures for year 2012 are bridged-race estimates of the July 1 resident population, from the Vintage 2012"
+"postcensal series released by NCHS on June 13, 2013. The population figures for year 2011 are bridged-race estimates of the July"
+"1 resident population, from the Vintage 2011 postcensal series released by NCHS on July 18, 2012. Population figures for 2010"
+"are April 1 Census counts. The population figures for years 2001 - 2009 are bridged-race estimates of the July 1 resident"
+"population, from the revised intercensal county-level 2000 - 2009 series released by NCHS on October 26, 2012. Population"
+"figures for 2000 are April 1 Census counts. Population figures for 1999 are from the 1990-1999 intercensal series of July 1"
+"estimates. Population figures for the infant age groups are the number of live births. <br/><b>Note:</b> Rates and population"
+"figures for years 2001 - 2009 differ slightly from previously published reports, due to use of the population estimates which"
+"were available at the time of release."
+"5. The population figures used in the calculation of death rates for the age group 'under 1 year' are the estimates of the"
+"resident population that is under one year of age. More information: http://wonder.cdc.gov/wonder/help/ucd.html#Age Group."
+"6. Changes to cause of death classification affect reporting trends. More information:"
+"http://wonder.cdc.gov/wonder/help/ucd.html#ICD-10 Changes."
