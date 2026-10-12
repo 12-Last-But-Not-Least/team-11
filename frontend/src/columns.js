@@ -41,3 +41,10 @@ export function defaultPair(cols) {
 export function labelOf(cols, name) {
   return cols.find((c) => c.name === name)?.label ?? name;
 }
+
+/** Option text per column; a label shared by several files gets its source appended. */
+export function optionLabels(cols) {
+  const counts = new Map();
+  for (const c of cols) counts.set(c.label, (counts.get(c.label) ?? 0) + 1);
+  return new Map(cols.map((c) => [c.name, counts.get(c.label) > 1 ? `${c.label} — ${c.source}` : c.label]));
+}

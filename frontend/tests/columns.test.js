@@ -1,4 +1,4 @@
-import { groupBySource, defaultPair, labelOf, isKey } from "../src/columns.js";
+import { groupBySource, defaultPair, labelOf, isKey, optionLabels } from "../src/columns.js";
 
 // Shape of GET /columns (see USAGE.md): year first, then plottable columns.
 const cols = [
@@ -60,5 +60,15 @@ describe("labelOf", () => {
   });
   it("falls back to the raw name for an unknown column", () => {
     expect(labelOf(cols, "mystery")).toBe("mystery");
+  });
+});
+
+describe("optionLabels", () => {
+  it("keeps unique labels and appends the source to duplicated ones", () => {
+    const labels = optionLabels(cols);
+    expect(labels.get("iphone_norm")).toBe("iPhone sales (normalized) — iphone_normalized.csv");
+    expect(labels.get("year")).toBe("Year");
+    expect(labels.get("falls_norm")).toBe("Fall deaths (normalized) — falls_normalized.csv");
+    expect(labels.get("deaths_norm")).toBe("Fall deaths (normalized) — normalized_merged_set.csv");
   });
 });

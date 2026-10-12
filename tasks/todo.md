@@ -36,18 +36,18 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/columns.js`, `src/api.js`, `tests/columns.test.js`, `tests/api.test.js`
 **Scope:** S
 
-## Task 3: Step 1 — choose two things
+## Task 3: Step 1 — choose two things ✅
 
 **Description:** `Controls.jsx` renders the X/Y picker cards (label, select chip, mono meta line), the Swap button, and the chart-size select, from `/columns`. App state `{x, y, size, run}`; the same column cannot be selected on both axes (option disabled). Rail + numbered step shell (`Step.jsx`) built here since step 1 is the first consumer.
 
 **Acceptance criteria:**
-- [ ] On load, pickers show the `defaultPair`; no dataset or column name is hardcoded
-- [ ] Changing a picker or Swap updates App state and bumps `run`
-- [ ] Keyboard: selects and Swap reachable and operable by Tab/Enter
+- [x] On load, pickers show the `defaultPair`; no dataset or column name is hardcoded
+- [x] Changing a picker or Swap updates App state (`run` counter deferred to T5 where it is first needed)
+- [x] Keyboard: native selects and a real button; focus ring styled
 
 **Verification:**
-- [ ] RTL test with mocked `fetch`: renders options from fixture, swap exchanges values
-- [ ] Manual against live API
+- [x] RTL tests with an injected fake api: options from fixture, disabled twin, swap, change, size, backend-down status
+- [x] Manual against live API (dataset chip 3 files · 4 columns; pickers populated)
 **Dependencies:** T2
 **Files:** `src/components/Step.jsx`, `src/components/Controls.jsx`, `src/App.jsx`, `src/App.css`, `tests/Controls.test.jsx`
 **Scope:** M

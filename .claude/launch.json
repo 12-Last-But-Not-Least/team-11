@@ -10,7 +10,7 @@
     },
     {
       "name": "backend",
-      "runtimeExecutable": "uvicorn",
+      "runtimeExecutable": ".venv/bin/uvicorn",
       "runtimeArgs": ["main:app", "--port", "8000"],
       "port": 8000
     }

@@ -49,7 +49,7 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 ### Phase 1: Foundation
 - [x] T1 Scaffold `frontend/` (Vite React JS), tokens, fonts, lint, Vitest smoke test
 - [x] T2 `columns.js` + `api.js` with tests
-- [ ] T3 Step 1 slice: pickers from live `/columns`, swap, size
+- [x] T3 Step 1 slice: pickers from live `/columns`, swap, size
 
 ### Checkpoint A
 - [ ] `npm test`, `npm run lint`, `npm run build` clean; `pytest -q` still 16 passing

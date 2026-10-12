@@ -12,3 +12,8 @@ frontend/dist/
 .impeccable/mocks/
 .impeccable/review/
 .impeccable/build/
+
+# python
+.venv/
+__pycache__/
+.pytest_cache/
