@@ -66,7 +66,7 @@ describe("4: statistics folded under the charts, in-canvas box removed", () => {
     const user = userEvent.setup();
     render(<App api={fakeApi()} />);
     const step2 = await screen.findByRole("region", { name: /look at them two ways/i });
-    const toggle = within(step2).getByRole("button", { name: /^statistics$/i });
+    const toggle = await within(step2).findByRole("button", { name: /^statistics$/i }); // appears once the run lands
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     const table = within(step2).getByRole("table", { name: /statistics/i });
     const rows = within(table).getAllByRole("row");
