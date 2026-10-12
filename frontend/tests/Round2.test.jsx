@@ -18,7 +18,7 @@ describe("step 2 order: scatter, statistics, line", () => {
   it("places the open statistics table between the two charts", async () => {
     render(<App api={fakeApi()} />);
     const step2 = await screen.findByRole("region", { name: /look at them two ways/i });
-    const scatter = within(step2).getByRole("img", { name: /scatter/i });
+    const scatter = await within(step2).findByRole("img", { name: /scatter/i }); // wait for the run to land
     const line = within(step2).getByRole("img", { name: /line chart/i });
     const table = within(step2).getByRole("table", { name: /statistics/i });
     expect(before(scatter, table)).toBe(true);
