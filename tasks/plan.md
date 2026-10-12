@@ -57,7 +57,7 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 
 ### Phase 2: Core
 - [x] T4 Step 2a: scatter canvas through `Chart.jsx`, caption
-- [ ] T5 Step 2b: line canvas, parallel fetch, loading/error, stale-run guard, year-on-axis rule
+- [x] T5 Step 2b: line canvas, parallel fetch, loading/error, stale-run guard, year-on-axis rule
 - [ ] T6 `describe.js` (verdict, strength band, sentences) with boundary tests
 - [ ] T7 `glossary.js` + `Term.jsx` tooltip (hover + focus)
 - [ ] T8 Step 3 UI

@@ -73,18 +73,18 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/components/Chart.jsx`, `src/chartAdapter.js`, `src/App.jsx`, `tests/chartAdapter.test.js`
 **Scope:** S
 
-## Task 5: Step 2b — line chart, parallel fetch, states
+## Task 5: Step 2b — line chart, parallel fetch, states ✅
 
 **Description:** Fetch scatter and line in parallel per run; keep the previous charts visible with a "running" mark until both land; drop stale responses by run id; show the backend's `detail` on 422 in a status line. Year-on-axis rule: line = other column vs year. Both plates bottom-aligned at equal height.
 
 **Acceptance criteria:**
-- [ ] One picker change produces exactly two requests and one UI update
-- [ ] A slow earlier response never overwrites a newer one
-- [ ] 422 (e.g. constant column) shows the backend message, charts stay as they were
+- [x] One picker change produces exactly two requests and one UI update
+- [x] A slow earlier response never overwrites a newer one
+- [x] 422 (e.g. constant column) shows the backend message, charts stay as they were
 
 **Verification:**
-- [ ] RTL test with mocked fetch: out-of-order resolution → latest wins; 422 → status text
-- [ ] Manual: pick year on an axis
+- [x] RTL test with injected api: out-of-order resolution → latest wins; 422 → status text; busy mark
+- [x] Manual: both charts live; year on an axis
 **Dependencies:** T4
 **Files:** `src/useRun.js`, `src/App.jsx`, `src/components/Status.jsx`, `tests/useRun.test.jsx`
 **Scope:** M

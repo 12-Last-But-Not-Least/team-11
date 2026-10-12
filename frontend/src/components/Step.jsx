@@ -1,8 +1,8 @@
 // One numbered step on the left rail. Owns no state and no data.
-export function Step({ n, title, hint, last = false, children }) {
+export function Step({ n, title, hint, last = false, busy = false, children }) {
   const id = `step-${n}-title`;
   return (
-    <section className={`step${last ? " step--last" : ""}`} aria-labelledby={id}>
+    <section className={`step${last ? " step--last" : ""}`} aria-labelledby={id} aria-busy={busy || undefined}>
       <div className="rail">
         <span className="step__num" aria-hidden="true">{n}</span>
         {!last && <span className="rail__line" aria-hidden="true" />}
@@ -14,6 +14,7 @@ export function Step({ n, title, hint, last = false, children }) {
             {title}
           </h2>
           {hint && <p className="step__hint">{hint}</p>}
+          {busy && <span className="step__running">running…</span>}
         </div>
         {children}
       </div>

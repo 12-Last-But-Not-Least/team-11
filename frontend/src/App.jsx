@@ -4,7 +4,8 @@ import { defaultPair, groupBySource, isKey } from "./columns.js";
 import { Chart } from "./components/Chart.jsx";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
-import { DEFAULT_SIZE, parseSize } from "./sizes.js";
+import { DEFAULT_SIZE } from "./sizes.js";
+import { useRun } from "./useRun.js";
 
 // Product name is a placeholder until the team picks one (candidate from
 // Poorva's demo: "Coincidence? I Think Not"). Single constant on purpose.
@@ -29,7 +30,6 @@ export default function App({ api = defaultApi }) {
   const [cols, setCols] = useState(null);
   const [error, setError] = useState(null);
   const [sel, setSel] = useState(null); // { x, y, size }
-  const [scatter, setScatter] = useState(null);
 
   useEffect(() => {
     let live = true;
@@ -47,20 +47,9 @@ export default function App({ api = defaultApi }) {
     };
   }, [api]);
 
-  // step 2a: the scatter follows the selection (line chart and run guard: T5)
-  useEffect(() => {
-    if (!sel) return;
-    let live = true;
-    api
-      .getScatter({ x: sel.x, y: sel.y, ...parseSize(sel.size) })
-      .then((s) => live && setScatter(s))
-      .catch((e) => live && setError(e));
-    return () => {
-      live = false;
-    };
-  }, [api, sel]);
-
-  const keyLabel = (cols?.find(isKey)?.label ?? "point").toLowerCase();
+  const key = cols?.find(isKey);
+  const keyLabel = (key?.label ?? "point").toLowerCase();
+  const { scatter, line, running, error: runError } = useRun(api, sel, key?.name ?? "year");
   const files = cols ? groupBySource(cols).length : 0;
   const plottable = cols ? cols.length - 1 : 0;
 
@@ -94,8 +83,24 @@ export default function App({ api = defaultApi }) {
             <Controls cols={cols} value={sel} onChange={setSel} />
           </Step>
         )}
-        {scatter && (
-          <Step n={2} title="Look at them two ways" hint="Same data, two views. The second one is the one people forget.">
+        {runError && (
+          <p role="status" className="status status--error">
+            {runError.detail ?? runError.message}
+          </p>
+        )}
+        {sel && (
+          <Step
+            n={2}
+            title="Look at them two ways"
+            hint="Same data, two views. The second one is the one people forget."
+            busy={running}
+          >
+            {!scatter || !line ? (
+              <div className="charts charts--pending" aria-hidden="true">
+                <div className="chart-skeleton" style={{ width: 800, height: 500 }} />
+                <div className="chart-skeleton" style={{ width: 800, height: 500 }} />
+              </div>
+            ) : (
             <div className="charts">
               <figure className="chart-figure">
                 <Chart spec={scatter} label="Scatter plot" />
@@ -103,7 +108,14 @@ export default function App({ api = defaultApi }) {
                   Each dot is one {keyLabel}. The dashed line is the best straight-line fit through them — the closer the dots hug it, the higher r.
                 </figcaption>
               </figure>
+              <figure className="chart-figure">
+                <Chart spec={line} label="Line chart" />
+                <figcaption className="chart-caption">
+                  The same columns over time. If both simply climb {keyLabel} after {keyLabel}, that alone can make the dots line up on the left.
+                </figcaption>
+              </figure>
             </div>
+            )}
           </Step>
         )}
       </main>

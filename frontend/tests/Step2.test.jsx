@@ -25,8 +25,8 @@ describe("step 2a: the scatter chart", () => {
     render(<App api={api} />);
     const canvas = await screen.findByRole("img", { name: /scatter/i });
     expect(api.calls.scatter[0]).toEqual({ x: "falls_norm", y: "iphone_norm", width: 800, height: 500 });
-    expect(FakeChart.instances).toHaveLength(1);
-    expect(FakeChart.instances[0].canvas).toBe(canvas);
+    const scatterChart = FakeChart.instances.find((c) => c.canvas === canvas);
+    expect(scatterChart).toBeDefined();
   });
 
   it("re-fetches on an axis change and reuses the same chart instance", async () => {
@@ -37,9 +37,9 @@ describe("step 2a: the scatter chart", () => {
     await user.click(screen.getByRole("button", { name: /swap/i }));
     await waitFor(() => expect(api.calls.scatter).toHaveLength(2));
     expect(api.calls.scatter.at(-1)).toMatchObject({ x: "iphone_norm", y: "falls_norm" });
-    await waitFor(() => expect(FakeChart.instances[0].spec.width).toBe(800));
-    expect(FakeChart.instances).toHaveLength(1);
-    expect(FakeChart.instances[0].draws).toBeGreaterThanOrEqual(1);
+    const scatterCharts = FakeChart.instances.filter((c) => c.canvas.getAttribute("aria-label") === "Scatter plot");
+    expect(scatterCharts).toHaveLength(1);
+    await waitFor(() => expect(scatterCharts[0].draws).toBeGreaterThanOrEqual(1));
   });
 
   it("explains the scatter in one sentence using the key column's label", async () => {
