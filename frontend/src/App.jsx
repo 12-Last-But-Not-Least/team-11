@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api as defaultApi } from "./api.js";
 import { defaultPair, groupBySource, isKey, labelOf } from "./columns.js";
 import { describeStats } from "./describe.js";
@@ -8,6 +8,7 @@ import { Verdict } from "./components/Verdict.jsx";
 import { Sentences } from "./components/Sentences.jsx";
 import { StatsTable } from "./components/StatsTable.jsx";
 import { CheckCard } from "./components/CheckCard.jsx";
+import { Actions } from "./components/Actions.jsx";
 import { Chart } from "./components/Chart.jsx";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
@@ -37,6 +38,7 @@ export default function App({ api = defaultApi, features = FEATURES }) {
   const [cols, setCols] = useState(null);
   const [error, setError] = useState(null);
   const [sel, setSel] = useState(null); // { x, y, size }
+  const scatterCanvas = useRef(null);
 
   useEffect(() => {
     let live = true;
@@ -123,7 +125,7 @@ export default function App({ api = defaultApi, features = FEATURES }) {
             ) : (
             <div className="charts">
               <figure className="chart-figure">
-                <Chart spec={scatter} label="Scatter plot" />
+                <Chart spec={scatter} label="Scatter plot" canvasRef={scatterCanvas} />
                 <figcaption className="chart-caption">
                   Each dot is one {keyLabel}. The dashed line is the best straight-line fit through them — the closer the dots hug it, the higher r.
                 </figcaption>
@@ -154,6 +156,13 @@ export default function App({ api = defaultApi, features = FEATURES }) {
                 <CheckCard key={card.id} card={card} />
               ))}
             </div>
+            <Actions
+              scatterSpec={scatter}
+              canvasRef={scatterCanvas}
+              names={{ x: forSel.x, y: forSel.y }}
+              labels={{ x: labelOf(cols, forSel.x), y: labelOf(cols, forSel.y) }}
+              stats={scatter.stats}
+            />
           </Step>
         )}
       </main>

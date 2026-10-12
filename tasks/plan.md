@@ -67,10 +67,10 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 ### Checkpoint B
 - [x] Happy path steps 1–4 in the browser against the running API, all requests 200
 - [x] Swapping a CSV in `Data_Clean_UP/data/final/` changes the pickers with no frontend change
-- [ ] Review with owner before polish
+- [x] Review with owner before polish
 
 ### Phase 3: Finish
-- [ ] T11 Downloads (SVG via `svg_export.js`, PNG) + copy statistics
+- [x] T11 Downloads (SVG via `svg_export.js`, PNG) + copy statistics
 - [ ] T12 Re-run choreography: loading marks, changed-sentence highlight, marker slide
 - [ ] T13 Polish against the direction contract; detector; finish review; DESIGN.md
 

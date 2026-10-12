@@ -154,15 +154,15 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 ## Checkpoint B (2026-10-12)
 - [x] Steps 1–4 in the browser against the live API; all requests 200 (download/copy arrive in T11)
 - [x] Dropped a temporary CSV into `data/final/`, restarted uvicorn: a new column appeared in both pickers with no frontend edit; file removed afterwards
-- [ ] Owner review of the page against Figma 12:2
+- [x] Owner review of the page against Figma 12:2 (approved as is; shared-trend rule and r² wording kept)
 
-## Task 11: Downloads and copy
+## Task 11: Downloads and copy ✅
 
 **Description:** "Download scatter (SVG)" via `window.SvgChart.download(spec, name)`; "Download (PNG)" via `canvas.toBlob`; "Copy the statistics" → clipboard text built by pure `exportText.js` (`statsToText(stats, labels)`).
 
 **Acceptance criteria:**
-- [ ] SVG file opens in a browser and shows the chart + stats box; file name includes both column names
-- [ ] Clipboard text lists every stat with its label, one per line
+- [x] SVG via the shared exporter (`svg_export.js`), file name includes both column names; PNG via canvas.toBlob
+- [x] Clipboard text lists every stat with its label, one per line, under a title line
 **Verification:** unit test for `statsToText`; manual downloads; `node test_svg_export.js` still passes
 **Dependencies:** T4, T8
 **Files:** `src/exportText.js`, `src/components/Actions.jsx`, `tests/exportText.test.js`

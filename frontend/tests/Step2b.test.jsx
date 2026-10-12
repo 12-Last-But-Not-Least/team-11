@@ -67,7 +67,7 @@ describe("step 2b: line chart, parallel fetch, run guard, states", () => {
     render(<App api={api} />);
     await screen.findByRole("img", { name: /scatter/i });
     await user.click(screen.getByRole("button", { name: /swap/i }));
-    expect(await screen.findByRole("status")).toHaveTextContent(detail);
+    expect(await screen.findByText(detail)).toHaveAttribute("role", "status");
     expect(screen.getByRole("img", { name: /scatter/i })).toBeInTheDocument();
   });
 

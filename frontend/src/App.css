@@ -579,3 +579,16 @@ body {
 .btn--primary:hover {
   background: #1d4fd8;
 }
+
+/* ---------- step 4: actions ---------- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.actions__note {
+  font-size: 13px;
+  color: var(--blue);
+}

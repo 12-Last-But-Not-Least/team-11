@@ -2,15 +2,16 @@ import { useEffect, useRef } from "react";
 import { createChartAdapter } from "../chartAdapter.js";
 
 /** A canvas driven by the repo's InteractiveChart; `spec` is a render spec. */
-export function Chart({ spec, label }) {
-  const canvasRef = useRef(null);
+export function Chart({ spec, label, canvasRef: externalRef }) {
+  const internalRef = useRef(null);
+  const canvasRef = externalRef ?? internalRef;
   const adapterRef = useRef(null);
 
   useEffect(() => {
     if (!spec || !canvasRef.current) return;
     adapterRef.current ??= createChartAdapter(window.InteractiveChart);
     adapterRef.current.show(canvasRef.current, spec);
-  }, [spec]);
+  }, [spec, canvasRef]);
 
   return (
     <canvas
