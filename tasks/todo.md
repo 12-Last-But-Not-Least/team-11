@@ -89,27 +89,27 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/useRun.js`, `src/App.jsx`, `src/components/Status.jsx`, `tests/useRun.test.jsx`
 **Scope:** M
 
-## Task 6: describe.js (TDD)
+## Task 6: describe.js (TDD) ✅
 
 **Description:** Pure rules → `{ headline, band, sentences[] }`. Constants `STRONG=0.7`, `MODERATE=0.4`, `P_VERY=0.001`, `P_LIKELY=0.05`, `SMALL_N=30`. Sentences carry term markers (`{text, terms:[{term, start, end}]}`) so the UI can underline. Headline: "Strongly related — but that does not mean one causes the other." etc.
 
 **Acceptance criteria:**
-- [ ] Boundary tests at r = ±0.7, ±0.4, p = 0.001, 0.05, n = 29/30
-- [ ] Negative r produces "negative" wording
-- [ ] `t === null` (perfect correlation) handled
+- [x] Boundary tests at r = ±0.7, ±0.4, p = 0.001, 0.05, n = 29/30
+- [x] Negative r produces "negative" wording
+- [x] `t === null` (perfect correlation) handled
 
 **Verification:** `npm test`; 100% lines on `describe.js`
 **Dependencies:** T1
 **Files:** `src/describe.js`, `tests/describe.test.js`
 **Scope:** S
 
-## Task 7: glossary.js + Term tooltip
+## Task 7: glossary.js + Term tooltip ✅
 
 **Description:** Fixed one-line definitions for r, r², p-value, n, t, df, slope, intercept. `Term.jsx` renders an underlined span with a tooltip on hover and keyboard focus (`aria-describedby`), positioned to stay inside the page.
 
 **Acceptance criteria:**
-- [ ] Every stats-table key has a definition (test asserts the set)
-- [ ] Tooltip opens on focus, closes on blur/Escape
+- [x] Every stats-table key has a definition (test asserts the set)
+- [x] Tooltip opens on focus, closes on blur/Escape
 
 **Verification:** RTL test; manual keyboard pass
 **Dependencies:** T1
@@ -129,12 +129,12 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/components/Verdict.jsx`, `src/components/StrengthScale.jsx`, `src/components/Sentences.jsx`, `src/components/StatsTable.jsx`, `tests/Step3.test.jsx`
 **Scope:** M
 
-## Task 9: checks.js (TDD)
+## Task 9: checks.js (TDD) ✅
 
 **Description:** Pure rules → list of `{ kind: 'warn'|'try', title, body }`. Rules: shared-time-trend (year on an axis, or both columns year-keyed → always true for this backend; copy says "both change over time"), small sample (n < SMALL_N), and `try` only when `features.transform` is true.
 
 **Acceptance criteria:**
-- [ ] Table-driven tests for each rule and for the empty case
+- [x] Table-driven tests for each rule and for the empty case
 **Verification:** `npm test`; 100% lines
 **Dependencies:** T1
 **Files:** `src/checks.js`, `tests/checks.test.js`
