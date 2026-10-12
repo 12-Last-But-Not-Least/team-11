@@ -249,3 +249,34 @@ body {
 .btn--ghost:hover {
   background: var(--blue-tint);
 }
+
+/* ---------- step 2: charts ---------- */
+.charts {
+  display: flex;
+  align-items: flex-end;
+  gap: 28px;
+}
+
+.chart-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.chart {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.chart-caption {
+  max-width: 64ch;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--muted);
+}

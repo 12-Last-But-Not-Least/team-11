@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../src/App.jsx";
+import { spec } from "./fakeChart.js";
 
 const cols = [
   { name: "year", label: "Year", source: "(join key)" },
@@ -12,8 +13,8 @@ const cols = [
 function fakeApi() {
   return {
     getColumns: async () => cols,
-    getScatter: async () => ({}),
-    getLine: async () => ({}),
+    getScatter: async () => spec(),
+    getLine: async () => spec(),
   };
 }
 

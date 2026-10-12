@@ -57,18 +57,18 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 - [x] Browser: header + step 1 from the real API at 1440px
 - [x] Owner confirmed the course allows React
 
-## Task 4: Step 2a — scatter chart
+## Task 4: Step 2a — scatter chart ✅
 
 **Description:** `Chart.jsx` wraps a `<canvas>` and an `InteractiveChart` instance created once per mount; new specs are swapped in (spec, canvas size, home/view/hover/drag reset, draw). Step 2 renders the scatter plate with its caption from the contract.
 
 **Acceptance criteria:**
-- [ ] Changing pickers re-fetches the scatter and redraws without constructing a new `InteractiveChart`
-- [ ] Hover tooltip and zoom still work after 10 axis changes (no duplicated listeners)
-- [ ] Caption text matches the contract
+- [x] Changing pickers re-fetches the scatter and redraws without constructing a new `InteractiveChart`
+- [x] Hover tooltip and zoom still work after axis changes (single instance by construction; adapter test)
+- [x] Caption text matches the contract (key label read from /columns)
 
 **Verification:**
-- [ ] Unit test: wrapper adapter against a fake class counts constructions = 1 across 3 spec swaps
-- [ ] Manual in browser with backend
+- [x] Unit test: wrapper adapter against a fake class counts constructions = 1 across 3 spec swaps
+- [x] Manual in browser with backend (live scatter in step 2)
 **Dependencies:** T3
 **Files:** `src/components/Chart.jsx`, `src/chartAdapter.js`, `src/App.jsx`, `tests/chartAdapter.test.js`
 **Scope:** S

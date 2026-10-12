@@ -56,7 +56,7 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 - [x] Browser: header + step 1 render from the real API; changing a picker updates the selects and meta line
 
 ### Phase 2: Core
-- [ ] T4 Step 2a: scatter canvas through `Chart.jsx`, caption
+- [x] T4 Step 2a: scatter canvas through `Chart.jsx`, caption
 - [ ] T5 Step 2b: line canvas, parallel fetch, loading/error, stale-run guard, year-on-axis rule
 - [ ] T6 `describe.js` (verdict, strength band, sentences) with boundary tests
 - [ ] T7 `glossary.js` + `Term.jsx` tooltip (hover + focus)
