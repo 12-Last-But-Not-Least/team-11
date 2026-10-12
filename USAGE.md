@@ -97,7 +97,7 @@ Every command also has `"layer": "static"` (background, titles, axis labels, leg
 | Action | Result |
 |---|---|
 | mouse wheel | scrolls the page as usual; over the plot, a hint says how to zoom |
-| ctrl + wheel / ⌘ + wheel / trackpad pinch | zoom both axes around the cursor |
+| ctrl + wheel / ⌘ + wheel / trackpad pinch | zoom both axes around the cursor, by how far you scroll (`ZOOM_SPEED` in `interactive.js` sets the speed) |
 | add shift / add alt to the above | zoom x only / y only |
 | drag | pan |
 | hover | tooltip for the nearest point (within ~14 px) |

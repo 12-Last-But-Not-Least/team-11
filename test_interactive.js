@@ -63,7 +63,7 @@ function setup() {
   return {
     chart,
     wheel(opts) {
-      const e = { clientX: 330, clientY: 245, deltaX: 0, deltaY: 0, ctrlKey: false,
+      const e = { clientX: 330, clientY: 245, deltaX: 0, deltaY: 0, deltaMode: 0, ctrlKey: false,
                   metaKey: false, shiftKey: false, altKey: false, defaultPrevented: false,
                   ...opts, preventDefault() { this.defaultPrevented = true; } };
       listeners.wheel(e);
@@ -83,44 +83,67 @@ function setup() {
   };
 }
 
-function assertView(chart, want) {
+function assertView(view, want) {
   for (const k of ['x0', 'x1', 'y0', 'y1']) {
-    assert.ok(Math.abs(chart.view[k] - want[k]) < 1e-9,
-              `view.${k} is ${chart.view[k]}, expected ${want[k]}`);
+    assert.ok(Math.abs(view[k] - want[k]) < 1e-9, `view.${k} is ${view[k]}, expected ${want[k]}`);
   }
 }
 
+// The view after these wheel events (Ctrl held unless an event says otherwise)
+// at the centre of the plot. Zoom-speed tests compare views instead of
+// hard-coding amounts, so tuning ZOOM_SPEED doesn't break them.
+function viewAfter(...events) {
+  const t = setup();
+  for (const e of events) t.wheel({ ctrlKey: true, ...e });
+  return { ...t.chart.view };
+}
+
 const HOME = { x0: 0, x1: 1, y0: 0, y1: 1 };
-const ZOOMED_IN = { x0: 0.1, x1: 0.9, y0: 0.1, y1: 0.9 };  // 0.8x around (0.5, 0.5)
+const ONE_NOTCH = { deltaY: -100 };  // one mouse-wheel notch towards zooming in
 
 const tests = {
   'plain wheel over the plot scrolls the page and leaves the chart alone'() {
     const t = setup();
     const e = t.wheel({ deltaY: 100 });
     assert.equal(e.defaultPrevented, false, 'page scroll was cancelled');
-    assertView(t.chart, HOME);
+    assertView(t.chart.view, HOME);
   },
-  'Ctrl + wheel zooms in around the cursor and stops the browser zooming the page'() {
+  'Ctrl + wheel zooms in a moderate step around the cursor, not the whole page'() {
     const t = setup();
-    const e = t.wheel({ deltaY: -100, ctrlKey: true });
+    const e = t.wheel({ ...ONE_NOTCH, ctrlKey: true });
     assert.equal(e.defaultPrevented, true);
-    assertView(t.chart, ZOOMED_IN);
+    const v = t.chart.view, width = v.x1 - v.x0;
+    assert.ok(width >= 0.7 && width <= 0.95, `one notch left ${width} of the range (want 0.7-0.95)`);
+    assert.ok(Math.abs(v.x0 + v.x1 - 1) < 1e-9 && Math.abs(v.y0 + v.y1 - 1) < 1e-9,
+              'zoom did not stay centred on the cursor');
   },
-  '⌘ + wheel zooms too (Mac)'() {
+  '⌘ + wheel zooms the same as Ctrl + wheel (Mac)'() {
     const t = setup();
-    const e = t.wheel({ deltaY: -100, metaKey: true });
+    const e = t.wheel({ ...ONE_NOTCH, metaKey: true });
     assert.equal(e.defaultPrevented, true);
-    assertView(t.chart, ZOOMED_IN);
+    assert.notEqual(t.chart.view.x1 - t.chart.view.x0, 1, 'did not zoom');
+    assertView(t.chart.view, viewAfter(ONE_NOTCH));
   },
   'Ctrl + Shift + wheel reported as horizontal (macOS) zooms x in, not out'() {
-    const t = setup();
-    t.wheel({ deltaY: 0, deltaX: -100, ctrlKey: true, shiftKey: true });
-    assertView(t.chart, { x0: 0.1, x1: 0.9, y0: 0, y1: 1 });
+    const v = viewAfter({ deltaY: 0, deltaX: -100, shiftKey: true });
+    const ref = viewAfter(ONE_NOTCH);
+    assertView(v, { x0: ref.x0, x1: ref.x1, y0: 0, y1: 1 });
   },
   'Ctrl + wheel with no movement leaves the chart alone'() {
-    const t = setup();
-    t.wheel({ deltaY: 0, deltaX: 0, ctrlKey: true });
-    assertView(t.chart, HOME);
+    assertView(viewAfter({ deltaY: 0, deltaX: 0 }), HOME);
+  },
+  'ten small scroll events zoom exactly as much as one big one (trackpads)'() {
+    const many = viewAfter(...Array(10).fill({ deltaY: -10 }));
+    assertView(many, viewAfter(ONE_NOTCH));
+  },
+  'a notch reported as 3 lines zooms like a 100 px notch (Firefox)'() {
+    assertView(viewAfter({ deltaY: -3, deltaMode: 1 }), viewAfter(ONE_NOTCH));
+  },
+  'a scroll reported in pages zooms at most one notch'() {
+    assertView(viewAfter({ deltaY: -1, deltaMode: 2 }), viewAfter(ONE_NOTCH));
+  },
+  'a hard flick zooms no more than one notch per event'() {
+    assertView(viewAfter({ deltaY: -2000 }), viewAfter(ONE_NOTCH));
   },
   'plain wheel shows a zoom hint that goes away again'() {
     const t = setup();

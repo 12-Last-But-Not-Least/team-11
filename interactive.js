@@ -30,6 +30,12 @@
   const GRID = "#e5e7eb", AXIS = "#111827", FONT = "12px sans-serif";
   const HOVER_RADIUS_PX = 14;
   const HINT_TEXT = "Hold Ctrl or ⌘ and scroll to zoom", HINT_MS = 1200;
+  // Zoom per pixel of wheel movement: one 100 px mouse notch = exp(0.15), about 16%.
+  // Lower it to make zooming gentler.
+  const ZOOM_SPEED = 0.0015;
+  // Some browsers report the wheel in lines or pages; a 3-line notch counts as
+  // 100 px. One event never zooms more than a notch, so a hard flick can't jump.
+  const LINE_PX = 100 / 3, PAGE_PX = 400, MAX_STEP_PX = 100;
 
   // ---- replay server draw commands on a 2D context -----------------------
   function replay(ctx, commands) {
@@ -176,10 +182,13 @@
         if (!(e.ctrlKey || e.metaKey)) { this._flashHint(); return; }
         e.preventDefault();  // stop the browser zooming the whole page
         // macOS turns Shift + wheel into horizontal scrolling (deltaY = 0)
-        const delta = e.deltaY || e.deltaX;
-        if (!delta) return;
+        let delta = e.deltaY || e.deltaX;
+        delta *=[1, LINE_PX, PAGE_PX][e.deltaMode] || 1;  // lines / pages -> pixels
+        delta = Math.max(-MAX_STEP_PX, Math.min(MAX_STEP_PX, delta));
         const axes = e.shiftKey ? "x" : e.altKey ? "y" : "xy";
-        this.zoom(delta < 0 ? 0.8 : 1.25, p.x, p.y, axes);
+        // Zoom by how far the wheel moved, not per event: trackpads send many
+        // tiny events, and each one used to zoom a full 20%.
+        this.zoom(Math.exp(delta * ZOOM_SPEED), p.x, p.y, axes);
       }, { passive: false });
 
       cv.addEventListener("mousedown", (e) => {
