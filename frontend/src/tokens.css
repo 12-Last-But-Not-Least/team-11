@@ -1,0 +1,33 @@
+/* Design tokens: see .impeccable/surfaces/frontend-src-app-jsx.md (OWN-WORLD). */
+:root {
+  /* ink: UCSD navy, text only (never a fill) */
+  --ink: #182b49;
+  --muted: #4a5568;
+  --rule: #dbe2ec;
+  --grid: #e3e8f0;
+  --rail: #f3f5f9;
+  --white: #ffffff;
+  --tooltip: #1f1f1f;
+
+  /* structure + interaction: the scatter chart's own blue */
+  --blue: #2563eb;
+  --blue-tint: #e8efff;
+  --blue-mid: #93b4f7;
+  --blue-deep: #1e3a8a;
+
+  /* cautions: the line chart's red */
+  --red: #c62828;
+  --red-tint: #fdecec;
+  --red-deep: #7f1d1d;
+
+  /* Triton gold: verdict rule and strength marker only */
+  --gold: #ffcd00;
+
+  --font-text: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius: 6px;
+  --rail-w: 112px;
+  --page-w: 1440px;
+  --gutter: 40px;
+}

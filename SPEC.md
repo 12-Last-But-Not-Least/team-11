@@ -15,13 +15,13 @@ It is a general chart explorer at its base (pick any two columns, see scatter an
 3. See the scatter (with fit line and stats box) and the line-over-time chart in the same window, side by side.
 4. Read the description under the scatter: what r, r², p and n mean here, in words.
 5. Hover a point to see its year and values.
-6. Adjust a setting (chart size) and download the scatter as a PNG for a write-up.
+6. Adjust a setting (chart size) and download the scatter (SVG via the shared exporter, or PNG) for a write-up.
 
 **Why it stands out:** the student leaves knowing not just that r = 0.98, but that both series share a time trend and that the scatter alone can mislead.
 
 ## Tech Stack
 
-- React 18 with JavaScript (no TypeScript), built with Vite.
+- React 19 with JavaScript (no TypeScript), built with Vite 8. (Spec originally said React 18 + ESLint; the current Vite template ships React 19 and oxlint, accepted on 2026-10-12 rather than pinning backwards.)
 - Plain CSS modules; no component library.
 - Canvas drawing reuses `interactive.js`, wrapped in one React component.
 - Backend: the existing FastAPI app, **unchanged**. Frontend and backend are separate processes on separate ports; the frontend talks to the API over HTTP with CORS (already open in `main.py`).
@@ -41,7 +41,7 @@ npm run dev          # Vite dev server on http://127.0.0.1:5173
 npm run build        # production bundle in frontend/dist/
 npm run preview      # serves dist/ on http://127.0.0.1:4173 (demo mode)
 npm test             # vitest run --coverage
-npm run lint         # eslint .
+npm run lint         # oxlint
 
 # backend tests
 python -m pytest -q
@@ -68,8 +68,7 @@ frontend/
       Controls.jsx       → dataset group, x/y selects, size, download button
       Chart.jsx          → wraps interactive.js around a <canvas>; props: url
       Description.jsx    → renders describe() output
-    lib/
-      interactive.js     → moved from repo root, unchanged
+    (root `interactive.js` / `svg_export.js` imported via `server.fs.allow`)
   tests/
     columns.test.js
     describe.test.js
@@ -127,7 +126,7 @@ export function Description({ stats, xLabel, yLabel }) {
 }
 ```
 
-Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNAKE` constants. Two-space indent, semicolons, double quotes. ESLint with the Vite React defaults.
+Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNAKE` constants. Two-space indent, semicolons, double quotes. oxlint with the Vite template defaults.
 
 ## Testing Strategy
 
