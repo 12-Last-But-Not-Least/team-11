@@ -9,6 +9,7 @@ import { Sentences } from "./components/Sentences.jsx";
 import { StatsTable } from "./components/StatsTable.jsx";
 import { CheckCard } from "./components/CheckCard.jsx";
 import { Actions } from "./components/Actions.jsx";
+import { diffTexts } from "./diffSentences.js";
 import { Chart } from "./components/Chart.jsx";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
@@ -64,6 +65,22 @@ export default function App({ api = defaultApi, features = FEATURES }) {
   const description = scatter && forSel
     ? describeStats(scatter.stats, { x: labelOf(cols, forSel.x), y: labelOf(cols, forSel.y) })
     : null;
+  // Changed-since-last-run flags, recomputed only when a new scatter lands
+  // (state derived from props, the React-sanctioned setState-in-render form).
+  const [runMemo, setRunMemo] = useState({ scatter: null, prev: null, changed: null });
+  if (description && runMemo.scatter !== scatter) {
+    const prev = runMemo.prev;
+    setRunMemo({
+      scatter,
+      prev: description,
+      changed: {
+        headline: prev ? prev.headline !== description.headline : false,
+        sentences: diffTexts(prev?.sentences.map((x) => x.text) ?? null, description.sentences.map((x) => x.text)),
+      },
+    });
+  }
+  const changed = runMemo.scatter === scatter ? runMemo.changed : null;
+
   const checks = scatter && forSel
     ? runChecks(scatter.stats, {
         keyLabel,
@@ -142,9 +159,9 @@ export default function App({ api = defaultApi, features = FEATURES }) {
         )}
         {description && (
           <Step n={3} title="Read what the numbers say" hint="Plain words first, the statistics beside them." busy={running}>
-            <Verdict description={description} />
+            <Verdict description={description} changed={changed?.headline} />
             <div className="read">
-              <Sentences sentences={description.sentences} />
+              <Sentences sentences={description.sentences} changed={changed?.sentences} />
               <StatsTable stats={scatter.stats} />
             </div>
           </Step>

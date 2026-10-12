@@ -1,9 +1,9 @@
 import { StrengthScale } from "./StrengthScale.jsx";
 
-export function Verdict({ description }) {
+export function Verdict({ description, changed = false }) {
   const { headline, position, rLabel, band } = description;
   return (
-    <section className="verdict" aria-label="Verdict">
+    <section className={`verdict${changed ? " verdict--changed" : ""}`} aria-label="Verdict">
       <h3 className="verdict__headline">{headline}</h3>
       <div className="verdict__row">
         <StrengthScale position={position} rLabel={rLabel} band={band} />

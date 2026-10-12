@@ -71,7 +71,7 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 
 ### Phase 3: Finish
 - [x] T11 Downloads (SVG via `svg_export.js`, PNG) + copy statistics
-- [ ] T12 Re-run choreography: loading marks, changed-sentence highlight, marker slide
+- [x] T12 Re-run choreography: loading marks, changed-sentence highlight, marker slide
 - [ ] T13 Polish against the direction contract; detector; finish review; DESIGN.md
 
 ### Checkpoint C: Done

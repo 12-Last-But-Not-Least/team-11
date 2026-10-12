@@ -168,13 +168,13 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/exportText.js`, `src/components/Actions.jsx`, `tests/exportText.test.js`
 **Scope:** S
 
-## Task 12: Re-run choreography
+## Task 12: Re-run choreography ✅
 
 **Description:** Running state marks on steps 2–4; sentences whose text changed since the previous run hold a highlight class until the next run (pure `diffSentences(prev, next)`); strength marker transitions 200ms; verdict highlight likewise.
 
 **Acceptance criteria:**
-- [ ] Highlight appears only on changed sentences; cleared on next run
-- [ ] Reduced-motion media query disables the transitions
+- [x] Highlight appears only on changed sentences (and the verdict when its headline changes); recomputed when the next run lands
+- [x] Reduced-motion media query disables the transitions (marker slide, skeleton shimmer, highlight)
 **Verification:** unit test for `diffSentences`; manual
 **Dependencies:** T5, T8
 **Files:** `src/diffSentences.js`, `src/components/Sentences.jsx`, `src/App.css`, `tests/diffSentences.test.js`

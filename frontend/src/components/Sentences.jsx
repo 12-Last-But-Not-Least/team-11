@@ -13,12 +13,12 @@ export function SentenceText({ sentence }) {
   return <>{parts}</>;
 }
 
-export function Sentences({ sentences }) {
+export function Sentences({ sentences, changed }) {
   return (
     <div className="sentences">
       <ul className="sentences__list" aria-label="What the statistics mean">
-        {sentences.map((s) => (
-          <li key={s.text} className="sentence">
+        {sentences.map((s, i) => (
+          <li key={s.text} className={`sentence${changed?.[i] ? " sentence--changed" : ""}`}>
             <SentenceText sentence={s} />
           </li>
         ))}

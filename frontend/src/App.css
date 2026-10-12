@@ -592,3 +592,24 @@ body {
   font-size: 13px;
   color: var(--blue);
 }
+
+/* ---------- re-run choreography: what changed since the last run ---------- */
+.sentence--changed,
+.verdict--changed .verdict__headline {
+  background: var(--blue-tint);
+  box-shadow: 0 0 0 4px var(--blue-tint);
+  border-radius: 3px;
+  transition: background 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.verdict--changed .verdict__headline {
+  background: var(--white);
+  box-shadow: 0 0 0 4px var(--white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sentence--changed,
+  .verdict--changed .verdict__headline {
+    transition: none;
+  }
+}
