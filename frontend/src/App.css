@@ -64,12 +64,6 @@ html {
   line-height: 24px;
 }
 
-.brand__tagline {
-  margin: 0;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--muted);
-}
 
 .dataset {
   display: flex;
@@ -150,9 +144,42 @@ html {
 
 .step__head {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 16px;
+}
+
+.step__help-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--blue);
+  cursor: pointer;
+}
+
+.step__help-btn:hover,
+.step__help-btn[aria-expanded="true"] {
+  background: var(--blue-tint);
+}
+
+.step__help-btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.step__help {
+  max-width: 72ch;
+  margin: -6px 0 16px;
+  padding: 10px 14px;
+  border-left: 1px solid var(--blue-mid);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--muted);
 }
 
 .step__title {
@@ -162,11 +189,6 @@ html {
   line-height: 24px;
 }
 
-.step__hint {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-}
 
 /* ---------- step 1: pickers ---------- */
 .pickers {
@@ -296,6 +318,80 @@ html {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   background: var(--white);
+}
+
+.chart-figure__head {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn--small {
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 18px;
+  border-width: 1px;
+}
+
+/* ---------- step 2: the statistics, once ---------- */
+.statsbar {
+  margin-top: 18px;
+  border-top: 1px solid var(--rule);
+  padding-top: 10px;
+}
+
+.statsbar__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--blue);
+  font: 500 14px var(--font-text);
+  cursor: pointer;
+}
+
+.statsbar__toggle:hover {
+  background: var(--blue-tint);
+}
+
+.statsbar__toggle:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.statsbar__chev {
+  transform: rotate(-90deg);
+  transition: transform 150ms ease-out;
+}
+
+.statsbar__chev--open {
+  transform: rotate(0);
+}
+
+.statsgrid {
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.statsgrid th,
+.statsgrid td {
+  padding: 2px 24px 2px 0;
+  text-align: left;
+  font-weight: 400;
+}
+
+.statsgrid th {
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statsbar__chev { transition: none; }
 }
 
 .chart-caption {
@@ -478,16 +574,10 @@ html {
   .scale__marker { transition: none; }
 }
 
-/* ---------- step 3: sentences + stats ---------- */
-.read {
-  display: flex;
-  align-items: flex-start;
-  gap: 48px;
-}
+/* ---------- step 3: sentences ---------- */
 
 .sentences {
-  width: 600px;
-  flex: none;
+  max-width: 720px;
 }
 
 .sentences__list {
@@ -511,100 +601,19 @@ html {
   color: var(--muted);
 }
 
-.stats {
-  font-variant-numeric: tabular-nums;
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  border-collapse: separate;
-  border-spacing: 0;
-  padding: 10px 16px 12px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 22px;
-}
 
-.stats__caption {
-  caption-side: top;
-  text-align: left;
-  padding-bottom: 4px;
-  font-family: var(--font-text);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
 
-.stats__key {
-  width: 110px;
-  padding: 0;
-}
 
-.stats__value {
-  padding: 0;
-  min-width: 90px;
-}
 
-/* ---------- step 4: checks ---------- */
-.checks {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
 
-.check {
-  width: 400px;
-  padding: 14px 16px;
-  border-radius: 8px;
-}
 
-.check--warn { background: var(--red-tint); color: var(--red-deep); }
-.check--try { background: var(--blue-tint); color: var(--blue-deep); }
 
-.check__head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
 
-.check__badge {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  color: var(--white);
-  font-size: 13px;
-  font-weight: 700;
-}
 
-.check--warn .check__badge { background: var(--red); }
-.check--try .check__badge { background: var(--blue); }
 
-.check__title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 20px;
-  color: var(--ink);
-}
 
-.check__body {
-  margin: 0 0 10px;
-  font-size: 14px;
-  line-height: 20px;
-}
 
-.btn--primary {
-  border: 0;
-  background: var(--blue);
-  color: var(--white);
-}
 
-.btn--primary:hover {
-  background: var(--blue-hover);
-}
 
 /* ---------- step 4: actions ---------- */
 .actions {

@@ -7,6 +7,7 @@ export class FakeChart {
     this.canvas = canvas;
     this.spec = spec;
     this.draws = 0;
+    this.resets = 0;
     this.home = { x0: spec.data.x_axis.min, x1: spec.data.x_axis.max, y0: spec.data.y_axis.min, y1: spec.data.y_axis.max };
     this.view = { ...this.home };
     this.hover = null;
@@ -14,6 +15,7 @@ export class FakeChart {
     FakeChart.instances.push(this);
   }
   draw() { this.draws += 1; }
+  reset() { this.resets += 1; }
 }
 
 export function spec(overrides = {}) {

@@ -300,30 +300,29 @@ Two radii do almost all the work: controls (chips, buttons, chart frames, toolti
 ### Buttons
 Quiet, outlined, text-forward; they read as part of the sentence they sit beside.
 - **Shape:** gently rounded (6px), 9px 14px padding, 14px Medium label, inline-flex with an 8px gap to a 16px icon.
-- **Ghost (default):** white fill, 1.5px blue border, blue text. Used for Swap and all three download / copy actions.
+- **Ghost (default):** white fill, 1.5px blue border, blue text. Used for Swap and all three download / copy actions. `btn--small` (5px 10px, 13px, 1px border) for the per-chart "Reset view".
 - **Hover / Focus:** ghost hover fills blue-tint; focus-visible is a 2px blue outline offset 2px. No transition on buttons.
-- **Primary:** blue fill, white text, no border; hover darkens to blue-hover. Exists for the "try it" card's action and ships behind the VITE_FEATURE_TRANSFORM flag.
+- **Icon buttons:** the 24px round "?" help button on every step title (blue on transparent, blue-tint when hovered or open) and the "Statistics" fold toggle (blue text with a rotating chevron).
 
 ### Chips
 A native select dressed as an outlined chip; the chevron is an inline SVG in muted.
 - **Style:** white, 1px chip-border, 6px radius, 10px 14px padding with 36px right room for the chevron, 15px Medium ink text.
-- **Variants:** `chip--mono` (14px JetBrains Mono, the chart-size picker); `chip--static` (14px, no chevron, the dataset summary in the header).
+- **Variants:** `chip--mono` (14px JetBrains Mono, the chart-size picker); `chip--dataset` (14px, the one-option dataset select in the header).
 - **Focus:** 2px blue outline offset 2px.
 - **Picker:** label above in 12px uppercase blue (muted for chart size), a 6px gap, then the mono meta line "file · 12 years · 2007–2018" in muted.
 
 ### Cards / Containers
 - **Verdict panel:** blue-tint ground, 8px radius, 14px 20px 16px 24px padding, 20px below; a 5px Triton-gold rule pinned to its left edge (overflow hidden clips it to the corner). Headline at the top, then a row of the strength scale and a 52ch muted note at a 24px gap.
-- **Caution card (`check--warn`):** red-tint ground, red-deep text, 8px radius, 14px 16px padding, 400px wide; 22px red circle badge with a white "!" stroke, 15px SemiBold ink title, 14px body.
-- **Try card (`check--try`):** the same card in blue-tint with blue-deep text, a blue badge with an arrow, and a primary button.
-- **Stats table:** white, 1px rule border, 8px radius, 10px 16px 12px padding, 13px/22px tabular mono; 110px key column of underlined terms, 90px value column; caption above in 11px uppercase muted.
-- **Chart frame:** the backend canvas at 100% width, 1px rule border, 6px radius, white; a 14px muted caption (max 64ch) 10px below.
+- **Statistics bar:** under the charts, a 1px rule above, a "Statistics" toggle (14px Medium blue, chevron rotates open), then a two-row table in 13px/22px tabular mono: one column per stat, underlined glossary terms in muted as headers, values beneath. Folds away on toggle; open by default.
+- **Chart frame:** a right-aligned small ghost "Reset view" button above; the backend canvas at 100% width, 1px rule border, 6px radius, white; a 14px muted caption (max 64ch) 10px below. The backend's in-canvas stats box is filtered out before drawing.
+- **Help note:** a 14px/20px muted paragraph (max 72ch) with a 1px blue-mid left rule, shown under a step title while its "?" is open.
 - **Shadow Strategy:** none; see Elevation & Depth.
 
 ### Inputs / Fields
 The only inputs are the select chips above. Caret is blue, selection is blue-tint on ink.
 
 ### Navigation
-The rail is the navigation: a 112px column in rail paper with a 24px grid, a 36px blue circle carrying the step number in 16px Bold white, and a 2px blue-mid connector to the next step (omitted on the last). The header is brand (mark, name, tagline) left and the dataset chip right, over a 1px rule. There are no links and no mobile treatment.
+The rail is the navigation: a 112px column in rail paper with a 24px grid, a 36px blue circle carrying the step number in 16px Bold white, and a 2px blue-mid connector to the next step (omitted on the last). The header is brand (mark, name) left and the one-option dataset select right, over a 1px rule. There are no links and no mobile treatment.
 
 ### Strength Scale
 A 444px ruler placing r on Weak / Moderate / Strong. Three 10px pill bands (weak band, blue-mid, blue) sized by the describe.js thresholds with a 2px gap; a 16px gold marker ringed in 2.5px navy at the r position, sliding on `left` over 200ms ease-out; the r readout in 12px blue mono right-aligned above the marker; tick labels in 11px tabular mono below. Reduced motion removes the slide.
@@ -347,7 +346,7 @@ After a re-run, the verdict headline and any sentence whose text changed take a 
 ### Don't:
 - **Don't** fill anything with navy; a dark surface is the tooltip near-black.
 - **Don't** add box-shadow to any surface.
-- **Don't** use red for anything but a caution card or an error status.
+- **Don't** use red for anything but an error status.
 - **Don't** add a third use of Triton gold, or widen either existing one into a band or background.
 - **Don't** upscale a chart canvas; shrink by at most 14% and stack beyond that.
 - **Don't** introduce a mobile layout, a sidebar of controls, or notebook In/Out chrome.

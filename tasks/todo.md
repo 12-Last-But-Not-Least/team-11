@@ -200,3 +200,17 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 ## Stretch
 - [ ] T14 Playwright happy-path test
 - [ ] T15 Year-over-year transform (`?transform=diff`) — needs backend owner agreement; then enable `features.transform`
+
+## Task 16: Owner evaluation round 1 ✅ (2026-10-12)
+
+Owner's items after walking the finished page:
+- [x] 1 Product name "Coincidence? I Think Not"; dataset control is a one-option dropdown (placeholder for multi-dataset)
+- [x] 2a Header tagline removed
+- [x] 2b Step hint sentences removed
+- [x] 3 "Reset view" button above each chart (calls InteractiveChart.reset)
+- [x] 4 Backend's in-canvas stats box filtered out (specFilter.js); statistics shown once as a foldable 2-row table under the charts; step 3's table removed
+- [x] 5 Caution cards removed (checks.js, CheckCard, feature flag deleted); step 4 is "Save what you found"
+- [x] 6 "?" help button per step toggling improved guidance (help.js)
+- [x] 7 App restarted; changes verified in the browser
+
+**Verification:** vitest 106/106 (Round1.test.jsx covers every item; specFilter.test.js), oxlint clean.

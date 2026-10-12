@@ -44,24 +44,5 @@ describe("step 3: read what the numbers say", () => {
     expect(within(items[1]).getByText("p-value", { selector: ".term" })).toBeInTheDocument();
   });
 
-  it("shows the statistics table with formatted values and underlined keys", async () => {
-    render(<App api={fakeApi()} />);
-    const table = await screen.findByRole("table", { name: /the statistics/i });
-    const cell = (term) => within(within(table).getByRole("row", { name: new RegExp(`^${term.replace("²", "²")} `) })).getAllByRole("cell")[1];
-    expect(cell("n")).toHaveTextContent("12");
-    expect(cell("r")).toHaveTextContent("0.9626");
-    expect(cell("r²")).toHaveTextContent("0.9265");
-    expect(cell("t")).toHaveTextContent("11.23");
-    expect(cell("df")).toHaveTextContent("10");
-    expect(cell("p-value")).toHaveTextContent("5.44e-7");
-    expect(cell("slope")).toHaveTextContent("1.043");
-    expect(cell("intercept")).toHaveTextContent("0.052");
-    expect(within(table).getAllByText(/.+/, { selector: ".term" }).length).toBeGreaterThanOrEqual(8);
-  });
 
-  it("prints a dash for a null t (perfect correlation)", async () => {
-    render(<App api={fakeApi({ ...stats, r: 1, r_squared: 1, t: null, p_value: 0 })} />);
-    const table = await screen.findByRole("table", { name: /the statistics/i });
-    expect(within(within(table).getByRole("row", { name: /^t / })).getAllByRole("cell")[1]).toHaveTextContent("—");
-  });
 });

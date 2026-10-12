@@ -13,9 +13,9 @@ It is a general chart explorer at its base (pick any two columns, see scatter an
 1. Open the app. A chart is already drawn, using the first valid column pair reported by the API. No empty state.
 2. Pick an x and a y column from labeled dropdowns. Both charts update.
 3. See the scatter (with fit line and stats box) and the line-over-time chart in the same window, side by side.
-4. Read the description under the scatter: what r, r², p and n mean here, in words.
-5. Hover a point to see its year and values.
-6. Adjust a setting (chart size) and download the scatter (SVG via the shared exporter, or PNG) for a write-up.
+4. Read the verdict and the sentences in step 3: what r, r², p and n mean here, in words. The statistics themselves sit once, in a foldable table under the charts.
+5. Hover a point to see its year and values; zoom, pan, and Reset view.
+6. Adjust a setting (chart size) and, in step 4, download the scatter (SVG via the shared exporter, or PNG) or copy the statistics for a write-up.
 
 **Why it stands out:** the student leaves knowing not just that r = 0.98, but that both series share a time trend and that the scatter alone can mislead.
 
@@ -81,7 +81,7 @@ tasks/                   → plan.md and todo.md (next phase)
 
 ## Layout
 
-**Visual direction: Guided Worksheet** (chosen 2026-10-12; a refinement of the "Notebook Cell" pick after the owner judged it too generic). Four numbered steps down a left rail: 1 Choose two things to compare (pickers with file/years meta), 2 Look at them two ways (scatter + line with teaching captions), 3 Read what the numbers say (one-line verdict, Weak–Moderate–Strong ruler for r, bulleted sentences with glossary-underlined terms, stats table), 4 Before you conclude (rule-driven caution cards: shared time trend, small sample; plus the year-over-year "try it" stretch). Color system "data-ink + Triton": UCSD navy ink, the scatter's blue (#2563eb) for all structure and interaction, the line chart's red for cautions, Triton gold in exactly two accents (verdict rule, strength marker); navy is never a fill; faint graph-paper grid in the rail. Atkinson Hyperlegible Next + JetBrains Mono. Direction contract: `.impeccable/surfaces/frontend-src-app-jsx.md`. Figma: https://www.figma.com/design/hwFRPONo9qUnkF8smnBhIz (frame 12:2 is current; 7:2 teal draft and 2:2 notebook variant are superseded).
+**Visual direction: Guided Worksheet** (chosen 2026-10-12; a refinement of the "Notebook Cell" pick after the owner judged it too generic). Four numbered steps down a left rail, each with a "?" help button that toggles the step's guidance (owner evaluation round 1, 2026-10-12, removed the always-visible hint sentences and the header tagline): 1 Choose two things to compare (pickers with file/years meta), 2 Look at them two ways (scatter + line with Reset view buttons and teaching captions; the statistics once, as a foldable 2-row table under the charts; the backend's in-canvas stats box is filtered out of the draw commands), 3 Read what the numbers say (one-line verdict, Weak–Moderate–Strong ruler for r, bulleted sentences with glossary-underlined terms), 4 Save what you found (download SVG/PNG, copy the statistics). The rule-driven caution cards of the earlier step 4 were removed as not meaningful (they fired for every pair); the shared-trend message lives in the line chart's caption and step 2's help. Color system "data-ink + Triton": UCSD navy ink, the scatter's blue (#2563eb) for all structure and interaction, the line chart's red for cautions, Triton gold in exactly two accents (verdict rule, strength marker); navy is never a fill; faint graph-paper grid in the rail. Atkinson Hyperlegible Next + JetBrains Mono. Direction contract: `.impeccable/surfaces/frontend-src-app-jsx.md`. Figma: https://www.figma.com/design/hwFRPONo9qUnkF8smnBhIz (frame 12:2 is current; 7:2 teal draft and 2:2 notebook variant are superseded).
 
 **Decision: one window, no tabs, for v1.** One scrolling page; steps 1–2 fit the first 900px at 1440 wide, steps 3–4 follow below.
 
@@ -103,7 +103,7 @@ Reasoning recorded from the owner: one window serves the student who opens the a
 | p < 0.05 | "Unlikely to be chance (p = …)." |
 | p >= 0.05 | "Could be chance (p = …)." |
 | n < 30 | "Small sample (n = {n}); treat with caution." |
-| year is on an axis, or both selected columns come from year-keyed data | "Both series change over time. A shared trend can produce a strong r without any causal link." |
+| (shared time trend) | Not a sentence: stated in the line chart's caption and step 2's help text (the caution card version was removed in evaluation round 1). |
 
 Thresholds are exported constants at the top of the file. No other logic.
 
@@ -167,7 +167,7 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 
 ## Stretch (not required for done)
 
-- Year-over-year change transform (`?transform=diff`) so r visibly drops. Needs backend owner agreement.
+- Year-over-year change transform (`?transform=diff`) so r visibly drops. Needs backend owner agreement; the frontend's flag-gated "try it" card was removed in evaluation round 1 and would be re-added with the feature.
 - Playwright happy-path test.
 - A "focus" view per chart (the tabs option), reusing `Chart.jsx` and `Description.jsx`.
 - Single-process deployment: FastAPI serves `frontend/dist/` as static files so one command runs everything and CORS can be closed. Deferred until the backend owner agrees; not needed for development or the demo.
