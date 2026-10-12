@@ -43,7 +43,7 @@ describe("re-run choreography", () => {
     await screen.findByRole("list", { name: /what the statistics mean/i });
     await user.click(screen.getByRole("button", { name: /swap/i }));
     await waitFor(() => expect(changedItems()).toEqual([true, true, false]));
-    await user.selectOptions(screen.getByLabelText(/chart size/i), "640x440"); // same labels, same stats
+    await user.selectOptions(screen.getByLabelText(/chart size/i), "800x500"); // same labels, same stats
     await waitFor(() => expect(changedItems()).toEqual([false, false, false]));
   });
 });

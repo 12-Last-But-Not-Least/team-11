@@ -144,7 +144,7 @@ html {
 .step__body {
   flex: 1;
   min-width: 0;
-  padding: 24px var(--gutter) 28px 28px;
+  padding: 24px 28px 28px 28px;
 }
 
 .step__head {
@@ -267,22 +267,30 @@ html {
 
 /* ---------- step 2: charts ---------- */
 .charts {
+  --chart-w: 620px; /* set inline from the landed spec's width */
   display: flex;
-  flex-wrap: wrap; /* sizes wider than half the column stack, never scale */
+  flex-wrap: wrap;
   align-items: flex-end;
-  gap: 28px;
+  gap: 20px;
 }
 
+/* Each figure wants its canvas width and may shrink by at most 12% before
+   the pair wraps into a stack (14%: two 620px charts still fit at 1280), so a bitmap is never scaled far enough to
+   blur its labels. */
 .chart-figure {
   margin: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-width: 0;
+  flex: 1 1 var(--chart-w);
+  min-width: calc(var(--chart-w) * 0.86);
+  max-width: var(--chart-w);
 }
 
 .chart {
   display: block;
+  width: 100%;
+  height: auto;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   background: var(--white);

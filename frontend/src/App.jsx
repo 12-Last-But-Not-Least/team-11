@@ -144,7 +144,7 @@ export default function App({ api = defaultApi, features = FEATURES }) {
                 <div className="chart-skeleton" style={{ width: 800, height: 500 }} />
               </div>
             ) : (
-            <div className="charts">
+            <div className="charts" style={{ "--chart-w": `${scatter.width}px` }}>
               <figure className="chart-figure">
                 <Chart spec={scatter} label="Scatter plot" canvasRef={scatterCanvas} />
                 <figcaption className="chart-caption">
