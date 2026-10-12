@@ -237,10 +237,10 @@ html {
   line-height: 20px;
 }
 
-.chip--static {
-  padding-right: 14px;
-  background-image: none;
+.chip--dataset {
   font-size: 14px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .btn {

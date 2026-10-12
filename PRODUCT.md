@@ -41,7 +41,7 @@ A generic chart tool shows the data. This one shows the data *and* helps the stu
 
 ## Brand Commitments
 
-None yet. No name, logo, or house style exists. The backend's chart colors (`#2563eb` blue, `#dc2626` red, `#16a34a` green, `#9333ea` purple, gray fit line, white chart background) are baked into the render spec and will appear inside the canvases regardless of page styling.
+Name: "Coincidence? I Think Not". No logo beyond the scatter-glyph header mark; no house style beyond DESIGN.md. The backend's chart colors (`#2563eb` blue, `#dc2626` red, `#16a34a` green, `#9333ea` purple, gray fit line, white chart background) are baked into the render spec and will appear inside the canvases regardless of page styling.
 
 ## Evidence on Hand
 

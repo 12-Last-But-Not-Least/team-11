@@ -104,3 +104,14 @@ describe("picker meta line", () => {
     expect(await screen.findByText("falls_normalized.csv · 2 years · 2007–2018")).toBeInTheDocument();
   });
 });
+
+describe("header dataset picker", () => {
+  it("is a dropdown whose only choice is the loaded dataset, described from /columns", async () => {
+    render(<App api={fakeApi()} />);
+    const picker = await screen.findByRole("combobox", { name: /dataset/i });
+    const options = within(picker).getAllByRole("option");
+    expect(options).toHaveLength(1);
+    expect(options[0]).toHaveTextContent("3 files · 3 columns");
+    expect(picker).toHaveValue("current");
+  });
+});

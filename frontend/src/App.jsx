@@ -17,9 +17,8 @@ import { Controls } from "./components/Controls.jsx";
 import { DEFAULT_SIZE, parseSize } from "./sizes.js";
 import { useRun } from "./useRun.js";
 
-// Product name is a placeholder until the team picks one (candidate from
-// Poorva's demo: "Coincidence? I Think Not"). Single constant on purpose.
-export const PRODUCT_NAME = "Graph Explorer";
+// Product name (team decision 2026-10-12, from Poorva's demo). Single constant on purpose.
+export const PRODUCT_NAME = "Coincidence? I Think Not";
 export const TAGLINE = "Are these two things related? Find out in four steps.";
 
 function Mark() {
@@ -108,10 +107,14 @@ export default function App({ api = defaultApi, features = FEATURES }) {
         </div>
         {cols && (
           <div className="dataset">
-            <span className="dataset__label">Dataset</span>
-            <span className="chip chip--static">
-              {files} {files === 1 ? "file" : "files"} · {plottable} columns
-            </span>
+            <label className="dataset__label" htmlFor="pick-dataset">Dataset</label>
+            {/* One choice today (the folder the backend serves); the control is
+                ready for more datasets once the API can list them. */}
+            <select id="pick-dataset" className="chip chip--dataset" value="current" onChange={() => {}}>
+              <option value="current">
+                {files} {files === 1 ? "file" : "files"} · {plottable} columns
+              </option>
+            </select>
           </div>
         )}
       </header>

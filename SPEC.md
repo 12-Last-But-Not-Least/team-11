@@ -174,4 +174,5 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 
 ## Open Questions
 
-1. Product name. None chosen yet. Page title is "Graph Explorer" as a placeholder until the team picks one; it is a single constant in `App.jsx`.
+1. ~~Product name.~~ Decided 2026-10-12: **"Coincidence? I Think Not"** (from Poorva's demo), a single constant in `App.jsx` plus the page title.
+2. Datasets: the header "Dataset" control is a dropdown with one choice (the folder the backend serves). It is a placeholder for a future `GET /datasets`; the frontend never names the dataset itself.
