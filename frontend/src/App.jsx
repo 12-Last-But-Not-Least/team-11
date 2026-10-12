@@ -132,7 +132,6 @@ export default function App({ api = defaultApi }) {
             {!specs ? (
               <div className="charts charts--pending" aria-hidden="true" style={{ "--chart-w": `${parseSize(sel.size).width}px` }}>
                 <div className="chart-figure"><div className="chart-skeleton" style={{ aspectRatio: `${parseSize(sel.size).width} / ${parseSize(sel.size).height}` }} /></div>
-                <div className="chart-figure"><div className="chart-skeleton" style={{ aspectRatio: `${parseSize(sel.size).width} / ${parseSize(sel.size).height}` }} /></div>
               </div>
             ) : (
               <>
@@ -148,6 +147,7 @@ export default function App({ api = defaultApi }) {
                       Each dot is one {keyLabel}. The dashed line is the best straight-line fit through them — the closer the dots hug it, the higher r.
                     </figcaption>
                   </figure>
+                  <StatsBar stats={scatter.stats} />
                   <figure className="chart-figure">
                     <div className="chart-figure__head">
                       <button type="button" className="btn btn--ghost btn--small" onClick={() => lineChart.current?.reset()}>
@@ -160,13 +160,13 @@ export default function App({ api = defaultApi }) {
                     </figcaption>
                   </figure>
                 </div>
-                <StatsBar stats={scatter.stats} />
               </>
             )}
           </Step>
         )}
         {description && (
           <Step n={3} title="Read what the numbers say" help={HELP[3]} busy={running}>
+            <StatsBar stats={scatter.stats} defaultOpen={false} />
             <Verdict description={description} changed={changed?.headline} />
             <Sentences sentences={description.sentences} changed={changed?.sentences} />
           </Step>

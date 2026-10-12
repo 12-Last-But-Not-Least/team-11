@@ -3,9 +3,9 @@ import { STAT_ROWS } from "../glossary.js";
 import { formatStat } from "../format.js";
 import { Term } from "./Term.jsx";
 
-/** The statistics once, as a two-row table under the charts, folded by a toggle. */
-export function StatsBar({ stats }) {
-  const [open, setOpen] = useState(true);
+/** The statistics as a two-row table, folded by a "Statistics" toggle. */
+export function StatsBar({ stats, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen);
   const id = useId();
   return (
     <div className="statsbar">

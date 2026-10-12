@@ -65,16 +65,17 @@ describe("4: statistics folded under the charts, in-canvas box removed", () => {
   it("shows a 2-row statistics table with one column per stat, toggled by a Statistics button", async () => {
     const user = userEvent.setup();
     render(<App api={fakeApi()} />);
-    const toggle = await screen.findByRole("button", { name: /^statistics$/i });
+    const step2 = await screen.findByRole("region", { name: /look at them two ways/i });
+    const toggle = within(step2).getByRole("button", { name: /^statistics$/i });
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const table = screen.getByRole("table", { name: /statistics/i });
+    const table = within(step2).getByRole("table", { name: /statistics/i });
     const rows = within(table).getAllByRole("row");
     expect(rows).toHaveLength(2);
     expect(within(rows[0]).getAllByRole("columnheader").map((h) => h.textContent)).toEqual(["n", "r", "r²", "t", "df", "p-value", "slope", "intercept"]);
     expect(within(rows[1]).getAllByRole("cell").map((c) => c.textContent)).toEqual(["12", "0.9626", "0.9265", "11.23", "10", "5.44e-7", "1.043", "0.052"]);
     await user.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("table", { name: /statistics/i })).not.toBeInTheDocument();
+    expect(within(step2).queryByRole("table", { name: /statistics/i })).not.toBeInTheDocument();
   });
   it("passes the charts their specs without the backend's stats box", async () => {
     const api = fakeApi();
@@ -92,13 +93,14 @@ describe("4: statistics folded under the charts, in-canvas box removed", () => {
     const api = fakeApi();
     api.getScatter = async () => spec({ stats: { ...stats, r: 1, r_squared: 1, t: null, p_value: 0 } });
     render(<App api={api} />);
-    const table = await screen.findByRole("table", { name: /statistics/i });
+    const step2 = await screen.findByRole("region", { name: /look at them two ways/i });
+    const table = await within(step2).findByRole("table", { name: /statistics/i });
     expect(within(table).getAllByRole("cell")[3]).toHaveTextContent("—");
   });
   it("step 3 no longer repeats the table", async () => {
     render(<App api={fakeApi()} />);
     const step3 = await screen.findByRole("region", { name: /read what the numbers say/i });
-    expect(within(step3).queryByRole("table")).not.toBeInTheDocument();
+    expect(within(step3).queryByRole("table")).not.toBeInTheDocument(); // its bar starts folded
     expect(within(step3).getByRole("list", { name: /what the statistics mean/i })).toBeInTheDocument();
   });
 });

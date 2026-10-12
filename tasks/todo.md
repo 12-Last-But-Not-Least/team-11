@@ -214,3 +214,10 @@ Owner's items after walking the finished page:
 - [x] 7 App restarted; changes verified in the browser
 
 **Verification:** vitest 106/106 (Round1.test.jsx covers every item; specFilter.test.js), oxlint clean.
+
+## Task 17: Owner evaluation round 2 ✅ (2026-10-12)
+
+- [x] Step 2 stacks vertically: scatter, statistics bar, line chart (side-by-side layout and the shrink-then-stack rule retired)
+- [x] A second statistics bar at the top of step 3, folded by default (`StatsBar defaultOpen`)
+
+**Verification:** vitest 108/108 (Round2.test.jsx: DOM order scatter → table → line; step 3 bar closed, opens independently), oxlint clean.

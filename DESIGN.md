@@ -313,7 +313,7 @@ A native select dressed as an outlined chip; the chevron is an inline SVG in mut
 
 ### Cards / Containers
 - **Verdict panel:** blue-tint ground, 8px radius, 14px 20px 16px 24px padding, 20px below; a 5px Triton-gold rule pinned to its left edge (overflow hidden clips it to the corner). Headline at the top, then a row of the strength scale and a 52ch muted note at a 24px gap.
-- **Statistics bar:** under the charts, a 1px rule above, a "Statistics" toggle (14px Medium blue, chevron rotates open), then a two-row table in 13px/22px tabular mono: one column per stat, underlined glossary terms in muted as headers, values beneath. Folds away on toggle; open by default.
+- **Statistics bar:** 1px rules above and below, a "Statistics" toggle (14px Medium blue, chevron rotates open), then a two-row table in 13px/22px tabular mono: one column per stat, underlined glossary terms in muted as headers, values beneath. Appears twice: between the scatter and the line chart (open by default) and at the top of step 3 (folded by default).
 - **Chart frame:** a right-aligned small ghost "Reset view" button above; the backend canvas at 100% width, 1px rule border, 6px radius, white; a 14px muted caption (max 64ch) 10px below. The backend's in-canvas stats box is filtered out before drawing.
 - **Help note:** a 14px/20px muted paragraph (max 72ch) with a 1px blue-mid left rule, shown under a step title while its "?" is open.
 - **Shadow Strategy:** none; see Elevation & Depth.
@@ -348,5 +348,5 @@ After a re-run, the verdict headline and any sentence whose text changed take a 
 - **Don't** add box-shadow to any surface.
 - **Don't** use red for anything but an error status.
 - **Don't** add a third use of Triton gold, or widen either existing one into a band or background.
-- **Don't** upscale a chart canvas; shrink by at most 14% and stack beyond that.
+- **Don't** scale a chart canvas; it is drawn at its chosen pixel size, and the charts stack vertically.
 - **Don't** introduce a mobile layout, a sidebar of controls, or notebook In/Out chrome.
