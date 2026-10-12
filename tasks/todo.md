@@ -21,17 +21,17 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files likely touched:** `frontend/package.json`, `frontend/vite.config.js`, `frontend/index.html`, `frontend/src/main.jsx`, `frontend/src/App.jsx`, `frontend/src/tokens.css`, `frontend/.env.example`, `frontend/tests/App.test.jsx`
 **Estimated scope:** M (scaffold generator; ask owner before running it)
 
-## Task 2: Column model and API client (TDD)
+## Task 2: Column model and API client (TDD) ✅
 
 **Description:** `columns.js`: `groupBySource(cols)`, `defaultPair(cols)` (first two non-`year` columns, preferring different source files), `labelOf(cols, name)`, `metaLine(cols, name)` ("file · n years · 2007–2018" needs years; use what `/columns` gives and leave years for a later enrichment). `api.js`: `getColumns()`, `getScatter({x,y,width,height})`, `getLine({x, ys, width, height})`, each turning a non-2xx into an `ApiError` with the backend's `detail`.
 
 **Acceptance criteria:**
-- [ ] Tests cover: empty list, single column, same-source pair fallback, year excluded from defaults
-- [ ] `api.js` builds exactly the query strings the backend expects (repeat `y`)
-- [ ] 422 `detail` text reaches the caller unchanged
+- [x] Tests cover: empty list, single column, same-source pair fallback, year excluded from defaults
+- [x] `api.js` builds exactly the query strings the backend expects (repeat `y`)
+- [x] 422 `detail` text reaches the caller unchanged
 
 **Verification:**
-- [ ] `npm test` green; `columns.js` 100% line coverage
+- [x] `npm test` green; `columns.js` 100% line coverage
 **Dependencies:** T1
 **Files:** `src/columns.js`, `src/api.js`, `tests/columns.test.js`, `tests/api.test.js`
 **Scope:** S

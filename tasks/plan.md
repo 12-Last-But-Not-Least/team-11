@@ -48,7 +48,7 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 
 ### Phase 1: Foundation
 - [x] T1 Scaffold `frontend/` (Vite React JS), tokens, fonts, lint, Vitest smoke test
-- [ ] T2 `columns.js` + `api.js` with tests
+- [x] T2 `columns.js` + `api.js` with tests
 - [ ] T3 Step 1 slice: pickers from live `/columns`, swap, size
 
 ### Checkpoint A
