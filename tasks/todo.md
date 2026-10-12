@@ -116,13 +116,13 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/glossary.js`, `src/components/Term.jsx`, `tests/Term.test.jsx`
 **Scope:** S
 
-## Task 8: Step 3 — read what the numbers say
+## Task 8: Step 3 — read what the numbers say ✅
 
 **Description:** `Verdict.jsx` (headline + gold rule), `StrengthScale.jsx` (three bands, marker at |r| with mono label), `Sentences.jsx` (bullets with `Term`s), `StatsTable.jsx` (mono, underlined keys). Layout per contract: sentences 600px, table right, tooltip floats.
 
 **Acceptance criteria:**
-- [ ] Renders from `describe()` output and `spec.stats`; no inline logic beyond formatting
-- [ ] Marker position = |r| × scale width; label shows r to 2 decimals
+- [x] Renders from `describeStats()` output and `spec.stats`; no inline logic beyond formatting (format.js)
+- [x] Marker position = |r| × scale width; label shows r to 2 decimals
 
 **Verification:** RTL test with a fixture stats object; manual vs. Figma frame 12:2
 **Dependencies:** T5, T6, T7
@@ -140,12 +140,12 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/checks.js`, `tests/checks.test.js`
 **Scope:** XS
 
-## Task 10: Step 4 — before you conclude
+## Task 10: Step 4 — before you conclude ✅
 
 **Description:** `CheckCard.jsx` (amber warn / blue try) rendered from `checks()`; actions row placeholder for T11.
 
 **Acceptance criteria:**
-- [ ] Cards reflect rules for the current stats; "try" card absent when the feature flag is off
+- [x] Cards reflect rules for the landed run; "try" card absent when the feature flag is off (features.js, VITE_FEATURE_TRANSFORM)
 **Verification:** RTL test; manual
 **Dependencies:** T9, T5
 **Files:** `src/components/CheckCard.jsx`, `src/App.jsx`, `tests/Step4.test.jsx`

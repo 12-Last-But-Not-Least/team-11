@@ -351,3 +351,231 @@ body {
   font-size: 12px;
   font-weight: 500;
 }
+
+/* ---------- step 3: verdict ---------- */
+.verdict {
+  position: relative;
+  margin-bottom: 20px;
+  padding: 14px 20px 16px 24px;
+  border-radius: 8px;
+  background: var(--blue-tint);
+  overflow: hidden;
+}
+
+.verdict::before {
+  /* Triton gold, one of two places it appears */
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--gold);
+}
+
+.verdict__headline {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.verdict__row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.verdict__note {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--muted);
+}
+
+.scale {
+  width: 444px;
+  flex: none;
+  padding-top: 20px;
+}
+
+.scale__bar {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  height: 10px;
+}
+
+.scale__band {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.scale__band--weak { background: #e2e8f0; }
+.scale__band--moderate { background: var(--blue-mid); }
+.scale__band--strong { background: var(--blue); }
+
+.scale__marker {
+  /* Triton gold, the other place it appears */
+  position: absolute;
+  top: -3px;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2.5px solid var(--ink);
+  transition: left 200ms ease-out;
+}
+
+.scale__label {
+  position: absolute;
+  top: -22px;
+  transform: translateX(-100%);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--blue);
+  white-space: nowrap;
+}
+
+.scale__ticks {
+  display: flex;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scale__marker { transition: none; }
+}
+
+/* ---------- step 3: sentences + stats ---------- */
+.read {
+  display: flex;
+  align-items: flex-start;
+  gap: 48px;
+}
+
+.sentences {
+  width: 600px;
+  flex: none;
+}
+
+.sentences__list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.sentence {
+  margin: 0 0 10px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.sentence::marker {
+  color: var(--blue);
+}
+
+.sentences__hint {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.stats {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  border-collapse: separate;
+  border-spacing: 0;
+  padding: 10px 16px 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 22px;
+}
+
+.stats__caption {
+  caption-side: top;
+  text-align: left;
+  padding-bottom: 4px;
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stats__key {
+  width: 110px;
+  padding: 0;
+}
+
+.stats__value {
+  padding: 0;
+  min-width: 90px;
+}
+
+/* ---------- step 4: checks ---------- */
+.checks {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.check {
+  width: 400px;
+  padding: 14px 16px;
+  border-radius: 8px;
+}
+
+.check--warn { background: var(--red-tint); color: var(--red-deep); }
+.check--try { background: var(--blue-tint); color: var(--blue-deep); }
+
+.check__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.check__badge {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.check--warn .check__badge { background: var(--red); }
+.check--try .check__badge { background: var(--blue); }
+
+.check__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--ink);
+}
+
+.check__body {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.btn--primary {
+  border: 0;
+  background: var(--blue);
+  color: var(--white);
+}
+
+.btn--primary:hover {
+  background: #1d4fd8;
+}

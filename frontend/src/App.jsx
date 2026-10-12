@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { api as defaultApi } from "./api.js";
-import { defaultPair, groupBySource, isKey } from "./columns.js";
+import { defaultPair, groupBySource, isKey, labelOf } from "./columns.js";
+import { describeStats } from "./describe.js";
+import { runChecks } from "./checks.js";
+import { FEATURES } from "./features.js";
+import { Verdict } from "./components/Verdict.jsx";
+import { Sentences } from "./components/Sentences.jsx";
+import { StatsTable } from "./components/StatsTable.jsx";
+import { CheckCard } from "./components/CheckCard.jsx";
 import { Chart } from "./components/Chart.jsx";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
@@ -26,7 +33,7 @@ function Mark() {
   );
 }
 
-export default function App({ api = defaultApi }) {
+export default function App({ api = defaultApi, features = FEATURES }) {
   const [cols, setCols] = useState(null);
   const [error, setError] = useState(null);
   const [sel, setSel] = useState(null); // { x, y, size }
@@ -49,7 +56,20 @@ export default function App({ api = defaultApi }) {
 
   const key = cols?.find(isKey);
   const keyLabel = (key?.label ?? "point").toLowerCase();
-  const { scatter, line, running, error: runError } = useRun(api, sel, key?.name ?? "year");
+  const { forSel, scatter, line, running, error: runError } = useRun(api, sel, key?.name ?? "year");
+
+  // steps 3–4 describe the landed run (forSel), not a selection still in flight
+  const description = scatter && forSel
+    ? describeStats(scatter.stats, { x: labelOf(cols, forSel.x), y: labelOf(cols, forSel.y) })
+    : null;
+  const checks = scatter && forSel
+    ? runChecks(scatter.stats, {
+        keyLabel,
+        keyed: true, // every column in this backend is joined on the key
+        keyOnAxis: forSel.x === key?.name || forSel.y === key?.name,
+        features,
+      })
+    : [];
   const files = cols ? groupBySource(cols).length : 0;
   const plottable = cols ? cols.length - 1 : 0;
 
@@ -116,6 +136,24 @@ export default function App({ api = defaultApi }) {
               </figure>
             </div>
             )}
+          </Step>
+        )}
+        {description && (
+          <Step n={3} title="Read what the numbers say" hint="Plain words first, the statistics beside them." busy={running}>
+            <Verdict description={description} />
+            <div className="read">
+              <Sentences sentences={description.sentences} />
+              <StatsTable stats={scatter.stats} />
+            </div>
+          </Step>
+        )}
+        {description && (
+          <Step n={4} title="Before you conclude" hint="Checks this tool runs for you." busy={running} last>
+            <div className="checks">
+              {checks.map((card) => (
+                <CheckCard key={card.id} card={card} />
+              ))}
+            </div>
           </Step>
         )}
       </main>

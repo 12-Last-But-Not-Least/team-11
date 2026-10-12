@@ -60,9 +60,9 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 - [x] T5 Step 2b: line canvas, parallel fetch, loading/error, stale-run guard, year-on-axis rule
 - [x] T6 `describe.js` (verdict, strength band, sentences) with boundary tests
 - [x] T7 `glossary.js` + `Term.jsx` tooltip (hover + focus)
-- [ ] T8 Step 3 UI
+- [x] T8 Step 3 UI
 - [x] T9 `checks.js` with tests
-- [ ] T10 Step 4 UI
+- [x] T10 Step 4 UI
 
 ### Checkpoint B
 - [ ] Happy path steps 1–4 in the browser against the running API, no console errors
