@@ -274,16 +274,17 @@ html {
   gap: 20px;
 }
 
-/* Each figure wants its canvas width and may shrink by at most 12% before
-   the pair wraps into a stack (14%: two 620px charts still fit at 1280), so a bitmap is never scaled far enough to
-   blur its labels. */
+/* Flex wrapping is decided by the basis, so the basis is the smallest size
+   a figure may take (86% of its canvas) and it grows back up to the canvas
+   width when there is room. Two 620px charts therefore sit side by side at
+   1280 (each shrunk ≤14%) and at 1440 (unscaled); 800px charts stack. A
+   bitmap is never scaled far enough to blur its labels. */
 .chart-figure {
   margin: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  flex: 1 1 var(--chart-w);
-  min-width: calc(var(--chart-w) * 0.86);
+  flex: 1 1 calc(var(--chart-w) * 0.86);
   max-width: var(--chart-w);
 }
 
