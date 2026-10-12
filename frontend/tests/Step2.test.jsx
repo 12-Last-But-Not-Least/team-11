@@ -24,7 +24,7 @@ describe("step 2a: the scatter chart", () => {
     const api = fakeApi();
     render(<App api={api} />);
     const canvas = await screen.findByRole("img", { name: /scatter/i });
-    expect(api.calls.scatter[0]).toEqual({ x: "falls_norm", y: "iphone_norm", width: 620, height: 440 });
+    expect(api.calls.scatter[0]).toEqual({ x: "falls_norm", y: "iphone_norm", width: 800, height: 500 });
     const scatterChart = FakeChart.instances.find((c) => c.canvas === canvas);
     expect(scatterChart).toBeDefined();
   });
