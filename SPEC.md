@@ -82,18 +82,9 @@ tasks/                   → plan.md and todo.md (next phase)
 
 ## Layout
 
-**Decision: one window, no tabs, for v1.** Three regions at laptop width (>= 1280 px):
+**Visual direction: Guided Worksheet** (chosen 2026-10-12; a refinement of the "Notebook Cell" pick after the owner judged it too generic). Four numbered steps down a left rail: 1 Choose two things to compare (pickers with file/years meta), 2 Look at them two ways (scatter + line with teaching captions), 3 Read what the numbers say (one-line verdict, Weak–Moderate–Strong ruler for r, bulleted sentences with glossary-underlined terms, stats table), 4 Before you conclude (rule-driven caution cards: shared time trend, small sample; plus the year-over-year "try it" stretch). Color system "data-ink + Triton": UCSD navy ink, the scatter's blue (#2563eb) for all structure and interaction, the line chart's red for cautions, Triton gold in exactly two accents (verdict rule, strength marker); navy is never a fill; faint graph-paper grid in the rail. Atkinson Hyperlegible Next + JetBrains Mono. Direction contract: `.impeccable/surfaces/frontend-src-app-jsx.md`. Figma: https://www.figma.com/design/hwFRPONo9qUnkF8smnBhIz (frame 12:2 is current; 7:2 teal draft and 2:2 notebook variant are superseded).
 
-```
-┌──────────┬─────────────────────────────┬──────────────────────┐
-│ Controls │  Scatter (primary)          │  Line over time      │
-│  dataset │  fit line + stats box       │  one line per column │
-│  x axis  │                             │                      │
-│  y axis  ├─────────────────────────────┤                      │
-│  size    │  Description (sentences)    │                      │
-│  download│                             │                      │
-└──────────┴─────────────────────────────┴──────────────────────┘
-```
+**Decision: one window, no tabs, for v1.** One scrolling page; steps 1–2 fit the first 900px at 1440 wide, steps 3–4 follow below.
 
 The description appears under the scatter only. The line chart's job is to show the shared trend; a second block of sentences would dilute the one that matters.
 
