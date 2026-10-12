@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { optionLabels } from "../columns.js";
 import { SIZES } from "../sizes.js";
+import { IconSwap } from "./icons.jsx";
 
 function Picker({ id, label, hint, cols, labels, value, taken, onChange }) {
   const col = cols.find((c) => c.name === value);
@@ -29,7 +30,7 @@ export function Controls({ cols, value, onChange }) {
     <div className="pickers">
       <Picker id="pick-x" label="X axis" hint="(across)" cols={cols} labels={labels} value={value.x} taken={value.y} onChange={(x) => set({ x })} />
       <button type="button" className="btn btn--ghost" onClick={() => set({ x: value.y, y: value.x })}>
-        <span aria-hidden="true">⇄</span> Swap
+        <IconSwap /> Swap
       </button>
       <Picker id="pick-y" label="Y axis" hint="(up)" cols={cols} labels={labels} value={value.y} taken={value.x} onChange={(y) => set({ y })} />
       <div className="picker picker--size">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fileName, statsToText } from "../exportText.js";
+import { IconDownload } from "./icons.jsx";
 
 function saveBlob(blob, name) {
   const url = URL.createObjectURL(blob);
@@ -37,10 +38,10 @@ export function Actions({ scatterSpec, canvasRef, names, labels, stats }) {
   return (
     <div className="actions">
       <button type="button" className="btn btn--ghost" onClick={svg}>
-        <span aria-hidden="true">↓</span> Download scatter (SVG)
+        <IconDownload /> Download scatter (SVG)
       </button>
       <button type="button" className="btn btn--ghost" onClick={png}>
-        <span aria-hidden="true">↓</span> Download scatter (PNG)
+        <IconDownload /> Download scatter (PNG)
       </button>
       <button type="button" className="btn btn--ghost" onClick={copy}>
         Copy the statistics
