@@ -36,6 +36,7 @@ export function useRun(api, sel, keyName) {
 
   const failed = sel && landed.errorSel === sel;
   return {
+    forSel: landed.sel,
     scatter: landed.scatter,
     line: landed.line,
     running: Boolean(sel) && landed.sel !== sel && !failed,
