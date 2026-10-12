@@ -31,7 +31,7 @@ describe("step 2b: line chart, parallel fetch, run guard, states", () => {
     const api = fakeApi();
     render(<App api={api} />);
     await screen.findByRole("img", { name: /line chart/i });
-    expect(api.calls.line[0]).toEqual({ x: "year", ys: ["falls_norm", "iphone_norm"], width: 800, height: 500 });
+    expect(api.calls.line[0]).toEqual({ x: "year", ys: ["falls_norm", "iphone_norm"], width: 520, height: 400 });
     expect(screen.getByRole("img", { name: /scatter/i })).toBeInTheDocument();
     expect(FakeChart.instances).toHaveLength(2);
   });

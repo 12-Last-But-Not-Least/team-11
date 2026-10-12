@@ -3,8 +3,9 @@ import { optionLabels } from "../columns.js";
 import { SIZES } from "../sizes.js";
 import { IconSwap } from "./icons.jsx";
 
-function Picker({ id, label, hint, cols, labels, value, taken, onChange }) {
+function Picker({ id, label, hint, cols, labels, value, taken, onChange, meta }) {
   const col = cols.find((c) => c.name === value);
+  const metaLine = meta ? `${col?.source} · ${meta.n} ${meta.keyLabel}s · ${meta.min}–${meta.max}` : col?.source;
   return (
     <div className="picker">
       <label className="picker__label" htmlFor={id}>
@@ -17,22 +18,23 @@ function Picker({ id, label, hint, cols, labels, value, taken, onChange }) {
           </option>
         ))}
       </select>
-      <p className="picker__meta">{col?.source}</p>
+      <p className="picker__meta">{metaLine}</p>
     </div>
   );
 }
 
 /** Step 1 controls: x / y pickers, swap, chart size. `value` is { x, y, size }. */
-export function Controls({ cols, value, onChange }) {
+/** `meta` (optional): { n, min, max, keyLabel } of the landed run, shown under each picker. */
+export function Controls({ cols, value, onChange, meta = null }) {
   const labels = useMemo(() => optionLabels(cols), [cols]);
   const set = (patch) => onChange({ ...value, ...patch });
   return (
     <div className="pickers">
-      <Picker id="pick-x" label="X axis" hint="(across)" cols={cols} labels={labels} value={value.x} taken={value.y} onChange={(x) => set({ x })} />
+      <Picker id="pick-x" label="X axis" hint="(across)" cols={cols} labels={labels} value={value.x} taken={value.y} onChange={(x) => set({ x })} meta={meta} />
       <button type="button" className="btn btn--ghost" onClick={() => set({ x: value.y, y: value.x })}>
         <IconSwap /> Swap
       </button>
-      <Picker id="pick-y" label="Y axis" hint="(up)" cols={cols} labels={labels} value={value.y} taken={value.x} onChange={(y) => set({ y })} />
+      <Picker id="pick-y" label="Y axis" hint="(up)" cols={cols} labels={labels} value={value.y} taken={value.x} onChange={(y) => set({ y })} meta={meta} />
       <div className="picker picker--size">
         <label className="picker__label picker__label--muted" htmlFor="pick-size">Chart size</label>
         <select id="pick-size" className="chip chip--mono" value={value.size} onChange={(e) => set({ size: e.target.value })}>

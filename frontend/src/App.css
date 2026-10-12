@@ -20,6 +20,10 @@ body {
   color: var(--ink);
 }
 
+html {
+  scrollbar-color: var(--blue-mid) var(--rail);
+}
+
 .page {
   max-width: var(--page-w);
   margin: 0 auto;
@@ -212,13 +216,13 @@ body {
   appearance: none;
   -webkit-appearance: none;
   padding: 10px 36px 10px 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--chip-border);
   border-radius: var(--radius);
   background: var(--white)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%234a5568' stroke-width='1.5'/%3E%3C/svg%3E")
     no-repeat right 12px center;
   color: var(--ink);
-  font: 500 16px var(--font-text);
+  font: 500 15px var(--font-text);
   line-height: 20px;
 }
 
@@ -264,6 +268,7 @@ body {
 /* ---------- step 2: charts ---------- */
 .charts {
   display: flex;
+  flex-wrap: wrap; /* sizes wider than half the column stack, never scale */
   align-items: flex-end;
   gap: 28px;
 }
@@ -278,8 +283,6 @@ body {
 
 .chart {
   display: block;
-  max-width: 100%;
-  height: auto;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   background: var(--white);
@@ -424,7 +427,7 @@ body {
   border-radius: 5px;
 }
 
-.scale__band--weak { background: #e2e8f0; }
+.scale__band--weak { background: var(--scale-weak); }
 .scale__band--moderate { background: var(--blue-mid); }
 .scale__band--strong { background: var(--blue); }
 

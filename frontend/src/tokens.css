@@ -23,6 +23,9 @@
   /* Triton gold: verdict rule and strength marker only */
   --gold: #ffcd00;
 
+  --chip-border: #cbd5e1;
+  --scale-weak: #d5deea;
+
   --font-text: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 

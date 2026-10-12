@@ -33,8 +33,8 @@ describe("step 1: choose two things to compare", () => {
   it("shows the source file under each picker", async () => {
     render(<App api={fakeApi()} />);
     await screen.findByLabelText(/x axis/i);
-    expect(screen.getByText("falls_normalized.csv")).toBeInTheDocument();
-    expect(screen.getByText("iphone_normalized.csv")).toBeInTheDocument();
+    expect(screen.getByText(/^falls_normalized\.csv/)).toBeInTheDocument();
+    expect(screen.getByText(/^iphone_normalized\.csv/)).toBeInTheDocument();
   });
 
   it("disables the column already chosen on the other axis", async () => {
@@ -42,7 +42,7 @@ describe("step 1: choose two things to compare", () => {
     const x = await screen.findByLabelText(/x axis/i);
     const y = screen.getByLabelText(/y axis/i);
     expect(within(x).getByRole("option", { name: "iPhone sales (normalized)" })).toBeDisabled();
-    expect(within(y).getByRole("option", { name: "Fall deaths (normalized) — falls_normalized.csv" })).toBeDisabled();
+    expect(within(y).getByRole("option", { name: "Fall deaths (normalized) — falls_normalized" })).toBeDisabled();
   });
 
   it("disambiguates columns that share a label by appending their source file", async () => {
@@ -51,9 +51,9 @@ describe("step 1: choose two things to compare", () => {
     const names = within(x).getAllByRole("option").map((o) => o.textContent);
     expect(names).toEqual([
       "Year",
-      "Fall deaths (normalized) — falls_normalized.csv",
+      "Fall deaths (normalized) — falls_normalized",
       "iPhone sales (normalized)",
-      "Fall deaths (normalized) — normalized_merged_set.csv",
+      "Fall deaths (normalized) — normalized_merged_set",
     ]);
   });
 
@@ -72,13 +72,13 @@ describe("step 1: choose two things to compare", () => {
     const y = await screen.findByLabelText(/y axis/i);
     await user.selectOptions(y, "deaths_norm");
     expect(y).toHaveValue("deaths_norm");
-    expect(screen.getByText("normalized_merged_set.csv")).toBeInTheDocument();
+    expect(screen.getByText(/^normalized_merged_set\.csv/)).toBeInTheDocument();
   });
 
-  it("offers chart sizes with 800 × 500 selected by default", async () => {
+  it("offers chart sizes with 520 × 400 selected by default", async () => {
     render(<App api={fakeApi()} />);
     const size = await screen.findByLabelText(/chart size/i);
-    expect(size).toHaveValue("800x500");
+    expect(size).toHaveValue("520x400");
     expect(within(size).getAllByRole("option").length).toBeGreaterThanOrEqual(3);
   });
 
@@ -87,5 +87,20 @@ describe("step 1: choose two things to compare", () => {
     api.getColumns = async () => { throw new Error("Failed to fetch"); };
     render(<App api={api} />);
     expect(await screen.findByRole("status")).toHaveTextContent(/start the backend|Failed to fetch/i);
+  });
+});
+
+describe("picker meta line", () => {
+  it("shows the file alone before a run lands, then file · n keys · range", async () => {
+    const api = fakeApi();
+    api.getScatter = async () => {
+      const s = spec();
+      s.stats.n = 2;
+      s.data.series[0].points = [{ x: 0, y: 0, label: "2007\na: 0\nb: 0" }, { x: 1, y: 1, label: "2018\na: 1\nb: 1" }];
+      return s;
+    };
+    render(<App api={api} />);
+    await screen.findByLabelText(/x axis/i);
+    expect(await screen.findByText("falls_normalized.csv · 2 years · 2007–2018")).toBeInTheDocument();
   });
 });

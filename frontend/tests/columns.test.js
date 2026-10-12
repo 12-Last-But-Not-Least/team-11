@@ -66,9 +66,9 @@ describe("labelOf", () => {
 describe("optionLabels", () => {
   it("keeps unique labels and appends the source to duplicated ones", () => {
     const labels = optionLabels(cols);
-    expect(labels.get("iphone_norm")).toBe("iPhone sales (normalized) — iphone_normalized.csv");
+    expect(labels.get("iphone_norm")).toBe("iPhone sales (normalized) — iphone_normalized");
     expect(labels.get("year")).toBe("Year");
-    expect(labels.get("falls_norm")).toBe("Fall deaths (normalized) — falls_normalized.csv");
-    expect(labels.get("deaths_norm")).toBe("Fall deaths (normalized) — normalized_merged_set.csv");
+    expect(labels.get("falls_norm")).toBe("Fall deaths (normalized) — falls_normalized");
+    expect(labels.get("deaths_norm")).toBe("Fall deaths (normalized) — normalized_merged_set");
   });
 });

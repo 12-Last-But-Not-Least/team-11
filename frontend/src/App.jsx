@@ -10,6 +10,7 @@ import { StatsTable } from "./components/StatsTable.jsx";
 import { CheckCard } from "./components/CheckCard.jsx";
 import { Actions } from "./components/Actions.jsx";
 import { diffTexts } from "./diffSentences.js";
+import { keyRange } from "./runMeta.js";
 import { Chart } from "./components/Chart.jsx";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
@@ -65,6 +66,9 @@ export default function App({ api = defaultApi, features = FEATURES }) {
   const description = scatter && forSel
     ? describeStats(scatter.stats, { x: labelOf(cols, forSel.x), y: labelOf(cols, forSel.y) })
     : null;
+  const range = keyRange(scatter);
+  const runMeta = range ? { ...range, keyLabel } : null;
+
   // Changed-since-last-run flags, recomputed only when a new scatter lands
   // (state derived from props, the React-sanctioned setState-in-render form).
   const [runMemo, setRunMemo] = useState({ scatter: null, prev: null, changed: null });
@@ -119,7 +123,7 @@ export default function App({ api = defaultApi, features = FEATURES }) {
         )}
         {cols && sel && (
           <Step n={1} title="Choose two things to compare" hint="Any two columns from the dataset. Swap them any time.">
-            <Controls cols={cols} value={sel} onChange={setSel} />
+            <Controls cols={cols} value={sel} onChange={setSel} meta={runMeta} />
           </Step>
         )}
         {runError && (
