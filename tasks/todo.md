@@ -52,10 +52,10 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/components/Step.jsx`, `src/components/Controls.jsx`, `src/App.jsx`, `src/App.css`, `tests/Controls.test.jsx`
 **Scope:** M
 
-## Checkpoint A
-- [ ] `npm test` / `lint` / `build` clean; `pytest -q` 16 passed
-- [ ] Browser: header + step 1 from the real API
-- [ ] Owner confirms the course allows React before T4
+## Checkpoint A ✅ (2026-10-12)
+- [x] `npm test` 32/32, `lint` clean, `build` clean; `pytest -q` 16 passed
+- [x] Browser: header + step 1 from the real API at 1440px
+- [x] Owner confirmed the course allows React
 
 ## Task 4: Step 2a — scatter chart
 

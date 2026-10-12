@@ -51,9 +51,9 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 - [x] T2 `columns.js` + `api.js` with tests
 - [x] T3 Step 1 slice: pickers from live `/columns`, swap, size
 
-### Checkpoint A
-- [ ] `npm test`, `npm run lint`, `npm run build` clean; `pytest -q` still 16 passing
-- [ ] Browser: header + step 1 render from the real API; changing a picker updates state (visible in a debug line)
+### Checkpoint A ✅
+- [x] `npm test`, `npm run lint`, `npm run build` clean; `pytest -q` still 16 passing
+- [x] Browser: header + step 1 render from the real API; changing a picker updates the selects and meta line
 
 ### Phase 2: Core
 - [ ] T4 Step 2a: scatter canvas through `Chart.jsx`, caption
