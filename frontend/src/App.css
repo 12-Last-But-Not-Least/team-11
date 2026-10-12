@@ -309,3 +309,45 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .chart-skeleton { animation: none; }
 }
+
+/* ---------- glossary terms ---------- */
+.term-wrap {
+  position: relative;
+}
+
+.term {
+  color: var(--blue);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: help;
+  border-radius: 2px;
+}
+
+.term:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.term__tip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+  width: 260px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--tooltip);
+  color: var(--white);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+}
+
+.term__tip-name {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
