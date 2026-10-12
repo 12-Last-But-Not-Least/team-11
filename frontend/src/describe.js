@@ -33,12 +33,17 @@ const HEADLINES = {
   },
 };
 
-/** Sentence with the positions of the glossary terms it contains. */
+/**
+ * Sentence with the positions of the glossary terms it contains. Terms are
+ * anchored on their parenthesised form "(term …" so a letter that happens
+ * to appear earlier in the prose (the n in "Only") is never underlined.
+ */
 function sentence(text, terms) {
   return {
     text,
     terms: terms.map((term) => {
-      const start = text.indexOf(term);
+      const anchored = text.indexOf(`(${term}`);
+      const start = anchored >= 0 ? anchored + 1 : text.indexOf(term);
       return { term, start, end: start + term.length };
     }),
   };

@@ -69,6 +69,14 @@ describe("describeStats: sentences", () => {
       for (const t of s.terms) expect(s.text.slice(t.start, t.end)).toBe(t.term);
     }
   });
+  it("anchors each term on its parenthesised form, not on the first matching letter", () => {
+    // "Only 12 data points (n = 12)…" contains an 'n' in "Only" before the real term
+    const n = describeStats(stats({ n: 12 }), labels).sentences[2];
+    expect(n.text[n.terms[0].start - 1]).toBe("(");
+    expect(n.text.slice(n.terms[0].start, n.terms[0].end + 3)).toBe("n = ");
+    const p = describeStats(stats({ p_value: 0.3 }), labels).sentences[1];
+    expect(p.text[p.terms[0].start - 1]).toBe("(");
+  });
   it("tolerates a perfect correlation (t is null, p is 0)", () => {
     expect(() => describeStats(stats({ r: 1, r_squared: 1, t: null, p_value: 0 }), labels)).not.toThrow();
   });
