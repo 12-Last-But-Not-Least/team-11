@@ -14,7 +14,7 @@ import { keyRange } from "./runMeta.js";
 import { Chart } from "./components/Chart.jsx";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
-import { DEFAULT_SIZE } from "./sizes.js";
+import { DEFAULT_SIZE, parseSize } from "./sizes.js";
 import { useRun } from "./useRun.js";
 
 // Product name is a placeholder until the team picks one (candidate from
@@ -139,9 +139,9 @@ export default function App({ api = defaultApi, features = FEATURES }) {
             busy={running}
           >
             {!scatter || !line ? (
-              <div className="charts charts--pending" aria-hidden="true">
-                <div className="chart-skeleton" style={{ width: 800, height: 500 }} />
-                <div className="chart-skeleton" style={{ width: 800, height: 500 }} />
+              <div className="charts charts--pending" aria-hidden="true" style={{ "--chart-w": `${parseSize(sel.size).width}px` }}>
+                <div className="chart-figure"><div className="chart-skeleton" style={{ aspectRatio: `${parseSize(sel.size).width} / ${parseSize(sel.size).height}` }} /></div>
+                <div className="chart-figure"><div className="chart-skeleton" style={{ aspectRatio: `${parseSize(sel.size).width} / ${parseSize(sel.size).height}` }} /></div>
               </div>
             ) : (
             <div className="charts" style={{ "--chart-w": `${scatter.width}px` }}>

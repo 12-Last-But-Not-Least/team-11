@@ -180,22 +180,22 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/diffSentences.js`, `src/components/Sentences.jsx`, `src/App.css`, `tests/diffSentences.test.js`
 **Scope:** S
 
-## Task 13: Contract polish and finish review
+## Task 13: Contract polish and finish review ✅
 
 **Description:** Compare the live page to the direction contract and Figma 12:2 at 1440 and 1280 wide; fix spacing, type, rail grid, colors; run the design detector once; capture `.impeccable/review/desktop.png`; spawn the finish reviewer and act on its disposition; then the documenter writes `DESIGN.md`.
 
 **Acceptance criteria:**
-- [ ] Reviewer disposition recorded; material findings fixed or explicitly deferred
-- [ ] `DESIGN.md` exists with tokens
+- [x] Reviewer disposition: fix → 5 material findings applied (unscaled canvases, option stems, picker meta with years, chip row, contract drift) → verdict pass: all resolved, no regressions → ship (2026-10-12)
+- [x] `DESIGN.md` exists with tokens (+ `.impeccable/design.json`), written by the documenter from the built world
 **Verification:** screenshots in `.impeccable/review/`; all tests green
 **Dependencies:** T1–T12
 **Files:** `src/App.css`, `src/tokens.css`, `DESIGN.md`, `.impeccable/review/*`
 **Scope:** M
 
-## Checkpoint C: done
-- [ ] All SPEC success criteria checked off in `SPEC.md`
-- [ ] Vitest coverage targets met; pytest unchanged
-- [ ] README gets a "Frontend" section with the two-terminal run instructions
+## Checkpoint C: done ✅ (2026-10-12)
+- [x] All SPEC success criteria checked off in `SPEC.md`
+- [x] Vitest 104/104, rule modules at 100% lines; pytest 16 unchanged
+- [x] README rewritten with layout, run and test instructions
 
 ## Stretch
 - [ ] T14 Playwright happy-path test

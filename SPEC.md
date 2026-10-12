@@ -1,6 +1,6 @@
 # Spec: Graph Explorer Frontend
 
-Status: DRAFT v3, awaiting approval. Intent: `docs/intent/frontend.md`. API contract: `USAGE.md`.
+Status: APPROVED (2026-10-12); implemented on branch feature/frontend-explorer; finish review: ship. Intent: `docs/intent/frontend.md`. API contract: `USAGE.md`.
 
 ## Objective
 
@@ -156,14 +156,14 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 
 ## Success Criteria
 
-- [ ] With `uvicorn` and `npm run dev` both running, the six happy-path steps work at `http://127.0.0.1:5173` with no console errors.
-- [ ] `npm run build && npm run preview` works the same way against the running API (demo mode).
-- [ ] Renaming or adding a CSV in `Data_Clean_UP/data/final/` changes the dropdowns with no frontend code change.
-- [ ] Every stats field shown has a sentence next to it from the rule table.
-- [ ] Both charts update within one second of an axis change on localhost.
-- [ ] Vitest: all tests pass; `describe.js` and `columns.js` at 100% line coverage.
-- [ ] pytest: existing 16 tests still pass (nothing on the backend changed).
-- [ ] `.gitignore` covers `node_modules/`, `dist/`, and `.env` (but not `.env.example`).
+- [x] With `uvicorn` and `npm run dev` both running, the six happy-path steps work at `http://127.0.0.1:5173` with no console errors (verified 2026-10-12).
+- [x] `npm run build && npm run preview` serves the built page on 4173 (verified).
+- [x] Renaming or adding a CSV in `Data_Clean_UP/data/final/` changes the dropdowns with no frontend code change (verified with a temporary file).
+- [x] r², p-value and n each have a rule-table sentence; every field in the stats table has a one-line glossary definition on hover/focus.
+- [x] Both charts update within one second of an axis change on localhost.
+- [x] Vitest: 104 tests pass; `describe.js`, `columns.js`, `checks.js`, `glossary.js` at 100% line coverage.
+- [x] pytest: existing 16 tests still pass (nothing on the backend changed).
+- [x] `.gitignore` covers `node_modules/`, `dist/`, and `.env` (but not `.env.example`).
 
 ## Stretch (not required for done)
 

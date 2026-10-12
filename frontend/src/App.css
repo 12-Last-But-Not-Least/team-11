@@ -317,7 +317,7 @@ html {
 }
 
 .chart-skeleton {
-  max-width: 100%;
+  width: 100%;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   background: linear-gradient(90deg, var(--rail) 25%, var(--white) 50%, var(--rail) 75%);
@@ -602,7 +602,7 @@ html {
 }
 
 .btn--primary:hover {
-  background: #1d4fd8;
+  background: var(--blue-hover);
 }
 
 /* ---------- step 4: actions ---------- */

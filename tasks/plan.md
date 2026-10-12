@@ -72,12 +72,12 @@ Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
 ### Phase 3: Finish
 - [x] T11 Downloads (SVG via `svg_export.js`, PNG) + copy statistics
 - [x] T12 Re-run choreography: loading marks, changed-sentence highlight, marker slide
-- [ ] T13 Polish against the direction contract; detector; finish review; DESIGN.md
+- [x] T13 Polish against the direction contract; detector; finish review; DESIGN.md
 
-### Checkpoint C: Done
-- [ ] Every SPEC success criterion checked
-- [ ] Vitest coverage: `describe.js`, `columns.js`, `checks.js` at 100% lines
-- [ ] Commit per task with test evidence in the message
+### Checkpoint C: Done ✅
+- [x] Every SPEC success criterion checked
+- [x] Vitest coverage: `describe.js`, `columns.js`, `checks.js` at 100% lines
+- [x] Commit per task with test evidence in the message
 
 ## Risks and mitigations
 
