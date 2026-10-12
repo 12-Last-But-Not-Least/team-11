@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coincidence? I Think Not — graph demo</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #172033; background: #f4f6fa; }
+    body { max-width: 1080px; padding: 24px; margin: auto; }
+    h1 { margin: 0 0 4px; }
+    p { line-height: 1.5; }
+    .muted { color: #546074; }
+    .panel { padding: 20px; border-radius: 12px; background: white; border: 1px solid #e1e5ec; margin-top: 16px; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+    select, button { padding: 9px 12px; font: inherit; border-radius: 6px; border: 1px solid #bdc6d4; background: white; }
+    select { min-width: 230px; }
+    button { cursor: pointer; }
+    button[aria-pressed="true"] { background: #173f7a; color: white; }
+    .stats { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
+    .stats span { font-variant-numeric: tabular-nums; }
+    #graph { display: block; max-width: 100%; height: auto; margin: auto; cursor: grab; }
+    #status { min-height: 1.3em; color: #9b2525; }
+    .chart-wrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Coincidence? I Think Not</h1>
+  <p class="muted">An interactive demonstration of correlation, not causation.</p>
+
+  <section class="panel">
+    <div class="controls">
+      <label>First variable <select id="x-variable"></select></label>
+      <label>Second variable <select id="y-variable"></select></label>
+      <button id="scatter" type="button" aria-pressed="true">Scatter plot</button>
+      <button id="line" type="button" aria-pressed="false">Line plot</button>
+      <button id="svg" type="button">Download SVG</button>
+    </div>
+    <p id="status" role="status"></p>
+    <p class="muted" id="hint">Scatter: first variable on X, second on Y.</p>
+    <div class="chart-wrap"><canvas id="graph" aria-label="Interactive chart" role="img"></canvas></div>
+    <div class="stats" aria-live="polite">
+      <span><strong>Correlation (r):</strong> <span id="r">—</span></span>
+      <span><strong>p-value:</strong> <span id="p">—</span></span>
+      <span><strong>Data pairs:</strong> <span id="n">—</span></span>
+    </div>
+    <p class="muted">Mouse wheel: zoom | Drag: pan | Hover: values | Double click: reset</p>
+  </section>
+
+  <script src="interactive.js"></script>
+  <script src="svg_export.js"></script>
+  <script>
+    'use strict';
+    const API = 'http://127.0.0.1:8000';
+    const xSelect = document.getElementById('x-variable');
+    const ySelect = document.getElementById('y-variable');
+    const canvas = document.getElementById('graph');
+    const status = document.getElementById('status');
+    let mode = 'scatter';
+    let chart = null;
+    let spec = null;
+    let requestId = 0;
+
+    function showStats(s) {
+      document.getElementById('r').textContent = s.r.toFixed(4);
+      document.getElementById('p').textContent = s.p_value < 0.001
+        ? s.p_value.toExponential(2) : s.p_value.toFixed(4);
+      document.getElementById('n').textContent = s.n;
+    }
+
+    async function loadGraph() {
+      const id = ++requestId;
+      const first = xSelect.value;
+      const second = ySelect.value;
+      status.textContent = '';
+      if (first === second) {
+        status.textContent = 'Choose two different variables for this demonstration.';
+        return;
+      }
+      if (mode === 'line' && (first === 'year' || second === 'year')) {
+        status.textContent = 'For the line plot, choose two measurements; Year is already the horizontal axis.';
+        return;
+      }
+      // Scatter plots compare X and Y directly. The line plot shows both
+      // selected variables against Year and correlates those two series.
+      const params = new URLSearchParams();
+      let path;
+      if (mode === 'scatter') {
+        path = '/plot/scatter'; params.set('x', first); params.set('y', second);
+      } else {
+        path = '/plot/line'; params.set('x', 'year');
+        params.append('y', first); params.append('y', second);
+      }
+      try {
+        const response = await fetch(API + path + '?' + params);
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(typeof error.detail === 'string' ? error.detail : 'HTTP ' + response.status);
+        }
+        const next = await response.json();
+        if (id !== requestId) return; // Ignore a slower, superseded response.
+        spec = next;
+        if (!chart) {
+          chart = new InteractiveChart(canvas, spec);
+        } else {
+          // Reuse the instance so interactive.js does not install duplicate
+          // global event listeners on each axis change.
+          chart.spec = spec;
+          canvas.width = spec.width;
+          canvas.height = spec.height;
+          chart.home = {
+            x0: spec.data.x_axis.min, x1: spec.data.x_axis.max,
+            y0: spec.data.y_axis.min, y1: spec.data.y_axis.max
+          };
+          chart.view = Object.assign({}, chart.home);
+          chart.hover = null;
+          chart.drag = null;
+          chart.draw();
+        }
+        showStats(spec.stats);
+        document.getElementById('svg').disabled = false;
+      } catch (err) {
+        if (id === requestId) {
+          status.textContent = 'Could not load chart: ' + err.message;
+          document.getElementById('svg').disabled = true;
+        }
+      }
+    }
+
+    function setMode(next) {
+      mode = next;
+      document.getElementById('scatter').setAttribute('aria-pressed', String(mode === 'scatter'));
+      document.getElementById('line').setAttribute('aria-pressed', String(mode === 'line'));
+      document.getElementById('hint').textContent = mode === 'scatter'
+        ? 'Scatter: first variable on X, second on Y.'
+        : 'Line: both selected variables over Year. Correlation compares the two series.';
+      loadGraph();
+    }
+
+    document.getElementById('scatter').addEventListener('click', () => setMode('scatter'));
+    document.getElementById('line').addEventListener('click', () => setMode('line'));
+    document.getElementById('svg').addEventListener('click', () => {
+      if (spec) SvgChart.download(spec, mode + '-plot.svg');
+    });
+    xSelect.addEventListener('change', loadGraph);
+    ySelect.addEventListener('change', loadGraph);
+
+    (async function init() {
+      document.getElementById('svg').disabled = true;
+      try {
+        const response = await fetch(API + '/columns');
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const cols = await response.json();
+        for (const select of [xSelect, ySelect]) {
+          for (const col of cols) {
+            const option = document.createElement('option');
+            option.value = col.name;
+            option.textContent = col.label;
+            option.title = col.source;
+            select.appendChild(option);
+          }
+        }
+        xSelect.value = 'iphone_norm';
+        ySelect.value = 'falls_norm';
+        await loadGraph();
+      } catch (err) {
+        status.textContent = 'Start the FastAPI backend first: ' + err.message;
+      }
+    })();
+  </script>
+</body>
+</html>
