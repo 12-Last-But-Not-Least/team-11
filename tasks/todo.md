@@ -151,9 +151,9 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 **Files:** `src/components/CheckCard.jsx`, `src/App.jsx`, `tests/Step4.test.jsx`
 **Scope:** S
 
-## Checkpoint B
-- [ ] Six-step happy path in the browser, no console errors
-- [ ] Drop a renamed CSV into `data/final/`, restart uvicorn: pickers change, nothing else edited
+## Checkpoint B (2026-10-12)
+- [x] Steps 1–4 in the browser against the live API; all requests 200 (download/copy arrive in T11)
+- [x] Dropped a temporary CSV into `data/final/`, restarted uvicorn: a new column appeared in both pickers with no frontend edit; file removed afterwards
 - [ ] Owner review of the page against Figma 12:2
 
 ## Task 11: Downloads and copy
