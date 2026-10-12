@@ -1,0 +1,156 @@
+{
+  "title": "Choose the visual world for Graph Explorer",
+  "question": "Every card is a complete visual system grounded in what an intro-stats student already knows. Pick one, steer, or re-roll. Charts inside the canvases keep the backend's colors in every direction.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Stat Plot",
+      "kicker": "THE ROLL",
+      "lineage": "the TI-84 STAT PLOT and LinReg screens every student has stared at",
+      "thesis": "The explorer is a graphing calculator screen grown to laptop size: a readout line of truth, soft keys along the bottom, and nothing decorative.",
+      "palette": ["#cfd6c2", "#1b1f1b", "#2f332f", "#2563eb"],
+      "materials": ["LCD grey-green panel", "pixel-grid rule", "soft-key menu bar"],
+      "viewport": "A dark bezel frames one LCD-toned panel. Top: a one-line readout, 'LinReg  y = 0.89x − 0.01   r = 0.98'. Middle: scatter plate left, line plate right, same height and baseline. Below: the plain-language sentences as readout rows. Bottom: five soft keys — X AXIS, Y AXIS, SIZE, TRACE, EXPORT.",
+      "risk": "Reads as retro novelty if the type is pixel-faked or the keys get cute; the bezel must stay thin and the sentences must stay real prose.",
+      "raised": [
+        { "from": "challenger-emission-rail", "raise": "State lives in line form, not hue: data solid, fit dashed, stale half-tone. No second accent is ever needed." },
+        { "from": "challenger-botanical-folio", "raise": "Scatter and line plates share one exact height and baseline, so the eye compares without re-reading axes." },
+        { "from": "challenger-gate-board", "raise": "One alert tone is reserved for change: when axes switch, each sentence that changed holds a highlight until the next change." },
+        { "from": "challenger-saville-sleeve", "raise": "Vast unprinted ground: the scatter owns the field and chrome is a thin rail." },
+        { "from": "challenger-transit-diagram", "raise": "Labels are one fixed size everywhere; the selected series burns brightest in the line plate." },
+        { "from": "challenger-doujin-catalog", "raise": "The active axis choice is marked like a pen circle, visible from across the room in the demo video." }
+      ],
+      "wireframe": { "cols": 12, "rows": 10, "regions": [
+        { "label": "readout: LinReg y=ax+b r=", "x": 0, "y": 0, "w": 12, "h": 1, "accent": true },
+        { "label": "scatter plate", "x": 0, "y": 1, "w": 7, "h": 5 },
+        { "label": "line plate", "x": 7, "y": 1, "w": 5, "h": 5 },
+        { "label": "sentences (readout rows)", "x": 0, "y": 6, "w": 7, "h": 3 },
+        { "label": "stats table", "x": 7, "y": 6, "w": 5, "h": 3 },
+        { "label": "X AXIS | Y AXIS | SIZE | TRACE | EXPORT", "x": 0, "y": 9, "w": 12, "h": 1, "accent": true }
+      ] },
+      "comp": ".impeccable/mocks/decision/assigned.webp"
+    },
+    {
+      "id": "model-pick",
+      "label": "Notebook Cell",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "the Jupyter notebook the student already works in",
+      "thesis": "The explorer is one notebook: an In cell where you choose columns, an Out cell where the charts and the sentences appear.",
+      "palette": ["#ffffff", "#303f9f", "#d84315", "#f2f2f2"],
+      "materials": ["prompt gutter In[ ]/Out[ ]", "monospace output", "cell border on focus"],
+      "viewport": "A left gutter runs the full height. In[1]: two selects and a size field, set like code. Out[1]: scatter left, line right, same baseline. Out[2]: the sentences as a monospaced result block with the stats table beside it. A 'Download' control sits in the Out gutter like a cell action.",
+      "risk": "This is the direction most runs for a student audience land on; it will feel instantly familiar and may read as 'just a notebook' to course staff.",
+      "wireframe": { "cols": 12, "rows": 10, "regions": [
+        { "label": "gutter In/Out", "x": 0, "y": 0, "w": 1, "h": 10, "accent": true },
+        { "label": "In[1]: x = ▾  y = ▾  size = ▾", "x": 1, "y": 0, "w": 11, "h": 2 },
+        { "label": "Out[1] scatter", "x": 1, "y": 2, "w": 6, "h": 5 },
+        { "label": "Out[1] line", "x": 7, "y": 2, "w": 5, "h": 5 },
+        { "label": "Out[2] sentences + stats", "x": 1, "y": 7, "w": 11, "h": 3 }
+      ] },
+      "comp": ".impeccable/mocks/decision/model-pick.webp"
+    },
+    {
+      "id": "challenger-emission-rail",
+      "label": "Emission Line Rail",
+      "verdict": "declined",
+      "lineage": "a glass spectrogram on a viewing box",
+      "thesis": "Everything hangs off one off-centre rail; colour exists only as seven hairlines.",
+      "palette": ["#2a2c2e", "#e8e4d8", "#f2c200"],
+      "materials": ["charcoal continuum", "hairline emission lines"],
+      "viewport": "A banded charcoal field with the chart as a plate hanging off a calibrated rail.",
+      "case": "Students do not identify with spectrograms, and state-by-line-form on a dark field hides the task.",
+      "kept": "State carried in line form (solid, dashed, half-height), never in hue.",
+      "risk": "Beautiful and illegible for a first-time viewer.",
+      "hero": "https://impeccable.style/worlds/cards/operate-c-emission-line-rail-hero.webp"
+    },
+    {
+      "id": "challenger-doujin-catalog",
+      "label": "Hall Catalog",
+      "verdict": "declined",
+      "lineage": "a convention circle catalog on newsprint",
+      "thesis": "Thousands of stamp-sized cells, the chosen ones circled in pen.",
+      "palette": ["#1a1a1a", "#e9e4d6", "#c8102e"],
+      "materials": ["newsprint", "biro circle"],
+      "viewport": "A packed grid of column thumbnails with the active pair circled.",
+      "case": "Four columns do not make a catalog; the grid has nothing to fill.",
+      "kept": "The active choice is marked like a pen circle, unmistakable at a glance.",
+      "risk": "Empty grid, no audience identification.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-doujin-event-catalog-hero.webp"
+    },
+    {
+      "id": "challenger-botanical-folio",
+      "label": "Botanical Folio",
+      "verdict": "declined",
+      "lineage": "one plant through five seasons on fixed-scale plates",
+      "thesis": "Plates at exactly the same scale and ground so change is directly comparable.",
+      "palette": ["#f3ecd9", "#3f5a2a", "#8a1c1c"],
+      "materials": ["cream plate", "sepia hairline rules"],
+      "viewport": "Cream plates on one shared baseline with engraved captions.",
+      "case": "The registration discipline is exactly right for two charts; the cream-and-engraving world is wrong for a stats student at a laptop.",
+      "kept": "Both chart plates share one exact height and baseline.",
+      "risk": "Reads as a herbarium, not a tool.",
+      "hero": "https://impeccable.style/worlds/cards/editorial-sequence-montage-botanical-folio-season-hero.webp"
+    },
+    {
+      "id": "challenger-gate-board",
+      "label": "Gate Board",
+      "verdict": "declined",
+      "lineage": "a boarding pass beside a live departures board",
+      "thesis": "One alert colour reserved for change; a changed row moves and stays lit until noticed.",
+      "palette": ["#f5f5f0", "#111111", "#ff8a00"],
+      "materials": ["neutral panels", "monospaced scannable block"],
+      "viewport": "A ranked board of rows, one just re-ranked and glowing.",
+      "case": "There is no ranking to watch here; the carrier is empty. The change-hold behaviour is worth keeping.",
+      "kept": "One alert tone for change, held until the next change.",
+      "risk": "Nothing in the product re-ranks.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board-hero.webp"
+    },
+    {
+      "id": "challenger-saville-sleeve",
+      "label": "Catalog Sleeve",
+      "verdict": "declined",
+      "lineage": "a matte black record sleeve with a white pulsar plot and a fac number",
+      "thesis": "Vast black, one plot owning the field, names replaced by colour codes.",
+      "palette": ["#0a0a0a", "#f5f5f5", "#e4002b"],
+      "materials": ["matte black", "white hairline plot"],
+      "viewport": "A black field with a single white line stack and a tiny catalogue number.",
+      "case": "Replacing labels with codes contradicts a product whose whole point is sentences; the restraint is worth keeping.",
+      "kept": "Vast unprinted ground: the chart owns the field.",
+      "risk": "Hides exactly what the student came for.",
+      "hero": "https://impeccable.style/worlds/cards/brand-identity-canon-saville-catalog-sleeve-hero.webp"
+    },
+    {
+      "id": "challenger-transit-diagram",
+      "label": "Transit Diagram",
+      "verdict": "declined",
+      "lineage": "a midnight-blue enamel rail map",
+      "thesis": "Coloured lines at disciplined angles, the chosen line burning brightest.",
+      "palette": ["#0f1f4d", "#ffffff", "#e4002b", "#ffb400"],
+      "materials": ["enamel", "porcelain ticks"],
+      "viewport": "A dark blue field with routes as the whole composition.",
+      "case": "The backend's charts are not route diagrams, and a dark enamel ground fights white chart canvases.",
+      "kept": "Fixed-size labels; the selected series burns brightest.",
+      "risk": "Dark ground versus white canvases is a visible seam.",
+      "hero": "https://impeccable.style/worlds/cards/wayfinding-cartography-signage-midnight-transit-diagram-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": false },
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A clean analytics dashboard: sidebar of selects, two chart cards, a stats card, one blue accent.",
+    "palette": ["#ffffff", "#111827", "#2563eb", "#f3f4f6"],
+    "materials": ["clean grid", "white cards with soft borders"],
+    "viewport": "Left sidebar with dataset, x and y selects. Two chart cards side by side. A stats and description card below.",
+    "risk": "Indistinguishable from every other chart tool by design.",
+    "wireframe": { "cols": 12, "rows": 10, "regions": [
+      { "label": "sidebar: selects", "x": 0, "y": 0, "w": 3, "h": 10, "accent": true },
+      { "label": "scatter card", "x": 3, "y": 0, "w": 5, "h": 7 },
+      { "label": "line card", "x": 8, "y": 0, "w": 4, "h": 7 },
+      { "label": "description + stats card", "x": 3, "y": 7, "w": 9, "h": 3 }
+    ] },
+    "comp": ".impeccable/mocks/decision/canon.webp"
+  },
+  "steer": true
+}

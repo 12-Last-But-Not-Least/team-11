@@ -1,0 +1,527 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T00:00:00Z",
+  "title": "Design System: Graph Explorer",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "UCSD Navy Ink",
+        "canonical": "#182b49",
+        "oklch": "oklch(29% 0.061 259)",
+        "tonalRamp": [
+          "oklch(15% 0.061 259)",
+          "oklch(27% 0.061 259)",
+          "oklch(38% 0.061 259)",
+          "oklch(50% 0.061 259)",
+          "oklch(62% 0.061 259)",
+          "oklch(73% 0.061 259)",
+          "oklch(84% 0.061 259)",
+          "oklch(95% 0.061 259)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Slate Muted",
+        "canonical": "#4a5568",
+        "oklch": "oklch(45% 0.034 261)",
+        "tonalRamp": [
+          "oklch(15% 0.034 261)",
+          "oklch(27% 0.034 261)",
+          "oklch(38% 0.034 261)",
+          "oklch(50% 0.034 261)",
+          "oklch(62% 0.034 261)",
+          "oklch(73% 0.034 261)",
+          "oklch(84% 0.034 261)",
+          "oklch(95% 0.034 261)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline Rule",
+        "canonical": "#dbe2ec",
+        "oklch": "oklch(91% 0.016 257)",
+        "tonalRamp": [
+          "oklch(15% 0.016 257)",
+          "oklch(27% 0.016 257)",
+          "oklch(38% 0.016 257)",
+          "oklch(50% 0.016 257)",
+          "oklch(62% 0.016 257)",
+          "oklch(73% 0.016 257)",
+          "oklch(84% 0.016 257)",
+          "oklch(95% 0.016 257)"
+        ]
+      },
+      "grid": {
+        "role": "neutral",
+        "displayName": "Graph-Paper Grid",
+        "canonical": "#e3e8f0",
+        "oklch": "oklch(93% 0.012 260)",
+        "tonalRamp": [
+          "oklch(15% 0.012 260)",
+          "oklch(27% 0.012 260)",
+          "oklch(38% 0.012 260)",
+          "oklch(50% 0.012 260)",
+          "oklch(62% 0.012 260)",
+          "oklch(73% 0.012 260)",
+          "oklch(84% 0.012 260)",
+          "oklch(95% 0.012 260)"
+        ]
+      },
+      "rail": {
+        "role": "neutral",
+        "displayName": "Rail Paper",
+        "canonical": "#f3f5f9",
+        "oklch": "oklch(97% 0.006 265)",
+        "tonalRamp": [
+          "oklch(15% 0.006 265)",
+          "oklch(27% 0.006 265)",
+          "oklch(38% 0.006 265)",
+          "oklch(50% 0.006 265)",
+          "oklch(62% 0.006 265)",
+          "oklch(73% 0.006 265)",
+          "oklch(84% 0.006 265)",
+          "oklch(95% 0.006 265)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100% 0.000 90)",
+        "tonalRamp": [
+          "oklch(15% 0.000 90)",
+          "oklch(27% 0.000 90)",
+          "oklch(38% 0.000 90)",
+          "oklch(50% 0.000 90)",
+          "oklch(62% 0.000 90)",
+          "oklch(73% 0.000 90)",
+          "oklch(84% 0.000 90)",
+          "oklch(95% 0.000 90)"
+        ]
+      },
+      "tooltip": {
+        "role": "neutral",
+        "displayName": "Tooltip Near-Black",
+        "canonical": "#1f1f1f",
+        "oklch": "oklch(24% 0.000 90)",
+        "tonalRamp": [
+          "oklch(15% 0.000 90)",
+          "oklch(27% 0.000 90)",
+          "oklch(38% 0.000 90)",
+          "oklch(50% 0.000 90)",
+          "oklch(62% 0.000 90)",
+          "oklch(73% 0.000 90)",
+          "oklch(84% 0.000 90)",
+          "oklch(95% 0.000 90)"
+        ]
+      },
+      "blue": {
+        "role": "primary",
+        "displayName": "Scatter Blue",
+        "canonical": "#2563eb",
+        "oklch": "oklch(55% 0.215 263)",
+        "tonalRamp": [
+          "oklch(15% 0.215 263)",
+          "oklch(27% 0.215 263)",
+          "oklch(38% 0.215 263)",
+          "oklch(50% 0.215 263)",
+          "oklch(62% 0.215 263)",
+          "oklch(73% 0.215 263)",
+          "oklch(84% 0.215 263)",
+          "oklch(95% 0.215 263)"
+        ]
+      },
+      "blue-tint": {
+        "role": "primary",
+        "displayName": "Scatter Blue Tint",
+        "canonical": "#e8efff",
+        "oklch": "oklch(95% 0.023 267)",
+        "tonalRamp": [
+          "oklch(15% 0.023 267)",
+          "oklch(27% 0.023 267)",
+          "oklch(38% 0.023 267)",
+          "oklch(50% 0.023 267)",
+          "oklch(62% 0.023 267)",
+          "oklch(73% 0.023 267)",
+          "oklch(84% 0.023 267)",
+          "oklch(95% 0.023 267)"
+        ]
+      },
+      "blue-mid": {
+        "role": "primary",
+        "displayName": "Scatter Blue Mid",
+        "canonical": "#93b4f7",
+        "oklch": "oklch(77% 0.103 264)",
+        "tonalRamp": [
+          "oklch(15% 0.103 264)",
+          "oklch(27% 0.103 264)",
+          "oklch(38% 0.103 264)",
+          "oklch(50% 0.103 264)",
+          "oklch(62% 0.103 264)",
+          "oklch(73% 0.103 264)",
+          "oklch(84% 0.103 264)",
+          "oklch(95% 0.103 264)"
+        ]
+      },
+      "blue-deep": {
+        "role": "primary",
+        "displayName": "Scatter Blue Deep",
+        "canonical": "#1e3a8a",
+        "oklch": "oklch(38% 0.138 266)",
+        "tonalRamp": [
+          "oklch(15% 0.138 266)",
+          "oklch(27% 0.138 266)",
+          "oklch(38% 0.138 266)",
+          "oklch(50% 0.138 266)",
+          "oklch(62% 0.138 266)",
+          "oklch(73% 0.138 266)",
+          "oklch(84% 0.138 266)",
+          "oklch(95% 0.138 266)"
+        ]
+      },
+      "blue-hover": {
+        "role": "primary",
+        "displayName": "Scatter Blue Hover",
+        "canonical": "#1d4fd8",
+        "oklch": "oklch(49% 0.216 264)",
+        "tonalRamp": [
+          "oklch(15% 0.216 264)",
+          "oklch(27% 0.216 264)",
+          "oklch(38% 0.216 264)",
+          "oklch(50% 0.216 264)",
+          "oklch(62% 0.216 264)",
+          "oklch(73% 0.216 264)",
+          "oklch(84% 0.216 264)",
+          "oklch(95% 0.216 264)"
+        ]
+      },
+      "red": {
+        "role": "secondary",
+        "displayName": "Line-Chart Red",
+        "canonical": "#c62828",
+        "oklch": "oklch(54% 0.194 27)",
+        "tonalRamp": [
+          "oklch(15% 0.194 27)",
+          "oklch(27% 0.194 27)",
+          "oklch(38% 0.194 27)",
+          "oklch(50% 0.194 27)",
+          "oklch(62% 0.194 27)",
+          "oklch(73% 0.194 27)",
+          "oklch(84% 0.194 27)",
+          "oklch(95% 0.194 27)"
+        ]
+      },
+      "red-tint": {
+        "role": "secondary",
+        "displayName": "Line-Chart Red Tint",
+        "canonical": "#fdecec",
+        "oklch": "oklch(96% 0.018 17)",
+        "tonalRamp": [
+          "oklch(15% 0.018 17)",
+          "oklch(27% 0.018 17)",
+          "oklch(38% 0.018 17)",
+          "oklch(50% 0.018 17)",
+          "oklch(62% 0.018 17)",
+          "oklch(73% 0.018 17)",
+          "oklch(84% 0.018 17)",
+          "oklch(95% 0.018 17)"
+        ]
+      },
+      "red-deep": {
+        "role": "secondary",
+        "displayName": "Line-Chart Red Deep",
+        "canonical": "#7f1d1d",
+        "oklch": "oklch(40% 0.133 26)",
+        "tonalRamp": [
+          "oklch(15% 0.133 26)",
+          "oklch(27% 0.133 26)",
+          "oklch(38% 0.133 26)",
+          "oklch(50% 0.133 26)",
+          "oklch(62% 0.133 26)",
+          "oklch(73% 0.133 26)",
+          "oklch(84% 0.133 26)",
+          "oklch(95% 0.133 26)"
+        ]
+      },
+      "gold": {
+        "role": "tertiary",
+        "displayName": "Triton Gold",
+        "canonical": "#ffcd00",
+        "oklch": "oklch(87% 0.177 91)",
+        "tonalRamp": [
+          "oklch(15% 0.177 91)",
+          "oklch(27% 0.177 91)",
+          "oklch(38% 0.177 91)",
+          "oklch(50% 0.177 91)",
+          "oklch(62% 0.177 91)",
+          "oklch(73% 0.177 91)",
+          "oklch(84% 0.177 91)",
+          "oklch(95% 0.177 91)"
+        ]
+      },
+      "chip-border": {
+        "role": "neutral",
+        "displayName": "Chip Border",
+        "canonical": "#cbd5e1",
+        "oklch": "oklch(87% 0.020 253)",
+        "tonalRamp": [
+          "oklch(15% 0.020 253)",
+          "oklch(27% 0.020 253)",
+          "oklch(38% 0.020 253)",
+          "oklch(50% 0.020 253)",
+          "oklch(62% 0.020 253)",
+          "oklch(73% 0.020 253)",
+          "oklch(84% 0.020 253)",
+          "oklch(95% 0.020 253)"
+        ]
+      },
+      "scale-weak": {
+        "role": "neutral",
+        "displayName": "Weak Band",
+        "canonical": "#d5deea",
+        "oklch": "oklch(90% 0.019 256)",
+        "tonalRamp": [
+          "oklch(15% 0.019 256)",
+          "oklch(27% 0.019 256)",
+          "oklch(38% 0.019 256)",
+          "oklch(50% 0.019 256)",
+          "oklch(62% 0.019 256)",
+          "oklch(73% 0.019 256)",
+          "oklch(84% 0.019 256)",
+          "oklch(95% 0.019 256)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The verdict sentence in step 3; the only 22px type on the page."
+      },
+      "brand": {
+        "displayName": "Brand",
+        "purpose": "The product name in the header only."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Step titles, with a muted 14px hint beside them."
+      },
+      "subtitle": {
+        "displayName": "Subtitle",
+        "purpose": "Caution and try-it card titles, in ink."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "The three plain-language sentences; 600px column."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Chart captions (64ch), hints, card bodies, button labels (Medium)."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Tooltip text, the sentences hint, the Copied note."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Picker labels: 12px uppercase, 0.06em, blue."
+      },
+      "label-micro": {
+        "displayName": "Label Micro",
+        "purpose": "The stats table caption: 11px uppercase, 0.08em, muted."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "The stats table; tabular figures."
+      },
+      "mono-label": {
+        "displayName": "Mono Label",
+        "purpose": "The r readout above the marker, the tooltip term name, picker meta lines, the mono size chip."
+      },
+      "mono-tick": {
+        "displayName": "Mono Tick",
+        "purpose": "Weak / Moderate / Strong ticks under the strength scale."
+      }
+    },
+    "shadows": [
+      {
+        "name": "none",
+        "value": "none",
+        "purpose": "No surface casts a shadow. The changed-sentence highlight's 0 0 0 4px spread is a same-color bleed, not elevation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-state",
+        "value": "200ms ease-out",
+        "purpose": "Strength-marker slide (left) and changed-sentence highlight (background, box-shadow). Off under prefers-reduced-motion."
+      },
+      {
+        "name": "busy-dim",
+        "value": "opacity 150ms",
+        "purpose": "Previous chart canvases dim to 0.6 while a run is in flight."
+      },
+      {
+        "name": "shimmer",
+        "value": "1.2s linear infinite",
+        "purpose": "Rail-to-white skeleton gradient (200% width) while charts are missing. Off under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "page-max",
+        "value": "1440px",
+        "purpose": "Page max-width; two 620px charts sit side by side unscaled."
+      },
+      {
+        "name": "demo-min",
+        "value": "1280px",
+        "purpose": "Charts shrink at most 14% (flex basis 86%) before the pair stacks. No mobile layout."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "The default button: white, 1.5px blue outline, blue 14px Medium label with a 16px stroke icon. Swap and the download / copy actions.",
+      "html": "<button class=\"ds-btn-ghost\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10\"/></svg> Download scatter (SVG)</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 9px 14px; border: 1.5px solid var(--blue, #2563eb); border-radius: var(--radius, 6px); background: var(--white, #fff); color: var(--blue, #2563eb); font: 500 14px var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); line-height: 20px; cursor: pointer; } .ds-btn-ghost:hover { background: var(--blue-tint, #e8efff); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--blue, #2563eb); outline-offset: 2px; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Blue fill, white label; the try-it card's action (behind VITE_FEATURE_TRANSFORM).",
+      "html": "<button class=\"ds-btn-primary\">Try removing the trend</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 9px 14px; border: 0; border-radius: var(--radius, 6px); background: var(--blue, #2563eb); color: var(--white, #fff); font: 500 14px var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); line-height: 20px; cursor: pointer; } .ds-btn-primary:hover { background: #1d4fd8; } .ds-btn-primary:focus-visible { outline: 2px solid var(--blue, #2563eb); outline-offset: 2px; }"
+    },
+    {
+      "name": "Picker Chip",
+      "kind": "input",
+      "refersTo": "chip-select",
+      "description": "A native select dressed as an outlined chip, with its uppercase blue label above and a mono meta line below.",
+      "html": "<div class=\"ds-picker\"><label class=\"ds-picker__label\" for=\"ds-pick-x\">X axis <span class=\"ds-picker__hint\">(across)</span></label><select id=\"ds-pick-x\" class=\"ds-chip\"><option>Fall deaths (normalized) — falls_normalized</option><option>iPhone sales (normalized) — iphone_normalized</option></select><p class=\"ds-picker__meta\">falls_normalized.csv · 12 years · 2007–2018</p></div>",
+      "css": ".ds-picker { display: flex; flex-direction: column; gap: 6px; max-width: 420px; font-family: var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); } .ds-picker__label { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue, #2563eb); } .ds-picker__hint { text-transform: none; letter-spacing: 0; } .ds-chip { appearance: none; -webkit-appearance: none; padding: 10px 36px 10px 14px; border: 1px solid var(--chip-border, #cbd5e1); border-radius: var(--radius, 6px); background: var(--white, #fff) url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%234a5568' stroke-width='1.5'/%3E%3C/svg%3E\") no-repeat right 12px center; color: var(--ink, #182b49); font: 500 15px var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); line-height: 20px; } .ds-chip:focus-visible { outline: 2px solid var(--blue, #2563eb); outline-offset: 2px; } .ds-picker__meta { margin: 0; font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace); font-size: 12px; color: var(--muted, #4a5568); }"
+    },
+    {
+      "name": "Step Rail",
+      "kind": "nav",
+      "refersTo": "step-number",
+      "description": "One numbered step: the 112px graph-paper rail with a 36px blue circle and 2px connector, beside the step title and hint.",
+      "html": "<section class=\"ds-step\"><div class=\"ds-rail\"><span class=\"ds-step__num\">1</span><span class=\"ds-rail__line\"></span></div><div class=\"ds-step__body\"><div class=\"ds-step__head\"><h2 class=\"ds-step__title\">Choose two things to compare</h2><p class=\"ds-step__hint\">Any two columns from the dataset. Swap them any time.</p></div></div></section>",
+      "css": ".ds-step { display: flex; min-height: 140px; border-bottom: 1px solid var(--rule, #dbe2ec); font-family: var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); color: var(--ink, #182b49); } .ds-rail { flex: none; width: 112px; display: flex; flex-direction: column; align-items: center; padding-top: 24px; background-color: var(--rail, #f3f5f9); background-image: linear-gradient(var(--grid, #e3e8f0) 1px, transparent 1px), linear-gradient(90deg, var(--grid, #e3e8f0) 1px, transparent 1px); background-size: 24px 24px; background-position: -1px -1px; } .ds-step__num { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--blue, #2563eb); color: var(--white, #fff); font-weight: 700; font-size: 16px; } .ds-rail__line { flex: 1; width: 2px; background: var(--blue-mid, #93b4f7); } .ds-step__body { flex: 1; min-width: 0; padding: 24px 28px 28px; } .ds-step__head { display: flex; align-items: baseline; gap: 12px; } .ds-step__title { margin: 0; font-size: 18px; font-weight: 600; line-height: 24px; } .ds-step__hint { margin: 0; font-size: 14px; color: var(--muted, #4a5568); }"
+    },
+    {
+      "name": "Verdict Panel",
+      "kind": "card",
+      "refersTo": "verdict-panel",
+      "description": "The blue-tint verdict panel with its 5px Triton-gold rule, the headline, and the strength scale with the gold marker.",
+      "html": "<section class=\"ds-verdict\"><h3 class=\"ds-verdict__headline\">Strongly related — but that does not mean one causes the other.</h3><div class=\"ds-verdict__row\"><div class=\"ds-scale\"><div class=\"ds-scale__bar\"><span class=\"ds-scale__band ds-scale__band--weak\" style=\"width:40%\"></span><span class=\"ds-scale__band ds-scale__band--moderate\" style=\"width:30%\"></span><span class=\"ds-scale__band ds-scale__band--strong\" style=\"width:30%\"></span><span class=\"ds-scale__marker\" style=\"left:96%\"></span><span class=\"ds-scale__label\" style=\"left:96%\">r = 0.96</span></div><div class=\"ds-scale__ticks\"><span style=\"width:40%\">Weak 0–0.4</span><span style=\"width:30%\">Moderate 0.4–0.7</span><span>Strong 0.7–1</span></div></div><p class=\"ds-verdict__note\">r measures how closely the dots follow one straight line, from −1 to 1. Here they follow it very closely.</p></div></section>",
+      "css": ".ds-verdict { position: relative; padding: 14px 20px 16px 24px; border-radius: 8px; background: var(--blue-tint, #e8efff); overflow: hidden; color: var(--ink, #182b49); font-family: var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); } .ds-verdict::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--gold, #ffcd00); } .ds-verdict__headline { margin: 0 0 14px; font-size: 22px; font-weight: 700; line-height: 28px; } .ds-verdict__row { display: flex; align-items: center; gap: 24px; } .ds-verdict__note { margin: 0; max-width: 52ch; font-size: 14px; line-height: 20px; color: var(--muted, #4a5568); } .ds-scale { width: 444px; flex: none; padding-top: 20px; } .ds-scale__bar { position: relative; display: flex; gap: 2px; height: 10px; } .ds-scale__band { display: block; height: 10px; border-radius: 5px; } .ds-scale__band--weak { background: var(--scale-weak, #d5deea); } .ds-scale__band--moderate { background: var(--blue-mid, #93b4f7); } .ds-scale__band--strong { background: var(--blue, #2563eb); } .ds-scale__marker { position: absolute; top: -3px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--gold, #ffcd00); border: 2.5px solid var(--ink, #182b49); transition: left 200ms ease-out; } .ds-scale__label { position: absolute; top: -22px; transform: translateX(-100%); font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace); font-size: 12px; font-weight: 500; color: var(--blue, #2563eb); white-space: nowrap; } .ds-scale__ticks { display: flex; margin-top: 6px; font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--muted, #4a5568); } @media (prefers-reduced-motion: reduce) { .ds-scale__marker { transition: none; } }"
+    },
+    {
+      "name": "Caution Card",
+      "kind": "card",
+      "refersTo": "check-warn",
+      "description": "A step-4 caution: red-tint ground, red-deep text, a 22px red badge with a white exclamation stroke.",
+      "html": "<article class=\"ds-check ds-check--warn\"><div class=\"ds-check__head\"><span class=\"ds-check__badge\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M8 3.5v5M8 11.5v.5\"/></svg></span><h3 class=\"ds-check__title\">Both change over time</h3></div><p class=\"ds-check__body\">Year is driving both columns. A shared trend can produce a strong r with no causal link at all.</p></article>",
+      "css": ".ds-check { width: 400px; padding: 14px 16px; border-radius: 8px; font-family: var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); } .ds-check--warn { background: var(--red-tint, #fdecec); color: var(--red-deep, #7f1d1d); } .ds-check--try { background: var(--blue-tint, #e8efff); color: var(--blue-deep, #1e3a8a); } .ds-check__head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; } .ds-check__badge { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: var(--white, #fff); } .ds-check--warn .ds-check__badge { background: var(--red, #c62828); } .ds-check--try .ds-check__badge { background: var(--blue, #2563eb); } .ds-check__title { margin: 0; font-size: 15px; font-weight: 600; line-height: 20px; color: var(--ink, #182b49); } .ds-check__body { margin: 0; font-size: 14px; line-height: 20px; }"
+    },
+    {
+      "name": "Glossary Term",
+      "kind": "custom",
+      "refersTo": "glossary-tooltip",
+      "description": "A blue underlined term with its one-line definition in a near-black tooltip on hover or focus.",
+      "html": "<p class=\"ds-sentence\">A pattern like this would almost never appear by chance (<span class=\"ds-term-wrap\"><span class=\"ds-term\" tabindex=\"0\">p-value</span><span class=\"ds-term__tip\" role=\"tooltip\"><span class=\"ds-term__tip-name\">p-value</span>How often a pattern this strong would show up by chance if the two were unrelated.</span></span> &lt; 0.001).</p>",
+      "css": ".ds-sentence { margin: 0; padding-bottom: 72px; font: 400 16px var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); line-height: 24px; color: var(--ink, #182b49); } .ds-term-wrap { position: relative; } .ds-term { color: var(--blue, #2563eb); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: help; border-radius: 2px; } .ds-term:focus-visible { outline: 2px solid var(--blue, #2563eb); outline-offset: 2px; } .ds-term__tip { display: none; position: absolute; left: 0; top: calc(100% + 8px); z-index: 10; width: 260px; padding: 10px 12px; border-radius: var(--radius, 6px); background: var(--tooltip, #1f1f1f); color: var(--white, #fff); font-size: 13px; line-height: 18px; font-weight: 400; } .ds-term-wrap:hover .ds-term__tip, .ds-term-wrap:focus-within .ds-term__tip { display: block; } .ds-term__tip-name { display: block; margin-bottom: 4px; font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace); font-size: 12px; font-weight: 500; }"
+    },
+    {
+      "name": "Stats Table",
+      "kind": "custom",
+      "refersTo": "stats-table",
+      "description": "The framed mono statistics table with its 11px uppercase caption and underlined term keys.",
+      "html": "<table class=\"ds-stats\"><caption class=\"ds-stats__caption\">The statistics</caption><tbody><tr><td class=\"ds-stats__key\"><span class=\"ds-term\">n</span></td><td class=\"ds-stats__value\">12</td></tr><tr><td class=\"ds-stats__key\"><span class=\"ds-term\">r</span></td><td class=\"ds-stats__value\">0.9626</td></tr><tr><td class=\"ds-stats__key\"><span class=\"ds-term\">p-value</span></td><td class=\"ds-stats__value\">5.44e-7</td></tr></tbody></table>",
+      "css": ".ds-stats { font-variant-numeric: tabular-nums; border: 1px solid var(--rule, #dbe2ec); border-radius: 8px; border-collapse: separate; border-spacing: 0; padding: 10px 16px 12px; font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace); font-size: 13px; line-height: 22px; color: var(--ink, #182b49); background: var(--white, #fff); } .ds-stats__caption { caption-side: top; text-align: left; padding-bottom: 4px; font-family: var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted, #4a5568); } .ds-stats__key { width: 110px; padding: 0; } .ds-stats__value { padding: 0; min-width: 90px; } .ds-term { color: var(--blue, #2563eb); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: help; }"
+    },
+    {
+      "name": "Chart Frame",
+      "kind": "card",
+      "refersTo": "chart-frame",
+      "description": "The backend canvas in a 1px rule frame at 6px with a muted caption beneath; shown here as the loading skeleton.",
+      "html": "<figure class=\"ds-chart-figure\"><div class=\"ds-chart-skeleton\" style=\"width:310px;height:220px\"></div><figcaption class=\"ds-chart-caption\">Each dot is one year. The dashed line is the best straight-line fit through them — the closer the dots hug it, the higher r.</figcaption></figure>",
+      "css": ".ds-chart-figure { margin: 0; display: flex; flex-direction: column; gap: 10px; max-width: 620px; font-family: var(--font-text, 'Atkinson Hyperlegible Next', system-ui, sans-serif); } .ds-chart-skeleton { max-width: 100%; border: 1px solid var(--rule, #dbe2ec); border-radius: var(--radius, 6px); background: linear-gradient(90deg, var(--rail, #f3f5f9) 25%, var(--white, #fff) 50%, var(--rail, #f3f5f9) 75%); background-size: 200% 100%; animation: ds-shimmer 1.2s linear infinite; } @keyframes ds-shimmer { to { background-position: -200% 0; } } @media (prefers-reduced-motion: reduce) { .ds-chart-skeleton { animation: none; } } .ds-chart-caption { max-width: 64ch; font-size: 14px; line-height: 20px; color: var(--muted, #4a5568); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Guided Worksheet",
+    "overview": "**Creative North Star: \"The Guided Worksheet\"**\n\nGraph Explorer is a white page with one numbered path down its left edge. Four steps (choose, look, read, check) sit on a 112px rail ruled like faint graph paper, and everything a student reads is set in Atkinson Hyperlegible Next in UCSD navy ink. The page refuses the category default of a sidebar of selects beside chart cards and the earlier notebook costume of In/Out prompts; the structure itself is the teaching device, and the chrome borrows from nothing.\n\nThe palette is \"data-ink + Triton\": the page takes its one structural color from the scatter chart it hosts, so the backend-drawn canvases and the page around them read as a single system. Navy is ink only and is never used as a fill. The scatter's blue carries every structural and interactive element; the line chart's red is reserved for cautions; and Triton gold appears in exactly two places as a wink, never as a band or a background. Depth is conveyed by tint and hairline, not by shadow.\n\nDensity is calm and laptop-scaled. The page is capped at 1440px, step bodies breathe at 28px, numbers and file names switch to JetBrains Mono, and the only motion is a marker sliding to a new r, a pale highlight on sentences that changed, and a shimmer while a run is in flight.",
+    "keyCharacteristics": [
+      "One structural color (the scatter's blue) shared by page chrome and canvas",
+      "Navy is text, never a fill; near-black is reserved for the glossary tooltip",
+      "Flat surfaces: tints, 1px rules and 1.5px outlines carry all depth",
+      "Two radii, 6px for controls and 8px for panels; circles for step numbers and badges",
+      "Hyperlegible sans for reading, monospace for every number, column and file name",
+      "Gold in exactly two places: the verdict rule and the strength marker"
+    ],
+    "rules": [
+      {
+        "name": "The Ink-Not-Fill Rule",
+        "body": "Navy is for reading text and the marker ring only. Filled navy reads as black and was found heavy; a dark fill, when one is needed, is the tooltip near-black.",
+        "section": "colors"
+      },
+      {
+        "name": "The One-Structure Rule",
+        "body": "Anything structural or interactive is the scatter chart's blue or one of its three tints. A new control, badge, link or panel does not get a new hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Caution-Only Red Rule",
+        "body": "Red appears only on caution cards and the error status. Nothing decorative, nothing positive, is red.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Golds Rule",
+        "body": "Triton gold lives on the verdict rule and the strength marker, each a few pixels wide. It is never a band, a background, or a third element.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono-Is-Data Rule",
+        "body": "Numbers, column names, file names, chart sizes and scale ticks are JetBrains Mono; prose is never mono, and a number inside a sentence stays in the sentence's face.",
+        "section": "typography"
+      },
+      {
+        "name": "The One-Headline Rule",
+        "body": "22px Bold is the verdict sentence and nothing else; the page has one headline and it is a plain-language claim, not a statistic.",
+        "section": "typography"
+      },
+      {
+        "name": "The No-Shadow Rule",
+        "body": "Nothing casts a shadow. New surfaces earn separation with a tint (blue-tint, red-tint, rail) or a 1px rule, never with box-shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Busy-Dims Rule",
+        "body": "While a run is in flight, the previous canvases dim to 60% over 150ms and a rail-to-white shimmer (1.2s linear) stands in for missing ones; neither animates under prefers-reduced-motion.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the scatter's blue (`{colors.blue}`) and its tints for any new structural or interactive element; the page and the canvases share one hue.",
+      "Do keep navy as text: 16/24 body in ink, muted for secondary prose.",
+      "Do set every number, column name, file name and scale tick in JetBrains Mono with tabular figures.",
+      "Do separate surfaces with a tint or a 1px rule, and give controls 6px and panels 8px corners.",
+      "Do author icons as 16px SVG paths at 1.75px stroke in currentColor.",
+      "Do keep motion to 200ms ease-out on state changes and disable it under prefers-reduced-motion."
+    ],
+    "donts": [
+      "Don't fill anything with navy; a dark surface is the tooltip near-black.",
+      "Don't add box-shadow to any surface.",
+      "Don't use red for anything but a caution card or an error status.",
+      "Don't add a third use of Triton gold, or widen either existing one into a band or background.",
+      "Don't upscale a chart canvas; shrink by at most 14% and stack beyond that.",
+      "Don't introduce a mobile layout, a sidebar of controls, or notebook In/Out chrome."
+    ]
+  }
+}
