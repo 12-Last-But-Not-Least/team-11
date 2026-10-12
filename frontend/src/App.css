@@ -58,6 +58,7 @@ html {
 
 .brand__name {
   margin: 0;
+  white-space: nowrap;
   font-size: 20px;
   font-weight: 700;
   line-height: 24px;
