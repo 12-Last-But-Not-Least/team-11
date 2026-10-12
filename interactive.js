@@ -12,9 +12,9 @@
  *   InteractiveChart.load(canvas, "http://127.0.0.1:8000/plot/scatter?x=year&y=falls_norm");
  *
  * Controls
- *   mouse wheel         zoom both axes around the cursor
- *   shift + wheel       zoom x axis only
- *   alt + wheel         zoom y axis only
+ *   mouse wheel         scrolls the page as usual (a hint says how to zoom)
+ *   ctrl/⌘ + wheel      zoom both axes around the cursor (trackpad pinch too)
+ *   + shift / + alt     zoom x axis only / y axis only
  *   drag                pan
  *   hover               tooltip for the nearest point
  *   double-click        reset view
@@ -29,6 +29,7 @@
 
   const GRID = "#e5e7eb", AXIS = "#111827", FONT = "12px sans-serif";
   const HOVER_RADIUS_PX = 14;
+  const HINT_TEXT = "Hold Ctrl or ⌘ and scroll to zoom", HINT_MS = 1200;
 
   // ---- replay server draw commands on a 2D context -----------------------
   function replay(ctx, commands) {
@@ -97,6 +98,7 @@
       };
       this.view = Object.assign({}, this.home);
       this.hover = null;
+      this.hint = false;
       this.drag = null;
       this._queued = false;
       this._bind();
@@ -169,9 +171,15 @@
       cv.addEventListener("wheel", (e) => {
         const p = this._pos(e);
         if (!this._inPlot(p)) return;
-        e.preventDefault();
+        // A plain scroll belongs to the page; only Ctrl/⌘ + wheel zooms.
+        // Trackpad pinch arrives as Ctrl + wheel, so it zooms too.
+        if (!(e.ctrlKey || e.metaKey)) { this._flashHint(); return; }
+        e.preventDefault();  // stop the browser zooming the whole page
+        // macOS turns Shift + wheel into horizontal scrolling (deltaY = 0)
+        const delta = e.deltaY || e.deltaX;
+        if (!delta) return;
         const axes = e.shiftKey ? "x" : e.altKey ? "y" : "xy";
-        this.zoom(e.deltaY < 0 ? 0.8 : 1.25, p.x, p.y, axes);
+        this.zoom(delta < 0 ? 0.8 : 1.25, p.x, p.y, axes);
       }, { passive: false });
 
       cv.addEventListener("mousedown", (e) => {
@@ -225,6 +233,28 @@
       replay(ctx, this.spec.commands.filter((c) => c.layer !== "plot"));
       this._drawPlot();
       if (this.hover) this._drawTooltip();
+      if (this.hint) this._drawHint();
+    }
+
+    // shown briefly when someone scrolls over the plot without Ctrl/⌘
+    _flashHint() {
+      this.hint = true;
+      clearTimeout(this._hintTimer);
+      this._hintTimer = setTimeout(() => { this.hint = false; this._redraw(); }, HINT_MS);
+      this._redraw();
+    }
+
+    _drawHint() {
+      const ctx = this.ctx, a = this.spec.data.plot_area;
+      ctx.save();
+      ctx.font = FONT;
+      const w = ctx.measureText(HINT_TEXT).width + 24, h = 28;
+      const x = (a.left + a.right - w) / 2, y = (a.top + a.bottom - h) / 2;
+      ctx.fillStyle = "rgba(17,24,39,0.85)";
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = "#ffffff"; ctx.textAlign = "center";
+      ctx.fillText(HINT_TEXT, x + w / 2, y + 18);
+      ctx.restore();
     }
 
     _drawPlot() {
