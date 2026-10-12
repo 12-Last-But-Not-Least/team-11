@@ -2,7 +2,7 @@
 // The backend reserves ~280px of every canvas for margins and its stats
 // panel, so anything narrower than ~600px clips the title and overlaps the
 // year ticks. The default sits side by side unscaled at 1440px (the demo
-// width) and shrinks by at most 12% at 1280px; larger sizes stack instead
+// width) and shrinks by at most 14% at 1280px; larger sizes stack instead
 // of scaling (see .charts / --chart-w in App.css).
 export const SIZES = [
   ["620x440", "620 × 440"],
