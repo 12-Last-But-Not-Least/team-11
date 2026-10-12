@@ -35,6 +35,7 @@ The frontend reads the API address from `VITE_API_URL` (see `frontend/.env.examp
 .venv/bin/python -m pytest -q        # backend (16 tests)
 cd frontend && npm test              # frontend (Vitest + Testing Library, with coverage)
 cd frontend && npm run lint          # oxlint
+cd frontend && npm run test:e2e      # Playwright happy path (uses the installed Chrome; starts both servers if needed)
 node test_svg_export.js              # SVG exporter
 ```
 

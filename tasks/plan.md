@@ -41,7 +41,7 @@ T1 scaffold + tokens + fonts
 T11 exports (SVG/PNG/copy)        ← T4, T8
 T12 re-run choreography + changed-highlight ← T5, T8
 T13 contract polish + finish review + DESIGN.md ← all
-Stretch: T14 Playwright happy path; T15 year-over-year transform (backend)
+Stretch: T14 Playwright happy path ✅; T15 year-over-year transform (backend owner)
 ```
 
 ## Task list

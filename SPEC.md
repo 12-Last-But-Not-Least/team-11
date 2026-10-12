@@ -168,7 +168,7 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 ## Stretch (not required for done)
 
 - Year-over-year change transform (`?transform=diff`) so r visibly drops. Needs backend owner agreement; the frontend's flag-gated "try it" card was removed in evaluation round 1 and would be re-added with the feature.
-- Playwright happy-path test.
+- ~~Playwright happy-path test.~~ Done: `frontend/e2e/happy-path.spec.js`, `npm run test:e2e`.
 - A "focus" view per chart (the tabs option), reusing `Chart.jsx` and `Description.jsx`.
 - Single-process deployment: FastAPI serves `frontend/dist/` as static files so one command runs everything and CORS can be closed. Deferred until the backend owner agrees; not needed for development or the demo.
 

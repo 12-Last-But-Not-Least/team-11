@@ -198,7 +198,7 @@ Commands (from `frontend/`): `npm test`, `npm run lint`, `npm run build`, `npm r
 - [x] README rewritten with layout, run and test instructions
 
 ## Stretch
-- [ ] T14 Playwright happy-path test
+- [x] T14 Playwright happy-path test (`npm run test:e2e`, system Chrome via `channel: "chrome"`, both servers started or reused; 1 passed)
 - [ ] T15 Year-over-year transform (`?transform=diff`) — needs backend owner agreement; then enable `features.transform`
 
 ## Task 16: Owner evaluation round 1 ✅ (2026-10-12)
