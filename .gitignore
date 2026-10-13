@@ -1,2 +1,23 @@
 .ipynb_checkpoints/
 .vscode/
+# frontend
+node_modules/
+frontend/dist/
+.env
+.env.local
+
+# design tooling runtime state (keep surfaces/ and the decision payload)
+.impeccable/questions/
+.impeccable/brief-body.md
+.impeccable/mocks/
+.impeccable/review/
+.impeccable/build/
+
+# python
+.venv/
+__pycache__/
+.pytest_cache/
+
+# playwright
+frontend/test-results/
+frontend/playwright-report/
