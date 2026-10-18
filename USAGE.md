@@ -147,6 +147,39 @@ CORS is open (`*`) so a frontend served from another port can call the API. Tigh
 
 ## Adding or switching datasets
 
+### Named datasets
+
+`GET /datasets` returns the two existing bundled examples, including their IDs, names,
+descriptions, row counts, numeric columns, ordering key, and default X/Y axes.
+Use `dataset_id` on every request to select a table independently of other
+clients:
+
+```text
+/columns?dataset_id=iphone-falls
+/plot/scatter?dataset_id=icecream-sharks
+/plot/line?dataset_id=icecream-sharks
+/stats?dataset_id=iphone-falls&x=iphone_units_sold_millions_norm&y=deaths_norm
+```
+
+Omitted axes use the selected dataset's defaults; the default line X is its
+ordering key. Explicit X/Y choices still work. Plot `meta` includes
+`dataset_id` and `dataset_name`. Unknown dataset IDs return 404; unknown columns
+and unusable analyses return 422. Statistics require at least three complete,
+finite pairs with nonconstant axes. Missing cells are excluded for the selected
+columns, identically in the default scatter, line, and statistics responses.
+
+Each named dataset is isolated: matching column names do not join tables.
+The monthly example uses 1–12 for January–December. No automatic normalization
+is applied by the loader; the two existing examples were already normalized.
+Expansion to 3–5 defaults with documented original sources is deferred until
+dataset switching and CSV import are implemented.
+
+The frontend dropdown and CSV upload flow are separate upcoming units tracked
+in `tasks/dataset-support.md`. Requests without `dataset_id` retain the legacy
+behavior below.
+
+### Legacy folder-based loading
+
 Drop a CSV into `Data_Clean_UP/data/final/` and restart the server. No code changes.
 
 - The file needs a `year` column (the join key). Files without one are ignored.

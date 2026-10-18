@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from plotting import build_line, build_scatter
 from plotting.data import KEY, available_columns, display_name, select
+from plotting.datasets import UnknownDataset, get_dataset, list_datasets
 from stats import correlation_stats
 
 app = FastAPI(title="Warm-up Graphing API",
@@ -47,10 +48,33 @@ class Column(BaseModel):
     source: str
 
 
-def _rows(*names):
-    """Selected columns joined on year; bad column names / no overlap become HTTP 422."""
+class DatasetInfo(BaseModel):
+    id: str
+    name: str
+    description: str
+    kind: str
+    row_count: int
+    key: str
+    key_label: str
+    default_x: str
+    default_y: str
+    columns: list[Column]
+
+
+def _dataset(dataset_id):
+    if dataset_id is None:
+        return None
     try:
-        return select(list(dict.fromkeys(names)))  # dedupe, keep order
+        return get_dataset(dataset_id)
+    except UnknownDataset as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+
+
+def _rows(*names, dataset=None):
+    """Select complete observations; keep year joins only for legacy requests."""
+    try:
+        loader = dataset.select if dataset else select
+        return loader(list(dict.fromkeys(names)))  # dedupe, keep order
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -62,44 +86,69 @@ def _stats(a, b):
         raise HTTPException(status_code=422, detail=str(e))
 
 
+@app.get("/datasets", response_model=list[DatasetInfo])
+def datasets():
+    return list_datasets()
+
+
 @app.get("/columns", response_model=list[Column])
-def columns():
+def columns(dataset_id: Optional[str] = None):
     """Every column that can be used on an axis, and the file it comes from."""
-    return available_columns()
+    dataset = _dataset(dataset_id)
+    return dataset.columns() if dataset else available_columns()
 
 
 @app.get("/stats", response_model=Stats)
-def get_stats(x: str = DEFAULT_X, y: str = DEFAULT_Y):
-    rows = _rows(x, y)
+def get_stats(x: Optional[str] = None, y: Optional[str] = None,
+              dataset_id: Optional[str] = None):
+    dataset = _dataset(dataset_id)
+    x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
+    y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
+    rows = _rows(x, y, dataset=dataset)
     return _stats(rows[x], rows[y])
 
 
 @app.get("/plot/scatter", response_model=RenderSpec)
-def scatter(x: str = DEFAULT_X, y: str = DEFAULT_Y,
-            width: int = Width, height: int = Height):
-    rows = _rows(x, y)
-    xl, yl = display_name(x), display_name(y)
-    return build_scatter(rows[x], rows[y], _stats(rows[x], rows[y]),
+def scatter(x: Optional[str] = None, y: Optional[str] = None,
+            width: int = Width, height: int = Height, dataset_id: Optional[str] = None):
+    dataset = _dataset(dataset_id)
+    x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
+    y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
+    rows = _rows(x, y, dataset=dataset)
+    label = dataset.label if dataset else display_name
+    xl, yl = label(x), label(y)
+    spec = build_scatter(rows[x], rows[y], _stats(rows[x], rows[y]),
                          f"{yl} vs. {xl}", xl, yl, width, height,
-                         labels=[str(v) for v in rows[KEY]])
+                         labels=[str(v) for v in rows[dataset.key if dataset else KEY]])
+    if dataset:
+        spec["meta"].update(dataset_id=dataset.id, dataset_name=dataset.name)
+    return spec
 
 
 @app.get("/plot/line", response_model=RenderSpec)
-def line(x: str = KEY, y: list[str] = Query([DEFAULT_X, DEFAULT_Y]),
-         width: int = Width, height: int = Height):
+def line(x: Optional[str] = None, y: Optional[list[str]] = Query(None),
+         width: int = Width, height: int = Height, dataset_id: Optional[str] = None):
     """One line per `y` column against `x` (repeat `y` for more lines).
 
     Stats: correlation of the first two `y` columns, or of `x` against `y` when
     only one `y` is given.
     """
-    rows = _rows(x, *y)
+    dataset = _dataset(dataset_id)
+    x = x if x is not None else (dataset.key if dataset else KEY)
+    if y is None:
+        y = [dataset.default_x, dataset.default_y] if dataset else [DEFAULT_X, DEFAULT_Y]
+    rows = _rows(x, *y, dataset=dataset)
     ys = list(dict.fromkeys(y))
     stats = _stats(rows[ys[0]], rows[ys[1]]) if len(ys) > 1 else _stats(rows[x], rows[ys[0]])
-    xl = display_name(x)
+    label = dataset.label if dataset else display_name
+    xl = label(x)
     if len(ys) == 1:
-        title, yl = f"{display_name(ys[0])} vs. {xl}", display_name(ys[0])
+        title, yl = f"{label(ys[0])} vs. {xl}", label(ys[0])
     else:
         title = f"Line chart by {xl}"
         yl = "Normalized value (0-1)" if all(c.endswith("_norm") for c in ys) else "Value"
-    series = [(display_name(c), rows[c]) for c in ys]
-    return build_line(rows[x], series, stats, title, xl, yl, width, height)
+    series = [(label(c), rows[c]) for c in ys]
+    spec = build_line(rows[x], series, stats, title, xl, yl, width, height)
+    if dataset:
+        spec["meta"].update(dataset_id=dataset.id, dataset_name=dataset.name)
+    return spec

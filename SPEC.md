@@ -145,12 +145,14 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 - Keep interpretation to the threshold table above.
 
 **Ask first**
-- Any backend change at all (including the year-over-year transform or a static-file mount).
+- Backend changes outside the dataset-support work authorized on 2026-10-18
+  (plan: `tasks/dataset-support.md`).
 - Adding a runtime dependency beyond `react` and `react-dom`.
 - Changing the layout from one window to tabs or pages.
 
 **Never**
-- Accept file uploads or point at external databases.
+- Point at external databases. CSV uploads are now in scope under
+  `tasks/dataset-support.md`; they are not implemented by the first backend unit.
 - Commit `node_modules/`, `dist/`, `.env`, or credentials.
 - Remove or weaken existing backend tests.
 
