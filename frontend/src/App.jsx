@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api as defaultApi } from "./api.js";
-import { defaultPair, groupBySource, isKey, labelOf } from "./columns.js";
+import { defaultPair, isKey, labelOf } from "./columns.js";
 import { describeStats } from "./describe.js";
 import { diffTexts } from "./diffSentences.js";
 import { keyRange } from "./runMeta.js";
@@ -34,46 +34,72 @@ function Mark() {
 }
 
 export default function App({ api = defaultApi }) {
+  const [datasets, setDatasets] = useState(null);
+  const [dataset, setDataset] = useState(null);
   const [cols, setCols] = useState(null);
   const [error, setError] = useState(null);
-  const [sel, setSel] = useState(null); // { x, y, size }
+  const [sel, setSel] = useState(null); // { datasetId, x, y, size }
   const scatterCanvas = useRef(null);
   const scatterChart = useRef(null);
   const lineChart = useRef(null);
 
   useEffect(() => {
     let live = true;
+    api.getDatasets().then((items) => {
+      if (!live) return;
+      setDatasets(items);
+      setDataset(items[0] ?? null);
+    }).catch((e) => live && setError(e));
+    return () => { live = false; };
+  }, [api]);
+
+  useEffect(() => {
+    if (!dataset) return;
+    let live = true;
     api
-      .getColumns()
+      .getColumns(dataset.id)
       .then((c) => {
         if (!live) return;
         setCols(c);
-        const pair = defaultPair(c);
-        setSel(pair ? { ...pair, size: DEFAULT_SIZE } : null);
+        const hasDefaults = c.some((col) => col.name === dataset.default_x)
+          && c.some((col) => col.name === dataset.default_y);
+        const pair = hasDefaults ? { x: dataset.default_x, y: dataset.default_y } : defaultPair(c);
+        setSel(pair ? { ...pair, datasetId: dataset.id, dataset, size: DEFAULT_SIZE } : null);
+        if (!pair) setError(new Error("This dataset has no usable numeric axes."));
       })
       .catch((e) => live && setError(e));
     return () => {
       live = false;
     };
-  }, [api]);
+  }, [api, dataset]);
+
+  const chooseDataset = (id) => {
+    // A new object distinguishes a fresh visit from an earlier run of the same dataset.
+    setDataset({ ...datasets.find((item) => item.id === id) });
+    setCols(null);
+    setSel(null);
+    setError(null);
+  };
 
   const key = cols?.find(isKey);
   const keyLabel = (key?.label ?? "point").toLowerCase();
   const { forSel, scatter, line, running, error: runError } = useRun(api, sel, key?.name ?? "year");
+  const currentRun = Boolean(sel && forSel && forSel.dataset === dataset);
 
   // steps 3–4 describe the landed run (forSel), not a selection still in flight
-  const description = scatter && forSel
+  const description = scatter && currentRun
     ? describeStats(scatter.stats, { x: labelOf(cols, forSel.x), y: labelOf(cols, forSel.y) })
     : null;
   const range = keyRange(scatter);
-  const runMeta = range ? { ...range, keyLabel } : null;
+  const runMeta = range && currentRun ? { ...range, keyLabel } : null;
 
   // Changed-since-last-run flags, recomputed only when a new scatter lands
   // (state derived from props, the React-sanctioned setState-in-render form).
   const [runMemo, setRunMemo] = useState({ scatter: null, prev: null, changed: null, specs: null });
   if (description && runMemo.scatter !== scatter) {
-    const prev = runMemo.prev;
+    const prev = runMemo.dataset === dataset ? runMemo.prev : null;
     setRunMemo({
+      dataset,
       scatter,
       prev: description,
       changed: {
@@ -88,9 +114,6 @@ export default function App({ api = defaultApi }) {
   const changed = landed?.changed ?? null;
   const specs = landed?.specs ?? null;
 
-  const files = cols ? groupBySource(cols).length : 0;
-  const plottable = cols ? cols.length - 1 : 0;
-
   return (
     <div className="page">
       <header className="header">
@@ -98,23 +121,22 @@ export default function App({ api = defaultApi }) {
           <Mark />
           <h1 className="brand__name">{PRODUCT_NAME}</h1>
         </div>
-        {cols && (
+        {datasets?.length > 0 && (
           <div className="dataset">
             <label className="dataset__label" htmlFor="pick-dataset">Dataset</label>
-            {/* One choice today (the folder the backend serves); the control is
-                ready for more datasets once the API can list them. */}
-            <select id="pick-dataset" className="chip chip--dataset" value="current" onChange={() => {}}>
-              <option value="current">
-                {files} {files === 1 ? "file" : "files"} · {plottable} columns
-              </option>
+            <select id="pick-dataset" className="chip chip--dataset" value={dataset?.id ?? ""} onChange={(e) => chooseDataset(e.target.value)}>
+              {datasets.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
           </div>
         )}
       </header>
       <main>
+        {!error && (!datasets || (dataset && !cols)) && <p role="status">Loading datasets…</p>}
+        {datasets?.length === 0 && <p role="status">No datasets are available.</p>}
+        {dataset && <p className="dataset-description">{dataset.description}</p>}
         {error && (
           <p role="status" className="status status--error">
-            Start the backend first (uvicorn main:app): {error.message}
+            Could not load dataset: {error.message}
           </p>
         )}
         {cols && sel && (
@@ -127,14 +149,17 @@ export default function App({ api = defaultApi }) {
             {runError.detail ?? runError.message}
           </p>
         )}
-        {sel && (
+        {(sel || specs) && (
           <Step n={2} title="Look at them two ways" help={HELP[2]} busy={running}>
-            {!specs ? (
+            {(!specs || !currentRun) && sel && !runError && (
               <div className="charts charts--pending" aria-hidden="true" style={{ "--chart-w": `${parseSize(sel.size).width}px` }}>
                 <div className="chart-figure"><div className="chart-skeleton" style={{ aspectRatio: `${parseSize(sel.size).width} / ${parseSize(sel.size).height}` }} /></div>
               </div>
-            ) : (
-              <>
+            )}
+            {specs && (
+              // Keep canvas instances mounted to reuse their interaction listeners.
+              // Hidden results are unavailable visually and to assistive technology.
+              <div hidden={!currentRun}>
                 <div className="charts" style={{ "--chart-w": `${scatter.width}px` }}>
                   <figure className="chart-figure">
                     <div className="chart-figure__head">
@@ -144,7 +169,7 @@ export default function App({ api = defaultApi }) {
                     </div>
                     <Chart spec={specs.scatter} label="Scatter plot" canvasRef={scatterCanvas} chartRef={scatterChart} />
                     <figcaption className="chart-caption">
-                      Each dot is one {keyLabel}. The dashed line is the best straight-line fit through them — the closer the dots hug it, the higher r.
+                      Each dot is one observation. The dashed line is the best straight-line fit through them — the closer the dots hug it, the higher r.
                     </figcaption>
                   </figure>
                   <StatsBar stats={scatter.stats} />
@@ -156,11 +181,11 @@ export default function App({ api = defaultApi }) {
                     </div>
                     <Chart spec={specs.line} label="Line chart" chartRef={lineChart} />
                     <figcaption className="chart-caption">
-                      The same columns over time. If both simply climb {keyLabel} after {keyLabel}, that alone can make the dots line up on the left.
+                      The same columns ordered by {keyLabel}. A shared trend can make the dots line up on the left; row order alone does not imply time.
                     </figcaption>
                   </figure>
                 </div>
-              </>
+              </div>
             )}
           </Step>
         )}
@@ -179,6 +204,7 @@ export default function App({ api = defaultApi }) {
               names={{ x: forSel.x, y: forSel.y }}
               labels={{ x: labelOf(cols, forSel.x), y: labelOf(cols, forSel.y) }}
               stats={scatter.stats}
+              dataset={dataset}
             />
           </Step>
         )}

@@ -40,9 +40,10 @@ export function createApi({ fetch, baseUrl }) {
   }
 
   return {
-    getColumns: () => get("/columns"),
-    getScatter: ({ x, y, width, height }) => get("/plot/scatter", { x, y, width, height }),
-    getLine: ({ x, ys, width, height }) => get("/plot/line", { x, y: ys, width, height }),
+    getDatasets: () => get("/datasets"),
+    getColumns: (datasetId) => get("/columns", { dataset_id: datasetId }),
+    getScatter: ({ x, y, width, height, datasetId }) => get("/plot/scatter", { x, y, width, height, dataset_id: datasetId }),
+    getLine: ({ x, ys, width, height, datasetId }) => get("/plot/line", { x, y: ys, width, height, dataset_id: datasetId }),
   };
 }
 

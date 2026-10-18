@@ -15,7 +15,9 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "../.venv/bin/uvicorn main:app --port 8000",
+      command: process.platform === "win32"
+        ? ".venv\\Scripts\\python.exe -m uvicorn main:app --port 8000"
+        : ".venv/bin/python -m uvicorn main:app --port 8000",
       cwd: "..",
       url: "http://localhost:8000/columns",
       reuseExistingServer: true,

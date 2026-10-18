@@ -24,11 +24,11 @@ Feature scope and implementation sequence for named datasets and CSV imports.
 
 ## Implementation units
 
-1. **Named dataset registry and API**.
+1. **Named dataset registry and API** — committed (`77fc809`).
    Add `/datasets`, dataset-scoped columns/plots/statistics, the two existing examples,
    dataset identity in plot metadata, and regression tests. Preserve the old
    year-joined API when `dataset_id` is omitted so the current UI keeps working.
-2. **Frontend dataset switching** — pending.
+2. **Frontend dataset switching** — implemented, awaiting review.
    Wire the header dropdown to the catalog and dataset defaults. Update all
    worksheet results and exports together. Guard stale dataset/column/plot
    responses; reset old results on dataset changes. Replace year-only copy.
@@ -41,10 +41,18 @@ Feature scope and implementation sequence for named datasets and CSV imports.
    reach 3–5 defaults. Record source URLs, units, applicable reuse terms, and
    cleaning/normalization steps. A repository filename alone is not provenance.
 
-## Backend compatibility
+## Compatibility and switching behavior
 
-- No frontend behavior changes yet; inspect `/docs` or the API to try the new
-  functionality. No upload endpoint exists in this unit.
+- The header lists named datasets from `/datasets`. Each selection loads its
+  columns and default axes and sends the dataset ID with both plot requests.
+- Switching hides old charts, statistics, interpretations, and export controls
+  until both new plots succeed. Late responses are ignored. A failed switch
+  shows an error; users can select another dataset to recover.
+- Chart instances are retained while hidden and reset with the next results.
+  Dataset changes reset axis/size selections and change highlights. Returning
+  to a previous dataset waits for a fresh result instead of showing an old run.
+- Download names include the dataset ID; copied statistics include its name.
+- CSV upload is still pending.
 - Bundled examples reuse existing repository data; descriptions identify the
   cleaning output, not independently verified external provenance.
 - `plotting/data.py` is retained as the legacy compatibility path.

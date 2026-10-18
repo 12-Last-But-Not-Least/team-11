@@ -11,7 +11,7 @@ const stats = { n: 12, r: 0.9625562715881898, r_squared: 0.926514575973757, t: 1
 
 function fakeApi(s = stats) {
   return {
-    getColumns: async () => cols,
+    getDatasets: async () => [{ id: "test", name: "Test dataset" }], getColumns: async () => cols,
     getScatter: async () => spec({ stats: s }),
     getLine: async () => spec({ stats: s }),
   };

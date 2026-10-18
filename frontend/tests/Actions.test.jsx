@@ -9,7 +9,7 @@ const cols = [
   { name: "iphone_norm", label: "iPhone sales (normalized)", source: "iphone_normalized.csv" },
 ];
 const scatterSpec = spec({ width: 801 });
-const fakeApi = () => ({ getColumns: async () => cols, getScatter: async () => scatterSpec, getLine: async () => spec() });
+const fakeApi = () => ({ getDatasets: async () => [{ id: "test", name: "Test dataset" }], getColumns: async () => cols, getScatter: async () => scatterSpec, getLine: async () => spec() });
 
 beforeEach(() => {
   window.SvgChart = { download: vi.fn() };
@@ -23,7 +23,7 @@ describe("downloads and copy", () => {
     const user = userEvent.setup();
     render(<App api={fakeApi()} />);
     await user.click(await screen.findByRole("button", { name: /download scatter \(svg\)/i }));
-    expect(window.SvgChart.download).toHaveBeenCalledWith(scatterSpec, "scatter_falls_norm_vs_iphone_norm.svg");
+    expect(window.SvgChart.download).toHaveBeenCalledWith(scatterSpec, "scatter_test_falls_norm_vs_iphone_norm.svg");
   });
 
   it("downloads the scatter canvas as PNG", async () => {
@@ -41,7 +41,7 @@ describe("downloads and copy", () => {
     await user.click(await screen.findByRole("button", { name: /copy the statistics/i }));
     expect(await screen.findByText(/copied/i)).toBeInTheDocument();
     const text = await navigator.clipboard.readText(); // user-event's clipboard stub
-    expect(text.startsWith("iPhone sales (normalized) vs. Fall deaths (normalized)\n")).toBe(true);
+    expect(text.startsWith("Dataset: Test dataset\niPhone sales (normalized) vs. Fall deaths (normalized)\n")).toBe(true);
     expect(text).toContain("r = 0.9000");
   });
 });

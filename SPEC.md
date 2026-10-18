@@ -177,4 +177,4 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 ## Open Questions
 
 1. ~~Product name.~~ Decided 2026-10-12: **"Coincidence? I Think Not"** (from Poorva's demo), a single constant in `App.jsx` plus the page title.
-2. Datasets: the header "Dataset" control is a dropdown with one choice (the folder the backend serves). It is a placeholder for a future `GET /datasets`; the frontend never names the dataset itself.
+2. Datasets: the header "Dataset" control lists `GET /datasets`. Selection loads dataset-scoped columns and defaults, then refreshes plots, statistics, interpretations, and exports together. Old results are hidden while switching; late responses are ignored. The frontend never hardcodes dataset names. CSV imports and additional sourced defaults are tracked in `tasks/dataset-support.md`.

@@ -77,6 +77,12 @@ html {
   color: var(--muted);
 }
 
+.dataset-description {
+  padding: 0 var(--gutter);
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

@@ -174,8 +174,13 @@ is applied by the loader; the two existing examples were already normalized.
 Expansion to 3–5 defaults with documented original sources is deferred until
 dataset switching and CSV import are implemented.
 
-The frontend dropdown and CSV upload flow are separate upcoming units tracked
-in `tasks/dataset-support.md`. Requests without `dataset_id` retain the legacy
+The frontend Dataset dropdown lists this catalog and switches the full
+worksheet. Switching resets axes to the dataset defaults and chart size to
+800 × 500. Old results and exports are hidden until both new plots succeed;
+late responses cannot overwrite a newer selection. If loading fails, select
+another dataset to recover. Export filenames include the dataset ID and copied
+statistics include its name. CSV upload remains a separate upcoming unit in
+`tasks/dataset-support.md`. Requests without `dataset_id` retain the legacy
 behavior below.
 
 ### Legacy folder-based loading

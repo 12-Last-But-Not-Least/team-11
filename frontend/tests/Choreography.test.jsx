@@ -14,7 +14,7 @@ const moderate = { n: 12, r: 0.5, r_squared: 0.25, t: 1.8, df: 10, p_value: 0.1,
 function fakeApi(sequence) {
   let i = 0;
   const next = () => sequence[Math.min(i++, sequence.length - 1)];
-  return { getColumns: async () => cols, getScatter: async () => spec({ stats: next() }), getLine: async () => spec() };
+  return { getDatasets: async () => [{ id: "test", name: "Test dataset" }], getColumns: async () => cols, getScatter: async () => spec({ stats: next() }), getLine: async () => spec() };
 }
 
 const changedItems = () => within(screen.getByRole("list", { name: /what the statistics mean/i })).getAllByRole("listitem").map((li) => li.classList.contains("sentence--changed"));

@@ -20,6 +20,20 @@ describe("buildQuery", () => {
 });
 
 describe("createApi", () => {
+  it("loads the catalog and scopes columns and both plots to a dataset", async () => {
+    const { fetch, calls } = fakeFetch(Array.from({ length: 4 }, () => ({ status: 200, body: [] })));
+    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    await api.getDatasets();
+    await api.getColumns("example");
+    await api.getScatter({ datasetId: "example", x: "a", y: "b" });
+    await api.getLine({ datasetId: "example", x: "row", ys: ["a", "b"] });
+    expect(calls).toEqual([
+      "http://api.test/datasets",
+      "http://api.test/columns?dataset_id=example",
+      "http://api.test/plot/scatter?x=a&y=b&dataset_id=example",
+      "http://api.test/plot/line?x=row&y=a&y=b&dataset_id=example",
+    ]);
+  });
   it("getColumns hits /columns on the configured base URL", async () => {
     const { fetch, calls } = fakeFetch([{ status: 200, body: [{ name: "year" }] }]);
     const api = createApi({ fetch, baseUrl: "http://api.test" });
