@@ -43,7 +43,7 @@ jobs:
         run: |
           npm run lint
           npm test
-          npm run build -- --base=/Warm_up_project/
+          npm run build -- --base=/team-11/
 
       - uses: actions/configure-pages@v6
 

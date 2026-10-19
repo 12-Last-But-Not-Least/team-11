@@ -1,6 +1,7 @@
-// Stage 1: compute statistics in the browser; Python still builds chart specs.
+// Fetch joined values once, then compute statistics and render specs locally.
 // createApi preserves the server adapter; createBrowserApi powers the app.
 import { correlationStats } from "./stats.js";
+import { buildLine, buildScatter } from "./render.js";
 
 export class ApiError extends Error {
   constructor(status, detail) {
@@ -23,11 +24,9 @@ export function buildQuery(params) {
 
 function createRequest({ fetch, baseUrl }) {
   const base = baseUrl.replace(/\/$/, "");
-  return async function get(path, params, stats) {
+  return async function get(path, params) {
     const qs = params ? buildQuery(params) : "";
-    const res = await fetch(`${base}${path}${qs ? `?${qs}` : ""}`, stats === undefined ? undefined : {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(stats),
-    });
+    const res = await fetch(`${base}${path}${qs ? `?${qs}` : ""}`);
     if (!res.ok) {
       let detail = `HTTP ${res.status}`;
       try {
@@ -111,15 +110,25 @@ export function createBrowserApi({ fetch, baseUrl }) {
     getScatter: async ({ x, y, width, height }) => {
       const size = sizeOf(width, height);
       const data = await joined([x, y]);
-      return get("/render/scatter", { x, y, ...size }, statsFor(data, x, y));
+      const xLabel = data.labels[x], yLabel = data.labels[y];
+      return buildScatter(data.values[x], data.values[y], statsFor(data, x, y), {
+        ...size, title: `${yLabel} vs. ${xLabel}`, xLabel, yLabel,
+        labels: data.values[data.key].map(String),
+      });
     },
     getLine: async ({ x, ys, width, height }) => {
       const size = sizeOf(width, height);
       const names = [...new Set(ys)];
       if (!names.length) throw new ApiError(422, "Choose at least one line series.");
       const data = await joined([x, ...names]);
+      const xLabel = data.labels[x];
       const stats = names.length > 1 ? statsFor(data, names[0], names[1]) : statsFor(data, x, names[0]);
-      return get("/render/line", { x, y: names, ...size }, stats);
+      const title = names.length === 1 ? `${data.labels[names[0]]} vs. ${xLabel}` : `Line chart by ${xLabel}`;
+      const yLabel = names.length === 1 ? data.labels[names[0]] :
+        names.every((name) => name.endsWith("_norm")) ? "Normalized value (0-1)" : "Value";
+      return buildLine(data.values[x], names.map((name) => ({ name: data.labels[name], values: data.values[name] })), stats, {
+        ...size, title, xLabel, yLabel,
+      });
     },
   };
 }
