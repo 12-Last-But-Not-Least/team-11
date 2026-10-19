@@ -111,6 +111,60 @@ def year_over_year_correlation(years, x, y):
         "reason": None,
     }
 
+def leave_one_out_correlation(x, y):
+    """Return the correlation range when each paired observation is omitted."""
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+
+    if x.ndim != 1 or y.ndim != 1:
+        raise ValueError("x and y must be one-dimensional")
+
+    if len(x) != len(y):
+        raise ValueError("x and y must have the same length")
+
+    if not (np.isfinite(x).all() and np.isfinite(y).all()):
+        raise ValueError("x and y must contain only finite values")
+
+    n = len(x)
+
+    # Require at least three observations after removing one pair.
+    if n < 4:
+        return {
+            "r_min": None,
+            "r_max": None,
+            "valid_count": 0,
+            "undefined_count": 0,
+            "reason": "insufficient_data",
+        }
+
+    correlations = []
+    undefined_count = 0
+
+    for i in range(n):
+        # Remove the same observation from both series.
+        remaining_x = np.delete(x, i)
+        remaining_y = np.delete(y, i)
+
+        # Correlation is undefined if either remaining series is constant.
+        if (
+            np.all(remaining_x == remaining_x[0])
+            or np.all(remaining_y == remaining_y[0])
+        ):
+            undefined_count += 1
+            continue
+
+        # Calculate only the correlation coefficient.
+        r = float(np.corrcoef(remaining_x, remaining_y)[0, 1])
+        correlations.append(r)
+
+    return {
+        "r_min": min(correlations) if correlations else None,
+        "r_max": max(correlations) if correlations else None,
+        "valid_count": len(correlations),
+        "undefined_count": undefined_count,
+        "reason": None if correlations else "undefined_correlation",
+    }
+
 
 if __name__ == "__main__":
     data = Path(__file__).parent / "Data_Clean_UP" / "data" / "final" / "iphone_vs_falls_normalized.csv"

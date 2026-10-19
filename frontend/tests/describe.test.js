@@ -89,7 +89,7 @@ describe("describeStats: sentences", () => {
 });
 
 describe("describeStats: year-over-year", () => {
-  it("shows annual-change correlation, sample size and p-value", () => {
+  it("explains annual changes with correlation, sample size and p-value", () => {
     const result = describeStats(stats({
       year_over_year: {
         n: 11,
@@ -99,20 +99,17 @@ describe("describeStats: year-over-year", () => {
       },
     }), labels);
 
-    const texts = result.sentences.map((s) => s.text);
-
-    expect(texts).toContain(
-      "Annual changes have a weak linear relationship (r = 0.178, 11 pairs)."
-    );
-    expect(texts).toContain(
-      "Annual-change p-value = 0.600: insufficient evidence of correlation. " +
-      "Interpret cautiously: annual changes may not be independent."
+    expect(result.sentences.map((s) => s.text)).toContain(
+      "Yearly increases and decreases show a weak linear relationship " +
+      "(r = 0.178, 11 paired changes). " +
+      "There is insufficient evidence of correlation (p-value = 0.600). " +
+      "Annual changes may not be independent, so interpret this cautiously."
     );
   });
 
   it.each([
-    [0.049, "evidence of correlation"],
-    [0.050, "insufficient evidence of correlation"],
+    [0.049, "There is evidence of correlation"],
+    [0.050, "There is insufficient evidence of correlation"],
   ])("interprets annual-change p = %s", (p, expected) => {
     const result = describeStats(stats({
       year_over_year: {
@@ -124,22 +121,91 @@ describe("describeStats: year-over-year", () => {
     }), labels);
 
     const text = result.sentences
-      .find((s) => s.text.startsWith("Annual-change p-value")).text;
+      .find((s) => s.text.startsWith("Yearly increases")).text;
 
-    expect(text).toContain(`: ${expected}.`);
+    expect(text).toContain(`${expected} (p-value`);
   });
 
   it.each([
-    ["insufficient_changes", 2,
-      "Annual-change correlation is unavailable: only 2 paired changes; at least 3 are required."],
-    ["constant_changes", 11,
-      "Annual-change correlation is undefined because one series has constant annual changes."],
+    [
+      "insufficient_changes",
+      2,
+      "Only 2 paired annual changes are available; at least 3 are needed to calculate correlation.",
+    ],
+    [
+      "constant_changes",
+      11,
+      "Annual-change correlation cannot be calculated because one series changes by the same amount each year.",
+    ],
   ])("explains unavailable results: %s", (reason, n, expected) => {
     const result = describeStats(stats({
       year_over_year: {
         n,
         r: null,
         p_value: null,
+        reason,
+      },
+    }), labels);
+
+    expect(result.sentences.map((s) => s.text)).toContain(expected);
+  });
+});
+
+describe("describeStats: leave-one-out", () => {
+  it("explains the correlation range", () => {
+    const result = describeStats(stats({
+      leave_one_out: {
+        r_min: 0.95536,
+        r_max: 0.97360,
+        valid_count: 12,
+        undefined_count: 0,
+        reason: null,
+      },
+    }), labels);
+
+    expect(result.sentences.map((s) => s.text)).toContain(
+      "Leaving out one data point at a time gives correlations " +
+      "between 0.955 and 0.974. " +
+      "This shows how much individual points affect the result, " +
+      "not a confidence interval."
+    );
+  });
+
+  it("reports cases with undefined correlation", () => {
+    const result = describeStats(stats({
+      leave_one_out: {
+        r_min: 0.756,
+        r_max: 0.945,
+        valid_count: 3,
+        undefined_count: 1,
+        reason: null,
+      },
+    }), labels);
+
+    const text = result.sentences
+      .find((s) => s.text.startsWith("Leaving out")).text;
+
+    expect(text).toContain(
+      "Correlation could not be calculated in 1 of the 4 cases."
+    );
+  });
+
+  it.each([
+    [
+      "insufficient_data",
+      "At least 4 data points are needed to check how leaving out individual points affects correlation.",
+    ],
+    [
+      "undefined_correlation",
+      "Correlation cannot be calculated after leaving out any single data point.",
+    ],
+  ])("explains unavailable results: %s", (reason, expected) => {
+    const result = describeStats(stats({
+      leave_one_out: {
+        r_min: null,
+        r_max: null,
+        valid_count: 0,
+        undefined_count: 0,
         reason,
       },
     }), labels);

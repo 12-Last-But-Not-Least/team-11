@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from plotting import build_line, build_scatter
 from plotting.data import KEY, available_columns, display_name, select
-from stats import correlation_stats, year_over_year_correlation
+from stats import correlation_stats, year_over_year_correlation, leave_one_out_correlation
 
 app = FastAPI(title="Warm-up Graphing API",
               description="Returns canvas draw commands for scatter and line charts. "
@@ -26,6 +26,13 @@ class YearOverYearStats(BaseModel):
     p_value: Optional[float]
     reason: Optional[str]
 
+class LeaveOneOutStats(BaseModel):
+    r_min: Optional[float]
+    r_max: Optional[float]
+    valid_count: int
+    undefined_count: int
+    reason: Optional[str]
+
 class Stats(BaseModel):
     n: int
     r: float
@@ -36,6 +43,7 @@ class Stats(BaseModel):
     slope: float
     intercept: float
     year_over_year: YearOverYearStats
+    leave_one_out: LeaveOneOutStats
 
 
 class RenderSpec(BaseModel):
@@ -65,6 +73,7 @@ def _stats(a, b, years):
     try:
         result = correlation_stats(a, b)
         result["year_over_year"] = year_over_year_correlation(years, a, b)
+        result["leave_one_out"] = leave_one_out_correlation(a, b)
         return result
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

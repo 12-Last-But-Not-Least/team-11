@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from main import app
 from plotting import data
 from plotting.render import nice_ticks
-from stats import correlation_stats, year_over_year_correlation
+from stats import correlation_stats, year_over_year_correlation, leave_one_out_correlation
 
 client = TestClient(app)
 
@@ -239,4 +239,49 @@ def test_yoy_insufficient_changes():
         "r": None,
         "p_value": None,
         "reason": "insufficient_changes",
+    }
+
+# ---------------------------------------------- leave-one-out correlation --
+
+def test_leave_one_out_range():
+    # Removing the last point gives r = 1.
+    # Removing the first point gives r = 0.
+    result = leave_one_out_correlation(
+        [0, 1, 2, 3],
+        [0, 1, 2, 1],
+    )
+
+    assert result["r_min"] == pytest.approx(0.0)
+    assert result["r_max"] == pytest.approx(1.0)
+    assert result["valid_count"] == 4
+    assert result["undefined_count"] == 0
+    assert result["reason"] is None
+
+
+def test_leave_one_out_skips_undefined_case():
+    # Removing the last pair leaves X constant.
+    result = leave_one_out_correlation(
+        [1, 1, 1, 2],
+        [1, 2, 3, 4],
+    )
+
+    assert result["valid_count"] == 3
+    assert result["undefined_count"] == 1
+    assert result["r_min"] == pytest.approx(0.7559289460184544)
+    assert result["r_max"] == pytest.approx(0.944911182523068)
+    assert result["reason"] is None
+
+
+def test_leave_one_out_insufficient_data():
+    result = leave_one_out_correlation(
+        [1, 2, 3],
+        [2, 4, 6],
+    )
+
+    assert result == {
+        "r_min": None,
+        "r_max": None,
+        "valid_count": 0,
+        "undefined_count": 0,
+        "reason": "insufficient_data",
     }
