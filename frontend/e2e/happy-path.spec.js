@@ -78,3 +78,39 @@ test("switching datasets updates axes, charts, statistics and exports", async ({
   await expect(page.getByLabel(/x axis/i)).toHaveValue("iphone_units_sold_millions_norm");
   await expect(page.getByRole("button", { name: "Copy the statistics" })).toBeVisible();
 });
+
+test("a temporary CSV survives reload and is available to other clients", async ({ page, browser }) => {
+  await page.goto("/");
+  await expect(page.getByRole("img", { name: "Scatter plot" })).toBeVisible();
+  await page.getByLabel("CSV file").setInputFiles({ name: "custom-observations.csv", mimeType: "text/csv",
+    buffer: Buffer.from("rownames,measurement,result\n1,1,5\n2,2,4\n3,NA,NA\n4,3,2\n5,4,1\n") });
+  await page.getByRole("button", { name: "Import CSV", exact: true }).click();
+  await expect(page.getByText("Imported custom-observations: 5 rows.")).toBeVisible();
+  const datasetId = await page.getByLabel("Dataset", { exact: true }).inputValue();
+  expect(datasetId).toMatch(/^import-/);
+  const otherContext = await browser.newContext();
+  try {
+    const otherPage = await otherContext.newPage();
+    await otherPage.goto("/");
+    await expect(otherPage.getByRole("img", { name: "Scatter plot" })).toBeVisible();
+    await expect(otherPage.locator(`option[value="${datasetId}"]`)).toHaveCount(1);
+  } finally {
+    await otherContext.close();
+  }
+  await expect(page.getByLabel(/x axis/i)).toHaveValue("rownames");
+  await expect(page.getByRole("button", { name: "Copy the statistics" })).toBeVisible();
+  await page.getByRole("button", { name: "Copy the statistics" }).click();
+  await expect(page.getByText("Copied to the clipboard.")).toBeVisible();
+  const text = await page.evaluate(() => navigator.clipboard.readText());
+  expect(text).toContain("Dataset: custom-observations");
+  expect(text).toContain("n = 4");
+  await page.reload();
+  await page.getByLabel("Dataset", { exact: true }).selectOption(datasetId);
+  await expect(page.getByLabel(/x axis/i)).toHaveValue("rownames");
+  await expect(page.getByRole("img", { name: "Line chart" })).toBeVisible();
+  await page.getByLabel("CSV file").setInputFiles({ name: "invalid.csv", mimeType: "text/csv", buffer: Buffer.from("x,y\n1,2\n") });
+  await page.getByRole("button", { name: "Import CSV", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("at least three");
+  await expect(page.getByLabel("Dataset", { exact: true })).toHaveValue(datasetId);
+  await expect(page.getByRole("img", { name: "Scatter plot" })).toBeVisible();
+});

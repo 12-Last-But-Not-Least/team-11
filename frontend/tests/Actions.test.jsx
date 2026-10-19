@@ -9,7 +9,7 @@ const cols = [
   { name: "iphone_norm", label: "iPhone sales (normalized)", source: "iphone_normalized.csv" },
 ];
 const scatterSpec = spec({ width: 801 });
-const fakeApi = () => ({ getDatasets: async () => [{ id: "test", name: "Test dataset" }], getColumns: async () => cols, getScatter: async () => scatterSpec, getLine: async () => spec() });
+const fakeApi = () => ({ getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols, getScatter: async () => scatterSpec, getLine: async () => spec() });
 
 beforeEach(() => {
   window.SvgChart = { download: vi.fn() };

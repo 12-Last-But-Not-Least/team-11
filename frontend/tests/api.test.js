@@ -20,6 +20,17 @@ describe("buildQuery", () => {
 });
 
 describe("createApi", () => {
+  it("uploads the CSV body and filename and preserves validation errors", async () => {
+    const file = new File(["x,y\n1,2"], "my data.csv", { type: "text/csv" });
+    const fetch = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ id: "uploaded" }) })
+      .mockResolvedValueOnce({ ok: false, status: 422, json: async () => ({ detail: "Invalid CSV" }) });
+    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    expect(await api.importCsv(file)).toEqual({ id: "uploaded" });
+    expect(fetch).toHaveBeenCalledWith("http://api.test/datasets?filename=my+data.csv", {
+      method: "POST", headers: { "Content-Type": "text/csv" }, body: file,
+    });
+    await expect(api.importCsv(file)).rejects.toMatchObject({ status: 422, detail: "Invalid CSV" });
+  });
   it("loads the catalog and scopes columns and both plots to a dataset", async () => {
     const { fetch, calls } = fakeFetch(Array.from({ length: 4 }, () => ({ status: 200, body: [] })));
     const api = createApi({ fetch, baseUrl: "http://api.test" });

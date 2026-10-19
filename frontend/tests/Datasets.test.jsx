@@ -39,6 +39,7 @@ test("switching uses catalog defaults, refreshes all results, and exports datase
   await saveButton();
   expect(screen.getByLabelText(/x axis/i)).toHaveValue("y");
   expect(api.getColumns).toHaveBeenCalledWith("alpha");
+  await waitFor(() => expect(FakeChart.instances).toHaveLength(2));
   const firstCharts = [...FakeChart.instances];
   await user.selectOptions(screen.getByLabelText("Dataset"), "beta");
   await saveButton();
@@ -47,7 +48,7 @@ test("switching uses catalog defaults, refreshes all results, and exports datase
   expect(within(screen.getByLabelText(/x axis/i)).getByRole("option", { name: "beta X" })).toBeInTheDocument();
   expect(screen.queryByRole("option", { name: "alpha X" })).not.toBeInTheDocument();
   expect(FakeChart.instances).toEqual(firstCharts);
-  expect(firstCharts.every((chart) => chart.spec.meta.dataset_id === "beta")).toBe(true);
+  await waitFor(() => expect(firstCharts.every((chart) => chart.spec.meta.dataset_id === "beta")).toBe(true));
   const step2 = screen.getByRole("region", { name: /look at them two ways/i });
   expect(within(step2).getByRole("table")).toHaveTextContent("-0.5000");
   expect(document.querySelector(".verdict--changed, .sentence--changed")).toBeNull();
@@ -115,4 +116,44 @@ test("catalog failures and an empty catalog have explicit messages", async () =>
   render(<App api={api} />);
   await screen.findByText("No datasets are available.");
   expect(api.getScatter).not.toHaveBeenCalled();
+});
+
+test("a successful CSV import joins the catalog and becomes the active dataset", async () => {
+  const user = userEvent.setup();
+  const api = makeApi();
+  const pending = deferred();
+  api.importCsv = vi.fn(() => pending.promise);
+  render(<App api={api} />);
+  await saveButton();
+  const file = new File(["x,y\n1,2\n2,4\n3,5"], "custom.csv", { type: "text/csv" });
+  await user.upload(screen.getByLabelText("CSV file"), file);
+  await user.click(screen.getByRole("button", { name: "Import CSV" }));
+  expect(screen.getByLabelText("Dataset")).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Importing…" })).toBeDisabled();
+  await act(async () => pending.resolve({ id: "custom", name: "custom", row_count: 3,
+    default_x: "x", default_y: "y", warnings: ["Not available as numeric axes: name"] }));
+  await screen.findByText("Imported custom: 3 rows.");
+  await waitFor(() => expect(api.getScatter).toHaveBeenLastCalledWith(expect.objectContaining({ datasetId: "custom" })));
+  expect(screen.getByLabelText("Dataset")).toHaveValue("custom");
+  expect(screen.getByLabelText("Dataset")).toBeEnabled();
+  expect(screen.getByRole("list", { name: "Dataset import notes" })).toHaveTextContent("name");
+  expect(api.importCsv).toHaveBeenCalledWith(file);
+  await user.selectOptions(screen.getByLabelText("Dataset"), "alpha");
+  expect(screen.queryByText("Imported custom: 3 rows.")).toBeNull();
+  expect(screen.getByLabelText("CSV file")).toHaveValue("");
+});
+
+test("invalid imports keep the current dataset and allow retry", async () => {
+  const user = userEvent.setup();
+  const api = makeApi();
+  api.importCsv = vi.fn().mockRejectedValue(new Error("CSV needs two numeric columns"));
+  render(<App api={api} />);
+  await saveButton();
+  await user.upload(screen.getByLabelText("CSV file"), new File(["invalid"], "invalid.csv", { type: "text/csv" }));
+  await user.click(screen.getByRole("button", { name: "Import CSV" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("CSV needs two numeric columns");
+  expect(screen.getByLabelText("Dataset")).toHaveValue("alpha");
+  expect(screen.getByRole("img", { name: "Scatter plot" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Import CSV" })).toBeEnabled();
+  expect(api.getScatter).toHaveBeenCalledTimes(1);
 });

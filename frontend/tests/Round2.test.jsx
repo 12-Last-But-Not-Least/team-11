@@ -11,7 +11,7 @@ const cols = [
   { name: "iphone_norm", label: "iPhone sales (normalized)", source: "iphone_normalized.csv" },
 ];
 const stats = { n: 12, r: 0.96, r_squared: 0.92, t: 11.2, df: 10, p_value: 5e-7, slope: 1, intercept: 0 };
-const fakeApi = () => ({ getDatasets: async () => [{ id: "test", name: "Test dataset" }], getColumns: async () => cols, getScatter: async () => spec({ stats }), getLine: async () => spec({ stats }) });
+const fakeApi = () => ({ getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols, getScatter: async () => spec({ stats }), getLine: async () => spec({ stats }) });
 const before = (a, b) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
 
 describe("step 2 order: scatter, statistics, line", () => {

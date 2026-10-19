@@ -9,6 +9,68 @@ from plotting.data import display_name
 DATA_ROOT = Path(__file__).resolve().parent.parent / "Data_Clean_UP" / "data"
 
 
+def is_missing(value):
+    """Blank cells and the conventional CSV NA marker represent missing values."""
+    return value.strip().upper() in {"", "NA"}
+
+
+def parse_csv(stream, key=None, generated_key=False):
+    """Read numeric columns and an ordering key, preserving missing-row alignment."""
+    try:
+        reader = csv.reader(stream, strict=True)
+        headers = next(reader, [])
+        headers = [header.strip() for header in headers]
+        if not headers or any(not h for h in headers) or len(set(headers)) != len(headers):
+            raise ValueError("CSV headers must be nonempty and unique")
+        rows = []
+        for line, row in enumerate(reader, start=2):
+            if not row:  # permit blank lines
+                continue
+            if len(row) != len(headers):
+                raise ValueError(f"Row {line} has {len(row)} fields; expected {len(headers)}")
+            rows.append(row)
+    except csv.Error as e:
+        raise ValueError(f"Malformed CSV: {e}") from None
+    if not rows:
+        raise ValueError("dataset has no observations")
+
+    numeric = {}
+    ignored = []
+    for index, name in enumerate(headers):
+        values = []
+        is_numeric = True
+        for row in rows:
+            cell = row[index].strip()
+            if is_missing(cell):
+                values.append(None)
+                continue
+            try:
+                value = float(cell)
+            except ValueError:
+                is_numeric = False
+                continue
+            if not math.isfinite(value):
+                raise ValueError(f"Column '{name}' contains nonfinite values (NaN or infinity)")
+            values.append(value)
+        if is_numeric and any(v is not None for v in values):
+            numeric[name] = values
+        else:
+            ignored.append(name)
+
+    if key is None:
+        generated_key = not ("year" in numeric and all(v is not None for v in numeric["year"]))
+        key = "row_number" if generated_key else "year"
+        while generated_key and key in headers:
+            key = "_" + key
+    if generated_key:
+        if key in headers:
+            raise ValueError(f"generated ordering column '{key}' conflicts with a CSV column")
+        numeric[key] = list(range(1, len(rows) + 1))
+    if key not in numeric or any(v is None for v in numeric[key]):
+        raise ValueError("ordering column must contain a number for every observation")
+    return numeric, ignored, key, generated_key
+
+
 class UnknownDataset(ValueError):
     pass
 
@@ -24,35 +86,17 @@ class Dataset:
     default_x: str
     default_y: str
     generated_key: bool = False
+    kind: str = "bundled"
+    source_name: str = ""
+    warnings: tuple[str, ...] = ()
+    values: dict[str, list[float | None]] | None = None
 
     def table(self):
         """Read one table; preserve row alignment instead of joining unrelated files."""
+        if self.values is not None:
+            return self.values
         with self.path.open(encoding="utf-8-sig", newline="") as stream:
-            reader = csv.DictReader(stream)
-            headers = reader.fieldnames or []
-            rows = list(reader)
-        if not headers or any(not h.strip() for h in headers) or len(set(headers)) != len(headers):
-            raise ValueError("CSV headers must be nonempty and unique")
-        if not rows:
-            raise ValueError("dataset has no observations")
-        if any(None in row or any(v is None for v in row.values()) for row in rows):
-            raise ValueError("CSV rows must have the same number of fields as the header")
-        columns = {}
-        for name in headers:
-            try:
-                values = [float(row[name]) if row[name].strip() else None for row in rows]
-            except ValueError:
-                continue  # text is not offered as a numeric axis
-            if any(v is not None and not math.isfinite(v) for v in values):
-                raise ValueError(f"column '{name}' contains nonfinite values")
-            if any(v is not None for v in values):
-                columns[name] = values
-        if self.generated_key:
-            if self.key in headers:
-                raise ValueError(f"generated ordering column '{self.key}' conflicts with a CSV column")
-            columns[self.key] = list(range(1, len(rows) + 1))
-        if self.key not in columns or any(v is None for v in columns[self.key]):
-            raise ValueError("ordering column must contain a number for every observation")
+            columns, _, _, _ = parse_csv(stream, self.key, self.generated_key)
         return columns
 
     def label(self, name):
@@ -62,16 +106,16 @@ class Dataset:
         table = self.table()
         names = [self.key] + [name for name in table if name != self.key]
         return [{"name": name, "label": self.label(name),
-                 "source": "(join key)" if name == self.key else self.path.name}
+                 "source": "(join key)" if name == self.key else (self.source_name or self.path.name)}
                 for name in names]
 
     def metadata(self):
         table = self.table()
         return {"id": self.id, "name": self.name, "description": self.description,
-                "kind": "bundled", "row_count": len(table[self.key]),
+                "kind": self.kind, "row_count": len(table[self.key]),
                 "key": self.key, "key_label": self.key_label,
                 "default_x": self.default_x, "default_y": self.default_y,
-                "columns": self.columns()}
+                "columns": self.columns(), "warnings": list(self.warnings)}
 
     def select(self, names):
         table = self.table()
@@ -106,11 +150,15 @@ DATASETS = {
 
 
 def get_dataset(dataset_id):
-    try:
+    if dataset_id in DATASETS:
         return DATASETS[dataset_id]
-    except KeyError:
-        raise UnknownDataset(f"unknown dataset '{dataset_id}'") from None
+    from plotting.imports import load_import
+    imported = load_import(dataset_id)
+    if imported is not None:
+        return imported
+    raise UnknownDataset(f"unknown dataset '{dataset_id}'")
 
 
 def list_datasets():
-    return [dataset.metadata() for dataset in DATASETS.values()]
+    from plotting.imports import list_imports
+    return [dataset.metadata() for dataset in [*DATASETS.values(), *list_imports()]]

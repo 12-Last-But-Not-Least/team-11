@@ -24,7 +24,7 @@ It is a general chart explorer at its base (pick any two columns, see scatter an
 - React 19 with JavaScript (no TypeScript), built with Vite 8. (Spec originally said React 18 + ESLint; the current Vite template ships React 19 and oxlint, accepted on 2026-10-12 rather than pinning backwards.)
 - Plain CSS modules; no component library.
 - Canvas drawing reuses `interactive.js`, wrapped in one React component.
-- Backend: the existing FastAPI app, **unchanged**. Frontend and backend are separate processes on separate ports; the frontend talks to the API over HTTP with CORS (already open in `main.py`).
+- Backend: the FastAPI app with named datasets and temporary CSV imports. Frontend and backend are separate processes on separate ports; the frontend talks to the API over HTTP with CORS (already open in `main.py`).
 - Dev tooling: Node 20+, Vitest + React Testing Library + jsdom.
 
 ## Commands
@@ -132,7 +132,7 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 
 - **Unit (Vitest)**: `columns.js` and `describe.js` are pure and fully covered, including every threshold boundary (r = 0.7, p = 0.05, n = 29/30).
 - **Component (Vitest + React Testing Library)**: `Description` renders one paragraph per rule that fires. `App` happy path with a mocked `fetch`: loads columns, renders two charts, changes an axis, sees the description update. The canvas itself is stubbed in jsdom.
-- **Backend (pytest, existing)**: unchanged. The frontend branch does not touch backend tests.
+- **Backend (pytest)**: covers legacy behavior, named datasets, CSV validation, temporary imports, and dataset-scoped analysis.
 - **Happy path in a real browser**: walked manually before each commit, following the six steps above. Stretch: one Playwright test for the same six steps.
 - No tests for `interactive.js` (inherited, out of scope).
 
@@ -151,8 +151,8 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 - Changing the layout from one window to tabs or pages.
 
 **Never**
-- Point at external databases. CSV uploads are now in scope under
-  `tasks/dataset-support.md`; they are not implemented by the first backend unit.
+- Point at external databases. CSV uploads are supported under the scope and
+  behavior in `tasks/dataset-support.md`.
 - Commit `node_modules/`, `dist/`, `.env`, or credentials.
 - Remove or weaken existing backend tests.
 
@@ -160,11 +160,11 @@ Naming: `PascalCase` components, `camelCase` functions and variables, `UPPER_SNA
 
 - [x] With `uvicorn` and `npm run dev` both running, the six happy-path steps work at `http://127.0.0.1:5173` with no console errors (verified 2026-10-12).
 - [x] `npm run build && npm run preview` serves the built page on 4173 (verified).
-- [x] Renaming or adding a CSV in `Data_Clean_UP/data/final/` changes the dropdowns with no frontend code change (verified with a temporary file).
+- [x] Named datasets populate the dataset and axis dropdowns through the API; successful CSV imports become selectable without frontend code changes.
 - [x] r², p-value and n each have a rule-table sentence; every field in the stats table has a one-line glossary definition on hover/focus.
 - [x] Both charts update within one second of an axis change on localhost.
-- [x] Vitest: 104 tests pass; `describe.js`, `columns.js`, `checks.js`, `glossary.js` at 100% line coverage.
-- [x] pytest: existing 16 tests still pass (nothing on the backend changed).
+- [x] Vitest: 109 tests pass across 21 test files (verified 2026-10-18).
+- [x] pytest: legacy tests and the expanded dataset/import suite pass.
 - [x] `.gitignore` covers `node_modules/`, `dist/`, and `.env` (but not `.env.example`).
 
 ## Stretch (not required for done)

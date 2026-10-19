@@ -20,7 +20,7 @@ function fakeApi({ scatter, line } = {}) {
   const calls = { scatter: [], line: [] };
   return {
     calls,
-    getDatasets: async () => [{ id: "test", name: "Test dataset" }], getColumns: async () => cols,
+    getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols,
     getScatter: (p) => { calls.scatter.push(p); return scatter ? scatter(p, calls.scatter.length) : Promise.resolve(spec({ width: p.width, height: p.height })); },
     getLine: (p) => { calls.line.push(p); return line ? line(p, calls.line.length) : Promise.resolve(spec({ width: p.width, height: p.height })); },
   };

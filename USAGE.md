@@ -13,7 +13,7 @@ uvicorn main:app --reload
 
 ## Endpoints
 
-All plot endpoints return a **render spec** (see below). Optional `width` / `height` query params (300-4000 / 200-4000, default 800x500). Everything is GET; all data comes from the CSVs in `Data_Clean_UP/data/final/`.
+All plot endpoints return a **render spec** (see below). Optional `width` / `height` query params (300-4000 / 200-4000, default 800x500). Read endpoints use GET; CSV imports use POST. Named datasets include bundled CSVs and temporary uploaded tables. Requests without `dataset_id` use the legacy CSV loader in `Data_Clean_UP/data/final/`.
 
 | Path | What it returns |
 |---|---|
@@ -149,8 +149,9 @@ CORS is open (`*`) so a frontend served from another port can call the API. Tigh
 
 ### Named datasets
 
-`GET /datasets` returns the two existing bundled examples, including their IDs, names,
-descriptions, row counts, numeric columns, ordering key, and default X/Y axes.
+`GET /datasets` returns the two existing bundled examples plus temporary imports,
+including IDs, names, descriptions, row counts, numeric columns, ordering key,
+default X/Y axes, and import warnings.
 Use `dataset_id` on every request to select a table independently of other
 clients:
 
@@ -179,9 +180,47 @@ worksheet. Switching resets axes to the dataset defaults and chart size to
 800 × 500. Old results and exports are hidden until both new plots succeed;
 late responses cannot overwrite a newer selection. If loading fails, select
 another dataset to recover. Export filenames include the dataset ID and copied
-statistics include its name. CSV upload remains a separate upcoming unit in
-`tasks/dataset-support.md`. Requests without `dataset_id` retain the legacy
+statistics include its name. Requests without `dataset_id` retain the legacy
 behavior below.
+
+### Importing a CSV
+
+Choose a file in **CSV file**, then click **Import CSV**. A successful import
+appears in the Dataset dropdown and is selected automatically. Invalid uploads
+show an error without replacing the current dataset or its results.
+
+- UTF-8 comma-delimited CSV, optionally with a BOM; filename must end in `.csv`.
+- A header is required. Header whitespace is trimmed; empty/duplicate headers
+  and mismatched field counts are rejected. Quoted fields and blank lines work.
+- At least two nonconstant numeric columns must share three complete rows.
+  Empty cells and `NA` (case-insensitive) are treated as missing; affected rows are omitted only for selections using
+  those columns. Text/mixed columns are excluded from the imported table and unavailable
+  as axes, with a note shown in the UI. NaN/infinity are rejected.
+- A complete numeric `year` column orders observations. Otherwise rows keep
+  their file order using a generated row index. Dates and month names are not
+  automatically parsed. No normalization or imputation is applied.
+- All numeric CSV columns, including `rownames`, can be default axes.
+  Defaults are the first usable pair in CSV column order, falling back
+  to `year` as an axis if necessary. Users can change axes after import.
+
+API: `POST /datasets?filename=observations.csv` with `Content-Type: text/csv`
+and the **raw file bytes as the request body** (not JSON or multipart).
+Returns **201** with dataset metadata or **422** for validation failures.
+
+Imports are temporary: numeric tables and metadata stay in backend memory,
+with no uploaded files written to disk. All clients using the same backend
+can access uploaded datasets, including after a page reload. Backend restarts,
+redeployments, and hosting spin-down clear uploads; keep the original CSV to
+import again. Closing a browser does not clear uploads.
+
+Run a single backend process/worker because this registry is not shared across
+workers. GitHub Pages serves the frontend; imports still require the separately
+hosted API. Old files in `local_data/datasets/` are no longer read.
+Reimporting the same filename creates a separate dataset. No rename/deletion
+UI is included yet.
+
+Tests isolate the in-memory registry; browser tests use ports 8001/5174 and do not reuse
+your running development servers.
 
 ### Legacy folder-based loading
 

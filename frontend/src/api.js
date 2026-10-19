@@ -23,9 +23,7 @@ export function buildQuery(params) {
 export function createApi({ fetch, baseUrl }) {
   const base = baseUrl.replace(/\/$/, "");
 
-  async function get(path, params) {
-    const qs = params ? buildQuery(params) : "";
-    const res = await fetch(`${base}${path}${qs ? `?${qs}` : ""}`);
+  async function readResponse(res) {
     if (!res.ok) {
       let detail = `HTTP ${res.status}`;
       try {
@@ -39,8 +37,16 @@ export function createApi({ fetch, baseUrl }) {
     return res.json();
   }
 
+  async function get(path, params) {
+    const qs = params ? buildQuery(params) : "";
+    return readResponse(await fetch(`${base}${path}${qs ? `?${qs}` : ""}`));
+  }
+
   return {
     getDatasets: () => get("/datasets"),
+    importCsv: async (file) => readResponse(await fetch(`${base}/datasets?${buildQuery({ filename: file.name })}`, {
+      method: "POST", headers: { "Content-Type": "text/csv" }, body: file,
+    })),
     getColumns: (datasetId) => get("/columns", { dataset_id: datasetId }),
     getScatter: ({ x, y, width, height, datasetId }) => get("/plot/scatter", { x, y, width, height, dataset_id: datasetId }),
     getLine: ({ x, ys, width, height, datasetId }) => get("/plot/line", { x, y: ys, width, height, dataset_id: datasetId }),

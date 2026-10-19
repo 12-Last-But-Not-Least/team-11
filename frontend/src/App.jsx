@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api as defaultApi } from "./api.js";
-import { defaultPair, isKey, labelOf } from "./columns.js";
+import { isKey, labelOf } from "./columns.js";
 import { describeStats } from "./describe.js";
 import { diffTexts } from "./diffSentences.js";
 import { keyRange } from "./runMeta.js";
@@ -15,6 +15,7 @@ import { StatsBar } from "./components/StatsBar.jsx";
 import { Verdict } from "./components/Verdict.jsx";
 import { Sentences } from "./components/Sentences.jsx";
 import { Actions } from "./components/Actions.jsx";
+import { ImportDataset } from "./components/ImportDataset.jsx";
 
 // Product name (team decision 2026-10-12, from Poorva's demo). Single constant on purpose.
 export const PRODUCT_NAME = "Coincidence? I Think Not";
@@ -36,6 +37,8 @@ function Mark() {
 export default function App({ api = defaultApi }) {
   const [datasets, setDatasets] = useState(null);
   const [dataset, setDataset] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [importFormVersion, setImportFormVersion] = useState(0);
   const [cols, setCols] = useState(null);
   const [error, setError] = useState(null);
   const [sel, setSel] = useState(null); // { datasetId, x, y, size }
@@ -61,11 +64,8 @@ export default function App({ api = defaultApi }) {
       .then((c) => {
         if (!live) return;
         setCols(c);
-        const hasDefaults = c.some((col) => col.name === dataset.default_x)
-          && c.some((col) => col.name === dataset.default_y);
-        const pair = hasDefaults ? { x: dataset.default_x, y: dataset.default_y } : defaultPair(c);
-        setSel(pair ? { ...pair, datasetId: dataset.id, dataset, size: DEFAULT_SIZE } : null);
-        if (!pair) setError(new Error("This dataset has no usable numeric axes."));
+        const pair = { x: dataset.default_x, y: dataset.default_y };
+        setSel({ ...pair, datasetId: dataset.id, dataset, size: DEFAULT_SIZE });
       })
       .catch((e) => live && setError(e));
     return () => {
@@ -74,8 +74,17 @@ export default function App({ api = defaultApi }) {
   }, [api, dataset]);
 
   const chooseDataset = (id) => {
+    setImportFormVersion((version) => version + 1);
     // A new object distinguishes a fresh visit from an earlier run of the same dataset.
     setDataset({ ...datasets.find((item) => item.id === id) });
+    setCols(null);
+    setSel(null);
+    setError(null);
+  };
+
+  const importedDataset = (item) => {
+    setDatasets((items) => [...items, item]);
+    setDataset(item);
     setCols(null);
     setSel(null);
     setError(null);
@@ -124,16 +133,20 @@ export default function App({ api = defaultApi }) {
         {datasets?.length > 0 && (
           <div className="dataset">
             <label className="dataset__label" htmlFor="pick-dataset">Dataset</label>
-            <select id="pick-dataset" className="chip chip--dataset" value={dataset?.id ?? ""} onChange={(e) => chooseDataset(e.target.value)}>
+            <select id="pick-dataset" className="chip chip--dataset" disabled={importing} value={dataset?.id ?? ""} onChange={(e) => chooseDataset(e.target.value)}>
               {datasets.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
           </div>
         )}
       </header>
       <main>
+        {datasets && <ImportDataset key={importFormVersion} api={api} onImported={importedDataset} busy={importing} setBusy={setImporting} />}
         {!error && (!datasets || (dataset && !cols)) && <p role="status">Loading datasets…</p>}
         {datasets?.length === 0 && <p role="status">No datasets are available.</p>}
         {dataset && <p className="dataset-description">{dataset.description}</p>}
+        {dataset?.warnings?.length > 0 && <ul className="dataset-description" aria-label="Dataset import notes">
+          {dataset.warnings.map((warning) => <li key={warning}>{warning}</li>)}
+        </ul>}
         {error && (
           <p role="status" className="status status--error">
             Could not load dataset: {error.message}
@@ -169,7 +182,7 @@ export default function App({ api = defaultApi }) {
                     </div>
                     <Chart spec={specs.scatter} label="Scatter plot" canvasRef={scatterCanvas} chartRef={scatterChart} />
                     <figcaption className="chart-caption">
-                      Each dot is one observation. The dashed line is the best straight-line fit through them — the closer the dots hug it, the higher r.
+                      Each dot is one observation. The dashed line is the best straight-line fit through them — the closer the dots hug it, the closer r is to −1 or +1.
                     </figcaption>
                   </figure>
                   <StatsBar stats={scatter.stats} />

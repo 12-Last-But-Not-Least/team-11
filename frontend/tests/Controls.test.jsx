@@ -12,7 +12,7 @@ const cols = [
 
 function fakeApi() {
   return {
-    getDatasets: async () => [{ id: "test", name: "Test dataset" }], getColumns: async () => cols,
+    getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols,
     getScatter: async () => spec(),
     getLine: async () => spec(),
   };

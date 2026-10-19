@@ -1,12 +1,16 @@
 from typing import Any, Optional
+import math
+import numpy as np
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
 from plotting import build_line, build_scatter
 from plotting.data import KEY, available_columns, display_name, select
 from plotting.datasets import UnknownDataset, get_dataset, list_datasets
+from plotting.imports import import_csv
 from stats import correlation_stats
 
 app = FastAPI(title="Warm-up Graphing API",
@@ -59,6 +63,7 @@ class DatasetInfo(BaseModel):
     default_x: str
     default_y: str
     columns: list[Column]
+    warnings: list[str] = []
 
 
 def _dataset(dataset_id):
@@ -81,7 +86,13 @@ def _rows(*names, dataset=None):
 
 def _stats(a, b):
     try:
-        return correlation_stats(a, b)
+        with np.errstate(over="raise", invalid="raise", divide="raise"):
+            result = correlation_stats(a, b)
+        if any(value is not None and not math.isfinite(value) for value in result.values()):
+            raise ValueError("Selected values exceed the numerical range for analysis; rescale these columns")
+        return result
+    except FloatingPointError as e:
+        raise HTTPException(status_code=422, detail="Selected values exceed the numerical range for analysis; rescale these columns") from e
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -89,6 +100,16 @@ def _stats(a, b):
 @app.get("/datasets", response_model=list[DatasetInfo])
 def datasets():
     return list_datasets()
+
+
+@app.post("/datasets", response_model=DatasetInfo, status_code=201)
+async def upload_dataset(request: Request, filename: str = Query(...)):
+    """Raw UTF-8 CSV body, with filename as a query parameter (not multipart)."""
+    content = await request.body()
+    try:
+        return await run_in_threadpool(import_csv, content, filename)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
 
 
 @app.get("/columns", response_model=list[Column])
@@ -119,7 +140,7 @@ def scatter(x: Optional[str] = None, y: Optional[str] = None,
     xl, yl = label(x), label(y)
     spec = build_scatter(rows[x], rows[y], _stats(rows[x], rows[y]),
                          f"{yl} vs. {xl}", xl, yl, width, height,
-                         labels=[str(v) for v in rows[dataset.key if dataset else KEY]])
+                         labels=[str(int(v)) if float(v).is_integer() else str(v) for v in rows[dataset.key if dataset else KEY]])
     if dataset:
         spec["meta"].update(dataset_id=dataset.id, dataset_name=dataset.name)
     return spec
