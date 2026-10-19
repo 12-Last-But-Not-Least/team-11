@@ -8,6 +8,7 @@ import { stripStatsPanel } from "./specFilter.js";
 import { HELP } from "./help.js";
 import { parseSize } from "./sizes.js";
 import { useChartSize } from "./useChartSize.js";
+import { useActiveStep } from "./useActiveStep.js";
 import { useRun } from "./useRun.js";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
@@ -45,6 +46,7 @@ export default function App({ api = defaultApi }) {
   const scatterChart = useRef(null);
   const lineChart = useRef(null);
   const chartSize = useChartSize(chartsRef, Boolean(sel));
+  const { active: activeStep, register: registerStep } = useActiveStep(1);
 
   useEffect(() => {
     let live = true;
@@ -127,7 +129,7 @@ export default function App({ api = defaultApi }) {
           </p>
         )}
         {cols && sel && (
-          <Step n={1} title="Choose two things to compare" help={HELP[1]}>
+          <Step n={1} title="Choose two things to compare" help={HELP[1]} active={activeStep === 1} stepRef={registerStep(1)}>
             <Controls cols={cols} value={sel} onChange={setSel} meta={runMeta} />
           </Step>
         )}
@@ -137,7 +139,7 @@ export default function App({ api = defaultApi }) {
           </p>
         )}
         {sel && (
-          <Step n={2} title="Look at them two ways" help={HELP[2]} busy={running}>
+          <Step n={2} title="Look at them two ways" help={HELP[2]} busy={running} active={activeStep === 2} stepRef={registerStep(2)}>
             <div className={`charts${!specs ? " charts--pending" : ""}`} ref={chartsRef} {...(!specs ? { "aria-hidden": true } : {})}>
               {!specs ? (
                 <div className="chart-figure">
@@ -177,7 +179,7 @@ export default function App({ api = defaultApi }) {
           </Step>
         )}
         {description && (
-          <Step n={3} title="Read what the numbers say" help={HELP[3]} busy={running}>
+          <Step n={3} title="Read what the numbers say" help={HELP[3]} busy={running} active={activeStep === 3} stepRef={registerStep(3)}>
             <StatsBar stats={scatter.stats} defaultOpen={false} />
             <Verdict description={description} changed={changed?.headline} />
             <Sentences sentences={description.sentences} changed={changed?.sentences} />
@@ -188,7 +190,7 @@ export default function App({ api = defaultApi }) {
           </Step>
         )}
         {description && (
-          <Step n={4} title="Save what you found" help={HELP[4]} busy={running} last>
+          <Step n={4} title="Save what you found" help={HELP[4]} busy={running} last active={activeStep === 4} stepRef={registerStep(4)}>
             <Actions
               scatterSpec={scatter}
               canvasRef={scatterCanvas}

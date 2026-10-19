@@ -1,12 +1,18 @@
 import { useId, useState } from "react";
 
 /** One numbered step on the left rail with a toggleable help note. Owns no data. */
-export function Step({ n, title, help, last = false, busy = false, children }) {
+export function Step({ n, title, help, last = false, busy = false, active = false, stepRef = null, children }) {
   const id = `step-${n}-title`;
   const helpId = useId();
   const [open, setOpen] = useState(false);
   return (
-    <section className={`step${last ? " step--last" : ""}`} aria-labelledby={id} aria-busy={busy || undefined}>
+    <section
+      ref={stepRef}
+      className={`step${last ? " step--last" : ""}${active ? " step--active" : ""}`}
+      aria-labelledby={id}
+      aria-busy={busy || undefined}
+      aria-current={active ? "step" : undefined}
+    >
       <div className="rail">
         <span className="step__num" aria-hidden="true">{n}</span>
         {!last && <span className="rail__line" aria-hidden="true" />}
