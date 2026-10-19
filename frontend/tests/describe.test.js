@@ -87,3 +87,63 @@ describe("describeStats: sentences", () => {
     expect(d.position).toBeCloseTo(0.98);
   });
 });
+
+describe("describeStats: year-over-year", () => {
+  it("shows annual-change correlation, sample size and p-value", () => {
+    const result = describeStats(stats({
+      year_over_year: {
+        n: 11,
+        r: 0.178,
+        p_value: 0.600,
+        reason: null,
+      },
+    }), labels);
+
+    const texts = result.sentences.map((s) => s.text);
+
+    expect(texts).toContain(
+      "Annual changes have a weak linear relationship (r = 0.178, 11 pairs)."
+    );
+    expect(texts).toContain(
+      "Annual-change p-value = 0.600: insufficient evidence of correlation. " +
+      "Interpret cautiously: annual changes may not be independent."
+    );
+  });
+
+  it.each([
+    [0.049, "evidence of correlation"],
+    [0.050, "insufficient evidence of correlation"],
+  ])("interprets annual-change p = %s", (p, expected) => {
+    const result = describeStats(stats({
+      year_over_year: {
+        n: 11,
+        r: 0.6,
+        p_value: p,
+        reason: null,
+      },
+    }), labels);
+
+    const text = result.sentences
+      .find((s) => s.text.startsWith("Annual-change p-value")).text;
+
+    expect(text).toContain(`: ${expected}.`);
+  });
+
+  it.each([
+    ["insufficient_changes", 2,
+      "Annual-change correlation is unavailable: only 2 paired changes; at least 3 are required."],
+    ["constant_changes", 11,
+      "Annual-change correlation is undefined because one series has constant annual changes."],
+  ])("explains unavailable results: %s", (reason, n, expected) => {
+    const result = describeStats(stats({
+      year_over_year: {
+        n,
+        r: null,
+        p_value: null,
+        reason,
+      },
+    }), labels);
+
+    expect(result.sentences.map((s) => s.text)).toContain(expected);
+  });
+});

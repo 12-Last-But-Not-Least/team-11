@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from plotting import build_line, build_scatter
 from plotting.data import KEY, available_columns, display_name, select
-from stats import correlation_stats
+from stats import correlation_stats, year_over_year_correlation
 
 app = FastAPI(title="Warm-up Graphing API",
               description="Returns canvas draw commands for scatter and line charts. "
@@ -20,6 +20,11 @@ DEFAULT_Y = "falls_norm"
 Width = Query(800, ge=300, le=4000)
 Height = Query(500, ge=200, le=4000)
 
+class YearOverYearStats(BaseModel):
+    n: int
+    r: Optional[float]
+    p_value: Optional[float]
+    reason: Optional[str]
 
 class Stats(BaseModel):
     n: int
@@ -30,6 +35,7 @@ class Stats(BaseModel):
     p_value: float
     slope: float
     intercept: float
+    year_over_year: YearOverYearStats
 
 
 class RenderSpec(BaseModel):
@@ -55,9 +61,11 @@ def _rows(*names):
         raise HTTPException(status_code=422, detail=str(e))
 
 
-def _stats(a, b):
+def _stats(a, b, years):
     try:
-        return correlation_stats(a, b)
+        result = correlation_stats(a, b)
+        result["year_over_year"] = year_over_year_correlation(years, a, b)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -71,7 +79,7 @@ def columns():
 @app.get("/stats", response_model=Stats)
 def get_stats(x: str = DEFAULT_X, y: str = DEFAULT_Y):
     rows = _rows(x, y)
-    return _stats(rows[x], rows[y])
+    return _stats(rows[x], rows[y], rows[KEY])
 
 
 @app.get("/plot/scatter", response_model=RenderSpec)
@@ -79,7 +87,7 @@ def scatter(x: str = DEFAULT_X, y: str = DEFAULT_Y,
             width: int = Width, height: int = Height):
     rows = _rows(x, y)
     xl, yl = display_name(x), display_name(y)
-    return build_scatter(rows[x], rows[y], _stats(rows[x], rows[y]),
+    return build_scatter(rows[x], rows[y], _stats(rows[x], rows[y], rows[KEY]),
                          f"{yl} vs. {xl}", xl, yl, width, height,
                          labels=[str(v) for v in rows[KEY]])
 
@@ -94,7 +102,7 @@ def line(x: str = KEY, y: list[str] = Query([DEFAULT_X, DEFAULT_Y]),
     """
     rows = _rows(x, *y)
     ys = list(dict.fromkeys(y))
-    stats = _stats(rows[ys[0]], rows[ys[1]]) if len(ys) > 1 else _stats(rows[x], rows[ys[0]])
+    stats = _stats(rows[ys[0]], rows[ys[1]], rows[KEY]) if len(ys) > 1 else _stats(rows[x], rows[ys[0]], rows[KEY])
     xl = display_name(x)
     if len(ys) == 1:
         title, yl = f"{display_name(ys[0])} vs. {xl}", display_name(ys[0])

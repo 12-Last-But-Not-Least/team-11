@@ -49,6 +49,49 @@ function sentence(text, terms) {
   };
 }
 
+function describeYearOverYear(yoy) {
+  // Older responses and test fixtures may not include annual-change stats.
+  if (!yoy) return [];
+
+  if (yoy.r === null) {
+    const text = yoy.reason === "insufficient_changes"
+      ? `Annual-change correlation is unavailable: only ${yoy.n} paired changes; at least 3 are required.`
+      : "Annual-change correlation is undefined because one series has constant annual changes.";
+
+    return [sentence(text, [])];
+  }
+
+  const strength = band(yoy.r);
+  const relationship = strength === "weak"
+    ? "a weak linear relationship"
+    : `a ${strength} ${yoy.r < 0 ? "negative" : "positive"} linear relationship`;
+
+  const pText = yoy.p_value === null
+    ? "unavailable"
+    : yoy.p_value < P_VERY
+      ? "< 0.001"
+      : `= ${formatP(yoy.p_value)}`;
+
+  const evidence = yoy.p_value === null
+    ? ""
+    : yoy.p_value < P_LIKELY
+      ? ": evidence of correlation"
+      : ": insufficient evidence of correlation";
+
+  return [
+    sentence(
+      `Annual changes have ${relationship} ` +
+      `(r = ${yoy.r.toFixed(3)}, ${yoy.n} pairs).`,
+      [],
+    ),
+    sentence(
+      `Annual-change p-value ${pText}${evidence}. ` +
+      "Interpret cautiously: annual changes may not be independent.",
+      [],
+    ),
+  ];
+}
+
 /**
  * @param stats  the backend's stats object
  * @param labels { x, y } display labels
@@ -85,6 +128,6 @@ export function describeStats(stats, labels) {
     headline: HEADLINES[b][direction],
     rLabel: `r = ${stats.r.toFixed(2)}`,
     position: Math.abs(stats.r),
-    sentences: [r2, p, n],
+    sentences: [r2, p, n, ...describeYearOverYear(stats.year_over_year)],
   };
 }
