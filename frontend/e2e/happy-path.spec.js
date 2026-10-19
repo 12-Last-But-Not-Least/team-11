@@ -43,10 +43,8 @@ test("a student can open, choose, look, read and save", async ({ page }) => {
   await step2.getByRole("button", { name: /help for step 2/i }).click();
   await expect(step2.getByRole("note")).toContainText(/reset view/i);
 
-  // 6. Change the size, then save: SVG download and copied statistics.
-  await page.getByLabel(/chart size/i).selectOption("1000x600");
-  await expect(scatter).toHaveAttribute("width", "1000");
-  await expect(stats).toBeVisible(); // re-run landed
+  // 6. Save: SVG download and copied statistics.
+  await expect(stats).toBeVisible();
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download scatter (SVG)" }).click();
   expect((await download).suggestedFilename()).toMatch(/^scatter_.+_vs_.+\.svg$/);

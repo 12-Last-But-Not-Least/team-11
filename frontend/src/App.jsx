@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api as defaultApi } from "./api.js";
 import { defaultPair, groupBySource, isKey, labelOf } from "./columns.js";
 import { describeStats } from "./describe.js";
@@ -6,7 +6,8 @@ import { diffTexts } from "./diffSentences.js";
 import { keyRange } from "./runMeta.js";
 import { stripStatsPanel } from "./specFilter.js";
 import { HELP } from "./help.js";
-import { DEFAULT_SIZE, parseSize } from "./sizes.js";
+import { parseSize } from "./sizes.js";
+import { useChartSize } from "./useChartSize.js";
 import { useRun } from "./useRun.js";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
@@ -36,10 +37,12 @@ function Mark() {
 export default function App({ api = defaultApi }) {
   const [cols, setCols] = useState(null);
   const [error, setError] = useState(null);
-  const [sel, setSel] = useState(null); // { x, y, size }
+  const [sel, setSel] = useState(null); // { x, y }
+  const chartsRef = useRef(null);
   const scatterCanvas = useRef(null);
   const scatterChart = useRef(null);
   const lineChart = useRef(null);
+  const chartSize = useChartSize(chartsRef, Boolean(sel));
 
   useEffect(() => {
     let live = true;
@@ -48,8 +51,7 @@ export default function App({ api = defaultApi }) {
       .then((c) => {
         if (!live) return;
         setCols(c);
-        const pair = defaultPair(c);
-        setSel(pair ? { ...pair, size: DEFAULT_SIZE } : null);
+        setSel(defaultPair(c));
       })
       .catch((e) => live && setError(e));
     return () => {
@@ -59,7 +61,12 @@ export default function App({ api = defaultApi }) {
 
   const key = cols?.find(isKey);
   const keyLabel = (key?.label ?? "point").toLowerCase();
-  const { forSel, scatter, line, running, error: runError } = useRun(api, sel, key?.name ?? "year");
+  // Size comes from the step-2 container, not a dropdown.
+  const runSel = useMemo(
+    () => (sel && chartSize ? { ...sel, size: chartSize } : null),
+    [sel, chartSize],
+  );
+  const { forSel, scatter, line, running, error: runError } = useRun(api, runSel, key?.name ?? "year");
 
   // steps 3–4 describe the landed run (forSel), not a selection still in flight
   const description = scatter && forSel
@@ -129,13 +136,16 @@ export default function App({ api = defaultApi }) {
         )}
         {sel && (
           <Step n={2} title="Look at them two ways" help={HELP[2]} busy={running}>
-            {!specs ? (
-              <div className="charts charts--pending" aria-hidden="true" style={{ "--chart-w": `${parseSize(sel.size).width}px` }}>
-                <div className="chart-figure"><div className="chart-skeleton" style={{ aspectRatio: `${parseSize(sel.size).width} / ${parseSize(sel.size).height}` }} /></div>
-              </div>
-            ) : (
-              <>
-                <div className="charts" style={{ "--chart-w": `${scatter.width}px` }}>
+            <div className={`charts${!specs ? " charts--pending" : ""}`} ref={chartsRef} {...(!specs ? { "aria-hidden": true } : {})}>
+              {!specs ? (
+                <div className="chart-figure">
+                  <div
+                    className="chart-skeleton"
+                    style={{ aspectRatio: `${parseSize(chartSize).width} / ${parseSize(chartSize).height}` }}
+                  />
+                </div>
+              ) : (
+                <>
                   <figure className="chart-figure">
                     <div className="chart-figure__head">
                       <button type="button" className="btn btn--ghost btn--small" onClick={() => scatterChart.current?.reset()}>
@@ -159,9 +169,9 @@ export default function App({ api = defaultApi }) {
                       The same columns over time. If both simply climb {keyLabel} after {keyLabel}, that alone can make the dots line up on the left.
                     </figcaption>
                   </figure>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </Step>
         )}
         {description && (

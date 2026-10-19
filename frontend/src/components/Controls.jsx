@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { optionLabels } from "../columns.js";
-import { SIZES } from "../sizes.js";
 import { IconSwap } from "./icons.jsx";
 
 function Picker({ id, label, hint, cols, labels, value, taken, onChange, meta }) {
@@ -23,7 +22,7 @@ function Picker({ id, label, hint, cols, labels, value, taken, onChange, meta })
   );
 }
 
-/** Step 1 controls: x / y pickers, swap, chart size. `value` is { x, y, size }. */
+/** Step 1 controls: x / y pickers and swap. `value` is { x, y }. */
 /** `meta` (optional): { n, min, max, keyLabel } of the landed run, shown under each picker. */
 export function Controls({ cols, value, onChange, meta = null }) {
   const labels = useMemo(() => optionLabels(cols), [cols]);
@@ -35,14 +34,6 @@ export function Controls({ cols, value, onChange, meta = null }) {
         <IconSwap /> Swap
       </button>
       <Picker id="pick-y" label="Y axis" hint="(up)" cols={cols} labels={labels} value={value.y} taken={value.x} onChange={(y) => set({ y })} meta={meta} />
-      <div className="picker picker--size">
-        <label className="picker__label picker__label--muted" htmlFor="pick-size">Chart size</label>
-        <select id="pick-size" className="chip chip--mono" value={value.size} onChange={(e) => set({ size: e.target.value })}>
-          {SIZES.map(([v, text]) => (
-            <option key={v} value={v}>{text}</option>
-          ))}
-        </select>
-      </div>
     </div>
   );
 }
