@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { parseSize } from "./sizes.js";
 
 /**
  * One "run" per selection: scatter and line fetched in parallel, landed
- * together. A run id drops responses from superseded selections, so a slow
+ * together. Effect cleanup drops responses from superseded selections, so a slow
  * earlier response never overwrites a newer one. On error the previous
  * charts are kept and `error` carries the backend's detail.
  *
@@ -13,25 +13,24 @@ import { parseSize } from "./sizes.js";
  */
 export function useRun(api, sel, keyName) {
   const [landed, setLanded] = useState({ sel: null, scatter: null, line: null, error: null, errorSel: null });
-  const runRef = useRef(0);
-
   useEffect(() => {
     if (!sel) return;
-    const run = ++runRef.current;
+    let live = true;
     const size = parseSize(sel.size);
     const lineYs = [sel.x, sel.y].filter((n) => n !== keyName);
     Promise.all([
-      api.getScatter({ x: sel.x, y: sel.y, ...size }),
-      api.getLine({ x: keyName, ys: lineYs, ...size }),
+      api.getScatter({ x: sel.x, y: sel.y, datasetId: sel.datasetId, ...size }),
+      api.getLine({ x: keyName, ys: lineYs, datasetId: sel.datasetId, ...size }),
     ])
       .then(([scatter, line]) => {
-        if (run !== runRef.current) return;
+        if (!live) return;
         setLanded({ sel, scatter, line, error: null, errorSel: null });
       })
       .catch((e) => {
-        if (run !== runRef.current) return;
+        if (!live) return;
         setLanded((s) => ({ ...s, error: e, errorSel: sel }));
       });
+    return () => { live = false; };
   }, [api, sel, keyName]);
 
   const failed = sel && landed.errorSel === sel;

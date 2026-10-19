@@ -1,16 +1,19 @@
 from math import isclose, isfinite
 from typing import Any, Optional
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, Header
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from starlette.responses import JSONResponse
 
 from plotting import build_line, build_scatter
 from plotting.data import KEY, available_columns, display_name, select
+from plotting.datasets import UnknownDataset, get_dataset, list_datasets
+from plotting.imports import import_csv
 
 app = FastAPI(title="Warm-up Graphing API",
               description="Returns canvas draw commands for scatter and line charts. "
@@ -63,7 +66,7 @@ class LeaveOneOutStats(BaseModel):
 
 
 class ExpandedStats(Stats):
-    year_over_year: YearOverYearStats
+    year_over_year: Optional[YearOverYearStats] = None
     leave_one_out: LeaveOneOutStats
 
 
@@ -120,38 +123,80 @@ class JoinedData(BaseModel):
     key: str
     values: dict[str, list[float]]
     labels: dict[str, str]
+    is_yearly: bool
+    dataset_id: Optional[str] = None
+    dataset_name: Optional[str] = None
 
 
-def _rows(*names):
-    """Selected columns joined on year; bad column names / no overlap become HTTP 422."""
+class DatasetInfo(BaseModel):
+    id: str
+    name: str
+    description: str
+    kind: str
+    row_count: int
+    key: str
+    key_label: str
+    default_x: str
+    default_y: str
+    columns: list[Column]
+    warnings: list[str] = []
+
+
+def _dataset(dataset_id, session_id=None):
+    if dataset_id is None:
+        return None
     try:
-        return select(list(dict.fromkeys(names)))  # dedupe, keep order
+        return get_dataset(dataset_id, session_id)
+    except UnknownDataset as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+
+
+def _rows(*names, dataset=None):
+    """Keep observations within a named table or use the legacy year join."""
+    try:
+        loader = dataset.select if dataset else select
+        return loader(list(dict.fromkeys(names)))
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
 
-def _stats(a, b, years):
+def _calendar_years(rows, dataset):
+    if dataset is not None and dataset.key != KEY:
+        return None
+    years = rows[KEY]
+    if len(set(years)) != len(years) or any(not float(year).is_integer() for year in years):
+        return None
+    return years
+
+
+def _stats(a, b, years=None):
     # Only the legacy routes need the server-side statistics stack.
     from stats import correlation_stats, year_over_year_correlation, leave_one_out_correlation
+    import numpy as np
 
     try:
-        result = correlation_stats(a, b)
-        result["year_over_year"] = year_over_year_correlation(years, a, b)
-        result["leave_one_out"] = leave_one_out_correlation(a, b)
+        with np.errstate(over="raise", invalid="raise", divide="raise"):
+            result = correlation_stats(a, b)
+            result["year_over_year"] = year_over_year_correlation(years, a, b) if years is not None else None
+            result["leave_one_out"] = leave_one_out_correlation(a, b)
+        if not _finite_spec(result):
+            raise ValueError("Selected values exceed the numerical range for analysis; rescale these columns")
         return result
+    except FloatingPointError as e:
+        raise HTTPException(status_code=422, detail="Selected values exceed the numerical range for analysis; rescale these columns") from e
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
 
-def _finite_rows(*names):
-    rows = _rows(*names)
+def _finite_rows(*names, dataset=None):
+    rows = _rows(*names, dataset=dataset)
     if any(not isfinite(value) for values in rows.values() for value in values):
         raise HTTPException(status_code=422, detail="selected columns must contain only finite numbers")
     return rows
 
 
-def _preview_values(stats, rows):
-    if stats.n != len(rows[KEY]):
+def _preview_values(stats, rows, key=KEY):
+    if stats.n != len(rows[key]):
         raise HTTPException(status_code=422, detail="n must match the selected joined row count")
     return stats.model_dump()
 
@@ -177,92 +222,151 @@ def _preview_render(builder, *args):
         raise HTTPException(status_code=422, detail="numeric range is unsupported by the chart renderer") from e
 
 
-def _scatter_spec(rows, x, y, stats, width, height):
-    xl, yl = display_name(x), display_name(y)
-    return build_scatter(rows[x], rows[y], stats,
+def _scatter_spec(rows, x, y, stats, width, height, dataset=None):
+    label = dataset.label if dataset else display_name
+    key = dataset.key if dataset else KEY
+    xl, yl = label(x), label(y)
+    spec = build_scatter(rows[x], rows[y], stats,
                          f"{yl} vs. {xl}", xl, yl, width, height,
-                         labels=[str(v) for v in rows[KEY]])
+                         labels=[str(int(v)) if float(v).is_integer() else str(v) for v in rows[key]])
+    if dataset:
+        spec["meta"].update(dataset_id=dataset.id, dataset_name=dataset.name)
+    return spec
 
 
-def _line_spec(rows, x, ys, stats, width, height):
-    xl = display_name(x)
+def _line_spec(rows, x, ys, stats, width, height, dataset=None):
+    label = dataset.label if dataset else display_name
+    xl = label(x)
     if len(ys) == 1:
-        title, yl = f"{display_name(ys[0])} vs. {xl}", display_name(ys[0])
+        title, yl = f"{label(ys[0])} vs. {xl}", label(ys[0])
     else:
         title = f"Line chart by {xl}"
         yl = "Normalized value (0-1)" if all(c.endswith("_norm") for c in ys) else "Value"
-    series = [(display_name(c), rows[c]) for c in ys]
-    return build_line(rows[x], series, stats, title, xl, yl, width, height)
+    series = [(label(c), rows[c]) for c in ys]
+    spec = build_line(rows[x], series, stats, title, xl, yl, width, height)
+    if dataset:
+        spec["meta"].update(dataset_id=dataset.id, dataset_name=dataset.name)
+    return spec
+
+
+@app.get("/datasets", response_model=list[DatasetInfo])
+def datasets(session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
+    return list_datasets(session_id)
+
+
+@app.post("/datasets", response_model=DatasetInfo, status_code=201)
+async def upload_dataset(request: Request, filename: str = Query(...),
+                         session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
+    """Validate a raw UTF-8 CSV body and keep it in temporary server memory."""
+    if not session_id:
+        raise HTTPException(status_code=400, detail="A dataset session is required for imports")
+    content = await request.body()
+    try:
+        return await run_in_threadpool(import_csv, content, filename, session_id)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
 
 
 @app.get("/columns", response_model=list[Column])
-def columns():
+def columns(dataset_id: Optional[str] = None,
+            session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """Every column that can be used on an axis, and the file it comes from."""
-    return available_columns()
+    dataset = _dataset(dataset_id, session_id)
+    return dataset.columns() if dataset else available_columns()
 
 
-@app.get("/data", response_model=JoinedData)
-def get_data(column: list[str] = Query([DEFAULT_X, DEFAULT_Y], min_length=1)):
+@app.get("/data", response_model=JoinedData, response_model_exclude_none=True)
+def get_data(column: Optional[list[str]] = Query(None, min_length=1),
+             dataset_id: Optional[str] = None,
+             session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """Joined raw numbers for browser statistics; repeat `column` to select.
 
     The join key and the legacy chart display names are always included.
     This route does not calculate statistics or generate chart layouts.
     """
-    rows = _finite_rows(*column)
-    return {"key": KEY, "values": rows,
-            "labels": {name: display_name(name) for name in rows}}
+    dataset = _dataset(dataset_id, session_id)
+    if column is None:
+        column = [dataset.default_x, dataset.default_y] if dataset else [DEFAULT_X, DEFAULT_Y]
+    rows = _finite_rows(*column, dataset=dataset)
+    label = dataset.label if dataset else display_name
+    return {"key": dataset.key if dataset else KEY, "values": rows,
+            "labels": {name: label(name) for name in rows},
+            "is_yearly": _calendar_years(rows, dataset) is not None,
+            "dataset_id": dataset.id if dataset else None,
+            "dataset_name": dataset.name if dataset else None}
 
 
 @app.get("/stats", response_model=ExpandedStats)
-def get_stats(x: str = DEFAULT_X, y: str = DEFAULT_Y):
-    rows = _rows(x, y)
-    return _stats(rows[x], rows[y], rows[KEY])
+def get_stats(x: Optional[str] = None, y: Optional[str] = None,
+              dataset_id: Optional[str] = None,
+              session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
+    dataset = _dataset(dataset_id, session_id)
+    x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
+    y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
+    rows = _rows(x, y, dataset=dataset)
+    return _stats(rows[x], rows[y], _calendar_years(rows, dataset))
 
 
 @app.get("/plot/scatter", response_model=ExpandedRenderSpec)
-def scatter(x: str = DEFAULT_X, y: str = DEFAULT_Y,
-            width: int = Width, height: int = Height):
-    rows = _rows(x, y)
-    return _scatter_spec(rows, x, y, _stats(rows[x], rows[y], rows[KEY]), width, height)
+def scatter(x: Optional[str] = None, y: Optional[str] = None,
+            width: int = Width, height: int = Height, dataset_id: Optional[str] = None,
+            session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
+    dataset = _dataset(dataset_id, session_id)
+    x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
+    y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
+    rows = _rows(x, y, dataset=dataset)
+    return _preview_render(_scatter_spec, rows, x, y,
+                           _stats(rows[x], rows[y], _calendar_years(rows, dataset)), width, height, dataset)
 
 
 @app.get("/plot/line", response_model=ExpandedRenderSpec)
-def line(x: str = KEY, y: list[str] = Query([DEFAULT_X, DEFAULT_Y]),
-         width: int = Width, height: int = Height):
+def line(x: Optional[str] = None, y: Optional[list[str]] = Query(None, min_length=1),
+         width: int = Width, height: int = Height, dataset_id: Optional[str] = None,
+         session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """One line per `y` column against `x` (repeat `y` for more lines).
 
     Stats: correlation of the first two `y` columns, or of `x` against `y` when
     only one `y` is given.
     """
-    rows = _rows(x, *y)
+    dataset = _dataset(dataset_id, session_id)
+    x = x if x is not None else (dataset.key if dataset else KEY)
+    if y is None:
+        y = [dataset.default_x, dataset.default_y] if dataset else [DEFAULT_X, DEFAULT_Y]
+    rows = _rows(x, *y, dataset=dataset)
     ys = list(dict.fromkeys(y))
-    stats = _stats(rows[ys[0]], rows[ys[1]], rows[KEY]) if len(ys) > 1 else _stats(rows[x], rows[ys[0]], rows[KEY])
-    return _line_spec(rows, x, ys, stats, width, height)
+    years = _calendar_years(rows, dataset)
+    stats = _stats(rows[ys[0]], rows[ys[1]], years) if len(ys) > 1 else _stats(rows[x], rows[ys[0]], years)
+    return _preview_render(_line_spec, rows, x, ys, stats, width, height, dataset)
 
 
 @app.post("/render/scatter", response_model=RenderSpec)
-def render_scatter(stats: PreviewStats, x: str = DEFAULT_X, y: str = DEFAULT_Y,
-                   width: int = Width, height: int = Height):
+def render_scatter(stats: PreviewStats, x: Optional[str] = None, y: Optional[str] = None,
+                   width: int = Width, height: int = Height, dataset_id: Optional[str] = None,
+                   session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """Render untrusted browser statistics with the original Python layout.
 
     Values are a transient preview, not verified statistical results. The
     selected data are reloaded by column name; no uploaded data are accepted,
     no statistics are calculated, and nothing is persisted.
     """
-    rows = _finite_rows(x, y)
-    values = _preview_values(stats, rows)
+    dataset = _dataset(dataset_id, session_id)
+    x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
+    y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
+    rows = _finite_rows(x, y, dataset=dataset)
+    values = _preview_values(stats, rows, dataset.key if dataset else KEY)
     # The interactive renderer evaluates the fit over the whole data domain.
     # Reject even finite inputs if that evaluation would overflow.
     if any(not isfinite(values["slope"] * v + values["intercept"])
            for v in (min(rows[x]), max(rows[x]))):
         raise HTTPException(status_code=422, detail="regression range is unsupported by the chart renderer")
-    return _preview_render(_scatter_spec, rows, x, y, values, width, height)
+    return _preview_render(_scatter_spec, rows, x, y, values, width, height, dataset)
 
 
 @app.post("/render/line", response_model=RenderSpec)
-def render_line(stats: PreviewStats, x: str = KEY,
-                y: list[str] = Query([DEFAULT_X, DEFAULT_Y], min_length=1),
-                width: int = Width, height: int = Height):
+def render_line(stats: PreviewStats, x: Optional[str] = None,
+                y: Optional[list[str]] = Query(None, min_length=1),
+                width: int = Width, height: int = Height, dataset_id: Optional[str] = None,
+                session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """Original Python layout with transient, untrusted browser statistics.
 
     As in the legacy line route, the browser supplies statistics for the first
@@ -270,7 +374,11 @@ def render_line(stats: PreviewStats, x: str = KEY,
     The server checks the schema and row count, not the statistical truth.
     Nothing is persisted and no statistics are calculated here.
     """
-    rows = _finite_rows(x, *y)
+    dataset = _dataset(dataset_id, session_id)
+    x = x if x is not None else (dataset.key if dataset else KEY)
+    if y is None:
+        y = [dataset.default_x, dataset.default_y] if dataset else [DEFAULT_X, DEFAULT_Y]
+    rows = _finite_rows(x, *y, dataset=dataset)
     ys = list(dict.fromkeys(y))
     return _preview_render(_line_spec, rows, x, ys,
-                           _preview_values(stats, rows), width, height)
+                           _preview_values(stats, rows, dataset.key if dataset else KEY), width, height, dataset)

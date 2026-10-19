@@ -1,7 +1,7 @@
 // Owner evaluation round 1 (2026-10-12): tagline and step hints removed,
 // help buttons per step, reset-view per chart, stats table folded under the
 // charts, step 3 sentences only, step 4 actions only.
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../src/App.jsx";
 import { FakeChart, spec } from "./fakeChart.js";
@@ -12,7 +12,7 @@ const cols = [
   { name: "iphone_norm", label: "iPhone sales (normalized)", source: "iphone_normalized.csv" },
 ];
 const stats = { n: 12, r: 0.9625562715881898, r_squared: 0.926514575973757, t: 11.228597794127518, df: 10, p_value: 5.443126328198838e-7, slope: 1.042544092290118, intercept: 0.052266580261948636 };
-const fakeApi = () => ({ getColumns: async () => cols, getScatter: async () => spec({ stats }), getLine: async () => spec({ stats }) });
+const fakeApi = () => ({ getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols, getScatter: async () => spec({ stats }), getLine: async () => spec({ stats }) });
 
 describe("2a/2b: no tagline, no step hints", () => {
   it("the header has only the name and the dataset control", async () => {
@@ -38,7 +38,7 @@ describe("6: help button per step", () => {
     expect(within(step2).queryByRole("note")).not.toBeInTheDocument();
     await user.click(btn);
     expect(btn).toHaveAttribute("aria-expanded", "true");
-    expect(within(step2).getByRole("note")).toHaveTextContent(/both simply rise/i);
+    expect(within(step2).getByRole("note")).toHaveTextContent(/shared trend/i);
     await user.click(btn);
     expect(within(step2).queryByRole("note")).not.toBeInTheDocument();
   });
@@ -86,8 +86,11 @@ describe("4: statistics folded under the charts, in-canvas box removed", () => {
     };
     render(<App api={api} />);
     await screen.findByRole("img", { name: /scatter/i });
-    const scatter = FakeChart.instances.find((c) => c.canvas.getAttribute("aria-label") === "Scatter plot");
-    expect(scatter.spec.commands.some((c) => c.text === "Correlation stats")).toBe(false);
+    await waitFor(() => {
+      const chart = FakeChart.instances.find((c) => c.canvas.getAttribute("aria-label") === "Scatter plot");
+      expect(chart).toBeDefined();
+      expect(chart.spec.commands.some((c) => c.text === "Correlation stats")).toBe(false);
+    });
   });
   it("prints a dash for a null t (perfect correlation)", async () => {
     const api = fakeApi();

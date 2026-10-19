@@ -9,7 +9,7 @@ test("a student can open, choose, look, read and save", async ({ page }) => {
   const line = page.getByRole("img", { name: "Line chart" });
   await expect(scatter).toBeVisible();
   await expect(line).toBeVisible();
-  await expect(page.getByRole("combobox", { name: "Dataset" })).toHaveValue("current");
+  await expect(page.getByRole("combobox", { name: "Dataset" })).toHaveValue("iphone-falls");
 
   // 2. Pick columns: both pickers are filled from /columns; swap works.
   const x = page.getByLabel(/x axis/i);
@@ -20,7 +20,7 @@ test("a student can open, choose, look, read and save", async ({ page }) => {
   await page.getByRole("button", { name: "Swap" }).click();
   await expect(x).toHaveValue(yBefore);
   await expect(y).toHaveValue(xBefore);
-  await expect(page.locator(".picker__meta").first()).toContainText(/\d+ years · \d{4}–\d{4}/);
+  await expect(page.locator(".picker__meta").first()).toContainText(/\d+ observations · year: \d{4}–\d{4}/);
 
   // 3. Both charts and the statistics, once, between them.
   const step2 = page.getByRole("region", { name: /look at them two ways/i });
@@ -53,5 +53,64 @@ test("a student can open, choose, look, read and save", async ({ page }) => {
   await page.getByRole("button", { name: "Copy the statistics" }).click();
   await expect(page.getByText("Copied to the clipboard.")).toBeVisible();
   const text = await page.evaluate(() => navigator.clipboard.readText());
-  expect(text).toMatch(/^.+ vs\. .+\nn = \d+\nr = -?\d\.\d{4}\n/);
+  expect(text.replace(/\r\n/g, "\n")).toMatch(/^Dataset: .+\n.+ vs\. .+\nn = \d+\nr = -?\d\.\d{4}\n/);
+});
+
+test("switching datasets updates axes, charts, statistics and exports", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("img", { name: "Scatter plot" })).toBeVisible();
+  const response = page.waitForResponse((res) => res.url().includes("/plot/scatter?") && res.url().includes("dataset_id=icecream-sharks"));
+  await page.getByLabel("Dataset", { exact: true }).selectOption("icecream-sharks");
+  const scatter = await (await response).json();
+  await expect(page.getByLabel(/x axis/i)).toHaveValue("ice_cream_index_norm");
+  await expect(page.getByLabel(/y axis/i)).toHaveValue("attacks_norm");
+  await expect(page.getByRole("img", { name: "Line chart" })).toBeVisible();
+  const table = page.getByRole("region", { name: /look at them two ways/i }).getByRole("table");
+  await expect(table.getByRole("cell").first()).toHaveText(String(scatter.stats.n));
+  await expect(table.getByRole("cell").nth(1)).toHaveText(scatter.stats.r.toFixed(4));
+  await page.getByRole("button", { name: "Copy the statistics" }).click();
+  await expect(page.getByText("Copied to the clipboard.")).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain("Dataset: Ice cream vs. shark attacks");
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download scatter (SVG)" }).click();
+  expect((await download).suggestedFilename()).toBe("scatter_icecream-sharks_ice_cream_index_norm_vs_attacks_norm.svg");
+  await page.getByLabel("Dataset", { exact: true }).selectOption("iphone-falls");
+  await expect(page.getByLabel(/x axis/i)).toHaveValue("iphone_units_sold_millions_norm");
+  await expect(page.getByRole("button", { name: "Copy the statistics" })).toBeVisible();
+});
+
+test("a temporary CSV survives reload and is hidden from other sessions", async ({ page, browser }) => {
+  await page.goto("/");
+  await expect(page.getByRole("img", { name: "Scatter plot" })).toBeVisible();
+  await page.getByLabel("CSV file").setInputFiles({ name: "custom-observations.csv", mimeType: "text/csv",
+    buffer: Buffer.from("rownames,measurement,result\n1,1,5\n2,2,4\n3,NA,NA\n4,3,2\n5,4,1\n") });
+  await page.getByRole("button", { name: "Import CSV", exact: true }).click();
+  await expect(page.getByText("Imported custom-observations: 5 rows.")).toBeVisible();
+  const datasetId = await page.getByLabel("Dataset", { exact: true }).inputValue();
+  expect(datasetId).toMatch(/^import-/);
+  const otherContext = await browser.newContext();
+  try {
+    const otherPage = await otherContext.newPage();
+    await otherPage.goto("/");
+    await expect(otherPage.getByRole("img", { name: "Scatter plot" })).toBeVisible();
+    await expect(otherPage.locator(`option[value="${datasetId}"]`)).toHaveCount(0);
+  } finally {
+    await otherContext.close();
+  }
+  await expect(page.getByLabel(/x axis/i)).toHaveValue("rownames");
+  await expect(page.getByRole("button", { name: "Copy the statistics" })).toBeVisible();
+  await page.getByRole("button", { name: "Copy the statistics" }).click();
+  await expect(page.getByText("Copied to the clipboard.")).toBeVisible();
+  const text = await page.evaluate(() => navigator.clipboard.readText());
+  expect(text).toContain("Dataset: custom-observations");
+  expect(text).toContain("n = 4");
+  await page.reload();
+  await page.getByLabel("Dataset", { exact: true }).selectOption(datasetId);
+  await expect(page.getByLabel(/x axis/i)).toHaveValue("rownames");
+  await expect(page.getByRole("img", { name: "Line chart" })).toBeVisible();
+  await page.getByLabel("CSV file").setInputFiles({ name: "invalid.csv", mimeType: "text/csv", buffer: Buffer.from("x,y\n1,2\n") });
+  await page.getByRole("button", { name: "Import CSV", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("at least three");
+  await expect(page.getByLabel("Dataset", { exact: true })).toHaveValue(datasetId);
+  await expect(page.getByRole("img", { name: "Scatter plot" })).toBeVisible();
 });

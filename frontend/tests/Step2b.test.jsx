@@ -20,7 +20,7 @@ function fakeApi({ scatter, line } = {}) {
   const calls = { scatter: [], line: [] };
   return {
     calls,
-    getColumns: async () => cols,
+    getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols,
     getScatter: (p) => { calls.scatter.push(p); return scatter ? scatter(p, calls.scatter.length) : Promise.resolve(spec({ width: p.width, height: p.height })); },
     getLine: (p) => { calls.line.push(p); return line ? line(p, calls.line.length) : Promise.resolve(spec({ width: p.width, height: p.height })); },
   };
@@ -31,7 +31,7 @@ describe("step 2b: line chart, parallel fetch, run guard, states", () => {
     const api = fakeApi();
     render(<App api={api} />);
     await screen.findByRole("img", { name: /line chart/i });
-    expect(api.calls.line[0]).toEqual({ x: "year", ys: ["falls_norm", "iphone_norm"], width: 800, height: 500 });
+    expect(api.calls.line[0]).toEqual({ datasetId: "test", x: "year", ys: ["falls_norm", "iphone_norm"], width: 800, height: 500 });
     expect(screen.getByRole("img", { name: /scatter/i })).toBeInTheDocument();
     expect(FakeChart.instances).toHaveLength(2);
   });
@@ -83,6 +83,6 @@ describe("step 2b: line chart, parallel fetch, run guard, states", () => {
 
   it("explains the line chart in one sentence", async () => {
     render(<App api={fakeApi()} />);
-    expect(await screen.findByText(/climb year after year/i)).toBeInTheDocument();
+    expect(await screen.findByText(/shared trend can make/i)).toBeInTheDocument();
   });
 });

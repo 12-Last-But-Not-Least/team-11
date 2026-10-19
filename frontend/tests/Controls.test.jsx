@@ -12,7 +12,7 @@ const cols = [
 
 function fakeApi() {
   return {
-    getColumns: async () => cols,
+    getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols,
     getScatter: async () => spec(),
     getLine: async () => spec(),
   };
@@ -86,7 +86,7 @@ describe("step 1: choose two things to compare", () => {
     const api = fakeApi();
     api.getColumns = async () => { throw new Error("Failed to fetch"); };
     render(<App api={api} />);
-    expect(await screen.findByRole("status")).toHaveTextContent(/start the backend|Failed to fetch/i);
+    expect(await screen.findByText(/Could not load dataset: Failed to fetch/i)).toBeInTheDocument();
   });
 });
 
@@ -101,17 +101,17 @@ describe("picker meta line", () => {
     };
     render(<App api={api} />);
     await screen.findByLabelText(/x axis/i);
-    expect(await screen.findByText("falls_normalized.csv · 2 years · 2007–2018")).toBeInTheDocument();
+    expect(await screen.findByText("falls_normalized.csv · 2 observations · year: 2007–2018")).toBeInTheDocument();
   });
 });
 
 describe("header dataset picker", () => {
-  it("is a dropdown whose only choice is the loaded dataset, described from /columns", async () => {
+  it("lists dataset names from the catalog", async () => {
     render(<App api={fakeApi()} />);
     const picker = await screen.findByRole("combobox", { name: /dataset/i });
     const options = within(picker).getAllByRole("option");
     expect(options).toHaveLength(1);
-    expect(options[0]).toHaveTextContent("3 files · 3 columns");
-    expect(picker).toHaveValue("current");
+    expect(options[0]).toHaveTextContent("Test dataset");
+    expect(picker).toHaveValue("test");
   });
 });

@@ -5,7 +5,7 @@ import { IconSwap } from "./icons.jsx";
 
 function Picker({ id, label, hint, cols, labels, value, taken, onChange, meta }) {
   const col = cols.find((c) => c.name === value);
-  const metaLine = meta ? `${col?.source} · ${meta.n} ${meta.keyLabel}s · ${meta.min}–${meta.max}` : col?.source;
+  const metaLine = meta ? `${col?.source} · ${meta.n} observations · ${meta.keyLabel}: ${meta.min}–${meta.max}` : col?.source;
   return (
     <div className="picker">
       <label className="picker__label" htmlFor={id}>

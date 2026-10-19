@@ -19,7 +19,7 @@ function saveBlob(blob, name) {
  * canvasRef:   the scatter canvas (PNG export)
  * names/labels: { x, y } column names / display labels of the landed run
  */
-export function Actions({ scatterSpec, canvasRef, names, labels, stats }) {
+export function Actions({ scatterSpec, canvasRef, names, labels, stats, dataset }) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -28,10 +28,11 @@ export function Actions({ scatterSpec, canvasRef, names, labels, stats }) {
     return () => clearTimeout(t);
   }, [copied]);
 
-  const svg = () => window.SvgChart.download(scatterSpec, fileName("scatter", names, "svg"));
-  const png = () => canvasRef.current?.toBlob((blob) => blob && saveBlob(blob, fileName("scatter", names, "png")), "image/png");
+  const exportNames = { ...names, datasetId: dataset?.id };
+  const svg = () => window.SvgChart.download(scatterSpec, fileName("scatter", exportNames, "svg"));
+  const png = () => canvasRef.current?.toBlob((blob) => blob && saveBlob(blob, fileName("scatter", exportNames, "png")), "image/png");
   const copy = async () => {
-    await navigator.clipboard.writeText(statsToText(stats, labels));
+    await navigator.clipboard.writeText(statsToText(stats, labels, dataset?.name));
     setCopied(true);
   };
 

@@ -7,5 +7,7 @@ export function keyRange(spec) {
   if (!points?.length) return null;
   const keys = points.map((p) => Number.parseFloat(String(p.label).split("\n")[0])).filter(Number.isFinite);
   if (!keys.length) return null;
-  return { n: spec.stats.n, min: Math.min(...keys), max: Math.max(...keys) };
+  return keys.reduce((range, key) => ({
+    n: range.n, min: Math.min(range.min, key), max: Math.max(range.max, key),
+  }), { n: spec.stats.n, min: Infinity, max: -Infinity });
 }

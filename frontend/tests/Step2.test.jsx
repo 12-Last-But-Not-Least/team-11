@@ -13,7 +13,7 @@ function fakeApi() {
   const calls = { scatter: [], line: [] };
   return {
     calls,
-    getColumns: async () => cols,
+    getDatasets: async () => [{ id: "test", name: "Test dataset", default_x: "falls_norm", default_y: "iphone_norm" }], getColumns: async () => cols,
     getScatter: async (p) => { calls.scatter.push(p); return spec({ width: p.width, height: p.height }); },
     getLine: async (p) => { calls.line.push(p); return spec(); },
   };
@@ -24,7 +24,7 @@ describe("step 2a: the scatter chart", () => {
     const api = fakeApi();
     render(<App api={api} />);
     const canvas = await screen.findByRole("img", { name: /scatter/i });
-    expect(api.calls.scatter[0]).toEqual({ x: "falls_norm", y: "iphone_norm", width: 800, height: 500 });
+    expect(api.calls.scatter[0]).toEqual({ datasetId: "test", x: "falls_norm", y: "iphone_norm", width: 800, height: 500 });
     const scatterChart = FakeChart.instances.find((c) => c.canvas === canvas);
     expect(scatterChart).toBeDefined();
   });
@@ -42,8 +42,8 @@ describe("step 2a: the scatter chart", () => {
     await waitFor(() => expect(scatterCharts[0].draws).toBeGreaterThanOrEqual(1));
   });
 
-  it("explains the scatter in one sentence using the key column's label", async () => {
+  it("explains the scatter without assuming yearly observations", async () => {
     render(<App api={fakeApi()} />);
-    expect(await screen.findByText(/each dot is one year/i)).toBeInTheDocument();
+    expect(await screen.findByText(/each dot is one observation/i)).toBeInTheDocument();
   });
 });

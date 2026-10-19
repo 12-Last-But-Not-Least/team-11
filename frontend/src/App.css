@@ -77,6 +77,38 @@ html {
   color: var(--muted);
 }
 
+.dataset-description {
+  padding: 0 var(--gutter);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.dataset-import {
+  padding: 12px var(--gutter);
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px;
+}
+
+.dataset-import__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.dataset-import input {
+  max-width: 100%;
+}
+
+.dataset-import p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.dataset-import .status--error {
+  color: var(--red);
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

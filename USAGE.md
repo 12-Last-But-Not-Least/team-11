@@ -13,7 +13,7 @@ uvicorn main:app --reload
 
 ## Endpoints
 
-All plot endpoints return a **render spec** (see below). Optional `width` / `height` query params (300-4000 / 200-4000, default 800x500). Everything is GET; all data comes from the CSVs in `Data_Clean_UP/data/final/`.
+All plot endpoints return a **render spec** (see below). Optional `width` / `height` query params (300-4000 / 200-4000, default 800x500). Read endpoints use GET; CSV imports use POST. Named datasets include bundled CSVs and temporary uploaded tables. Requests without `dataset_id` use the legacy CSV loader in `Data_Clean_UP/data/final/`.
 
 | Path | What it returns |
 |---|---|
@@ -146,6 +146,75 @@ draw("http://127.0.0.1:8000/plot/scatter");
 CORS is open (`*`) so a frontend served from another port can call the API. Tighten `allow_origins` in `main.py` before deploying anywhere real.
 
 ## Adding or switching datasets
+
+### Named datasets
+
+`GET /datasets` returns five bundled examples (iPhone/falls, ice cream/sharks, Palmer Penguins, Old Faithful, and New York Air Quality) plus temporary imports,
+including IDs, names, descriptions, row counts, numeric columns, ordering key,
+default X/Y axes, and import warnings.
+Use `dataset_id` on every request to select a table independently of other
+clients:
+
+```text
+/columns?dataset_id=iphone-falls
+/plot/scatter?dataset_id=icecream-sharks
+/plot/line?dataset_id=icecream-sharks
+/stats?dataset_id=iphone-falls&x=iphone_units_sold_millions_norm&y=deaths_norm
+```
+
+Omitted axes use the selected dataset's defaults; the default line X is its
+ordering key. Explicit X/Y choices still work. Plot `meta` includes
+`dataset_id` and `dataset_name`. Unknown dataset IDs return 404; unknown columns
+and unusable analyses return 422. Statistics require at least three complete,
+finite pairs with nonconstant axes. Missing cells are excluded for the selected
+columns, identically in the default scatter, line, and statistics responses.
+
+Each named dataset is isolated: matching column names do not join tables.
+The monthly example uses 1–12 for January–December. No automatic normalization
+is applied by the loader; the two existing examples were already normalized.
+Expansion to 3–5 defaults with documented original sources is deferred until
+dataset switching and CSV import are implemented.
+
+The frontend Dataset dropdown lists this catalog and switches the full
+worksheet. Switching resets axes to the dataset defaults and chart size to
+800 × 500. Old results and exports are hidden until both new plots succeed;
+late responses cannot overwrite a newer selection. If loading fails, select
+another dataset to recover. Export filenames include the dataset ID and copied
+statistics include its name. Requests without `dataset_id` retain the legacy
+behavior below.
+
+### Importing a CSV
+
+Choose a file in **CSV file**, then click **Import CSV**. A successful import
+appears in the Dataset dropdown and is selected automatically. Invalid uploads
+show an error without replacing the current dataset or its results.
+
+- UTF-8 comma-delimited CSV, optionally with a BOM; filename must end in `.csv`.
+- A header is required. Header whitespace is trimmed; empty/duplicate headers
+  and mismatched field counts are rejected. Quoted fields and blank lines work.
+- At least two nonconstant numeric columns must share three complete rows.
+  Empty cells and `NA` (case-insensitive) are treated as missing; affected rows are omitted only for selections using
+  those columns. Text/mixed columns are excluded from the imported table and unavailable
+  as axes, with a note shown in the UI. NaN/infinity are rejected.
+- A complete numeric `year` column orders observations. Otherwise rows keep
+  their file order using a generated row index. Dates and month names are not
+  automatically parsed. No normalization or imputation is applied.
+- All numeric CSV columns, including `rownames`, can be default axes.
+  Defaults are the first usable pair in CSV column order, falling back
+  to `year` as an axis if necessary. Users can change axes after import.
+
+API: `POST /datasets?filename=observations.csv` with `Content-Type: text/csv`
+and the **raw file bytes as the request body** (not JSON or multipart).
+Send `X-Dataset-Session` on imports and subsequent catalog, column, statistics, and plot requests. Imports return **201** with metadata, **400** for a missing/empty session header, or **422** for invalid CSV. Requests for an uploaded ID with a different or missing token return **404**. Default datasets remain available without a token.
+
+Imports stay in backend memory, scoped to a random token saved in browser sessionStorage. Reloading the same session retains access; other sessions cannot list or read those uploads. If sessionStorage is unavailable, access lasts only until reload. This is token-based isolation, not account authentication; anyone holding the token has the same access. Duplicated tabs may inherit the same sessionStorage token.
+
+Backend restarts, redeployments, and hosting spin-down clear uploads. Keep the original CSV. Closing a browser does not immediately delete backend data. GitHub Pages serves the frontend; imports require the separately hosted API. Old local upload files are no longer read. Reimporting creates a separate dataset; no rename/deletion UI is included.
+
+Tests isolate the in-memory registry; browser tests use ports 8001/5174 and do not reuse
+your running development servers.
+
+### Legacy folder-based loading
 
 Drop a CSV into `Data_Clean_UP/data/final/` and restart the server. No code changes.
 
