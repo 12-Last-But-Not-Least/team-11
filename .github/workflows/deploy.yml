@@ -23,7 +23,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     env:
-      VITE_API_URL: https://farleys-graph-api.onrender.com
+      VITE_API_URL: https://team-11-yz9r.onrender.com
 
     steps:
       - uses: actions/checkout@v7
