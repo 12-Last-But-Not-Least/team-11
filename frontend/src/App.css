@@ -312,7 +312,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 100%;
+  width: 80%; /* matches CONTAINER_FRACTION so the bitmap is not upscaled */
 }
 
 .chart {

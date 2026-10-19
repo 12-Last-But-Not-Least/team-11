@@ -1,5 +1,6 @@
 import {
   ASPECT,
+  CONTAINER_FRACTION,
   DEFAULT_SIZE,
   FALLBACK_WIDTH,
   formatSize,
@@ -11,6 +12,14 @@ import {
 test("DEFAULT_SIZE matches the fallback width at the chart aspect ratio", () => {
   expect(DEFAULT_SIZE).toBe(formatSize(sizeFromWidth(FALLBACK_WIDTH)));
   expect(parseSize(DEFAULT_SIZE)).toEqual({ width: 800, height: 500 });
+});
+
+test("charts use 80% of the measured container width", () => {
+  expect(CONTAINER_FRACTION).toBe(0.8);
+  expect(sizeFromWidth(1000 * CONTAINER_FRACTION)).toEqual({
+    width: 800,
+    height: roundSize(800 * ASPECT),
+  });
 });
 
 test("parseSize turns a WxH string into width and height numbers", () => {

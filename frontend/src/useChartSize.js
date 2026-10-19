@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { DEFAULT_SIZE, FALLBACK_WIDTH, formatSize, sizeFromWidth } from "./sizes.js";
+import {
+  CONTAINER_FRACTION,
+  DEFAULT_SIZE,
+  FALLBACK_WIDTH,
+  formatSize,
+  sizeFromWidth,
+} from "./sizes.js";
 
 const DEBOUNCE_MS = 150;
 
 /**
- * Measure `ref`'s content width and return an API size string ("WxH").
- * Re-renders on resize (debounced). While `active` is false, keeps the last
- * size (or the fallback) so a remount does not flash a fetch with no width.
+ * Measure `ref`'s content width and return an API size string ("WxH") at
+ * CONTAINER_FRACTION of that width. Re-renders on resize (debounced).
+ * While `active` is false, keeps the last size (or the fallback).
  */
 export function useChartSize(ref, active) {
   const [size, setSize] = useState(DEFAULT_SIZE);
@@ -18,7 +24,8 @@ export function useChartSize(ref, active) {
 
     let timer = null;
     const apply = (rawWidth) => {
-      const w = rawWidth > 0 ? rawWidth : FALLBACK_WIDTH;
+      // Unmeasured (jsdom / zero width): keep the full fallback; otherwise use 80%.
+      const w = rawWidth > 0 ? rawWidth * CONTAINER_FRACTION : FALLBACK_WIDTH;
       const next = formatSize(sizeFromWidth(w));
       setSize((prev) => (prev === next ? prev : next));
     };
