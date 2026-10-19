@@ -51,7 +51,12 @@ export function createApi({ fetch, baseUrl }) {
   };
 }
 
-/** Browser-computation adapter used by the application. */
+/**
+ * Browser-computation adapter used by the application.
+ * Stats/render parity with the Python service is covered by
+ * testdata/parity/ + tests/test_parity_stats.py; this adapter's /data path is
+ * covered by frontend/tests/browserApi.test.js.
+ */
 export function createBrowserApi({ fetch, baseUrl }) {
   const get = createRequest({ fetch, baseUrl });
   let keyName = "year";
