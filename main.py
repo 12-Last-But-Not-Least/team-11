@@ -2,7 +2,7 @@ from typing import Any, Optional
 import math
 import numpy as np
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel
@@ -66,11 +66,11 @@ class DatasetInfo(BaseModel):
     warnings: list[str] = []
 
 
-def _dataset(dataset_id):
+def _dataset(dataset_id, session_id=None):
     if dataset_id is None:
         return None
     try:
-        return get_dataset(dataset_id)
+        return get_dataset(dataset_id, session_id)
     except UnknownDataset as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
@@ -98,31 +98,36 @@ def _stats(a, b):
 
 
 @app.get("/datasets", response_model=list[DatasetInfo])
-def datasets():
-    return list_datasets()
+def datasets(session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
+    return list_datasets(session_id)
 
 
 @app.post("/datasets", response_model=DatasetInfo, status_code=201)
-async def upload_dataset(request: Request, filename: str = Query(...)):
+async def upload_dataset(request: Request, filename: str = Query(...),
+                         session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """Raw UTF-8 CSV body, with filename as a query parameter (not multipart)."""
+    if not session_id:
+        raise HTTPException(status_code=400, detail="A dataset session is required for imports")
     content = await request.body()
     try:
-        return await run_in_threadpool(import_csv, content, filename)
+        return await run_in_threadpool(import_csv, content, filename, session_id)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
 
 
 @app.get("/columns", response_model=list[Column])
-def columns(dataset_id: Optional[str] = None):
+def columns(dataset_id: Optional[str] = None,
+            session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """Every column that can be used on an axis, and the file it comes from."""
-    dataset = _dataset(dataset_id)
+    dataset = _dataset(dataset_id, session_id)
     return dataset.columns() if dataset else available_columns()
 
 
 @app.get("/stats", response_model=Stats)
 def get_stats(x: Optional[str] = None, y: Optional[str] = None,
-              dataset_id: Optional[str] = None):
-    dataset = _dataset(dataset_id)
+              dataset_id: Optional[str] = None,
+            session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
+    dataset = _dataset(dataset_id, session_id)
     x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
     y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
     rows = _rows(x, y, dataset=dataset)
@@ -131,8 +136,9 @@ def get_stats(x: Optional[str] = None, y: Optional[str] = None,
 
 @app.get("/plot/scatter", response_model=RenderSpec)
 def scatter(x: Optional[str] = None, y: Optional[str] = None,
-            width: int = Width, height: int = Height, dataset_id: Optional[str] = None):
-    dataset = _dataset(dataset_id)
+            width: int = Width, height: int = Height, dataset_id: Optional[str] = None,
+            session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
+    dataset = _dataset(dataset_id, session_id)
     x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
     y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
     rows = _rows(x, y, dataset=dataset)
@@ -148,13 +154,14 @@ def scatter(x: Optional[str] = None, y: Optional[str] = None,
 
 @app.get("/plot/line", response_model=RenderSpec)
 def line(x: Optional[str] = None, y: Optional[list[str]] = Query(None),
-         width: int = Width, height: int = Height, dataset_id: Optional[str] = None):
+         width: int = Width, height: int = Height, dataset_id: Optional[str] = None,
+            session_id: Optional[str] = Header(None, alias="X-Dataset-Session")):
     """One line per `y` column against `x` (repeat `y` for more lines).
 
     Stats: correlation of the first two `y` columns, or of `x` against `y` when
     only one `y` is given.
     """
-    dataset = _dataset(dataset_id)
+    dataset = _dataset(dataset_id, session_id)
     x = x if x is not None else (dataset.key if dataset else KEY)
     if y is None:
         y = [dataset.default_x, dataset.default_y] if dataset else [DEFAULT_X, DEFAULT_Y]

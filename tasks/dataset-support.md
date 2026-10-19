@@ -18,7 +18,7 @@ Feature scope and implementation sequence for named datasets and CSV imports.
 - Use a numeric ordering column when configured; otherwise use one-based row
   order, without describing it as time. The bundled monthly table is already in
   January–December order and uses month indexes 1–12.
-- Uploaded datasets stay in backend memory and are shared by all clients.
+- Uploaded datasets stay in backend memory and are scoped to browser-session tokens.
   Backend restarts clear uploads. No uploaded CSVs are written to disk.
 
 ## Implementation units
@@ -82,11 +82,9 @@ Feature scope and implementation sequence for named datasets and CSV imports.
 - `POST /datasets?filename=...` accepts the raw CSV body and returns metadata.
   No multipart dependency or preview/mapping wizard is required for this MVP.
 - Imported numeric tables and metadata live in one backend dictionary under
-  generated IDs. All clients can access them; page reloads retain access.
+  generated IDs and session tokens. Only matching tokens can list/read uploads; same-session reloads retain access.
 - Backend restarts, redeployments, or hosting spin-down clear uploads. Closing
-  a browser does not clear server memory. Run one backend process/worker:
-  independent workers do not share this in-memory registry. Old local upload
-  files are no longer read. No rename/deletion UI in this unit.
+  a browser does not clear server memory. Old local upload files are no longer read. No rename/deletion UI in this unit.
 - Reimporting a file creates a separate dataset and never overwrites another.
 - Switching datasets clears the previous import confirmation and file selection.
 - Bundled tables and uploads share numeric CSV parsing and ordering-key logic.
@@ -96,7 +94,7 @@ Feature scope and implementation sequence for named datasets and CSV imports.
   not fail merely while calculating their displayed minimum and maximum.
 - Automated backend tests isolate the in-memory registry. Browser tests use
   separate ports (8001/5174), do not reuse running development servers, and
-  verify reloads and availability to other clients.
+  verify same-session reloads and isolation from other sessions.
 
 ### Reviewed sourced defaults
 
@@ -109,3 +107,7 @@ Feature scope and implementation sequence for named datasets and CSV imports.
   `Data_Clean_UP/data/final/README.md`.
 - Existing examples remain unchanged. Their original provenance still needs
   verification; do not infer it from their repository filenames.
+
+### Session isolation fix (awaiting review)
+
+The frontend stores a random token in sessionStorage and sends it as `X-Dataset-Session`. The backend scopes both catalog listings and direct dataset access to that token. Default datasets remain public. Missing/empty tokens cannot upload; another token or no token cannot read an uploaded ID.

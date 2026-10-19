@@ -205,19 +205,11 @@ show an error without replacing the current dataset or its results.
 
 API: `POST /datasets?filename=observations.csv` with `Content-Type: text/csv`
 and the **raw file bytes as the request body** (not JSON or multipart).
-Returns **201** with dataset metadata or **422** for validation failures.
+Send `X-Dataset-Session` on imports and subsequent catalog, column, statistics, and plot requests. Imports return **201** with metadata, **400** for a missing/empty session header, or **422** for invalid CSV. Requests for an uploaded ID with a different or missing token return **404**. Default datasets remain available without a token.
 
-Imports are temporary: numeric tables and metadata stay in backend memory,
-with no uploaded files written to disk. All clients using the same backend
-can access uploaded datasets, including after a page reload. Backend restarts,
-redeployments, and hosting spin-down clear uploads; keep the original CSV to
-import again. Closing a browser does not clear uploads.
+Imports stay in backend memory, scoped to a random token saved in browser sessionStorage. Reloading the same session retains access; other sessions cannot list or read those uploads. If sessionStorage is unavailable, access lasts only until reload. This is token-based isolation, not account authentication; anyone holding the token has the same access. Duplicated tabs may inherit the same sessionStorage token.
 
-Run a single backend process/worker because this registry is not shared across
-workers. GitHub Pages serves the frontend; imports still require the separately
-hosted API. Old files in `local_data/datasets/` are no longer read.
-Reimporting the same filename creates a separate dataset. No rename/deletion
-UI is included yet.
+Backend restarts, redeployments, and hosting spin-down clear uploads. Keep the original CSV. Closing a browser does not immediately delete backend data. GitHub Pages serves the frontend; imports require the separately hosted API. Old local upload files are no longer read. Reimporting creates a separate dataset; no rename/deletion UI is included.
 
 Tests isolate the in-memory registry; browser tests use ports 8001/5174 and do not reuse
 your running development servers.

@@ -79,7 +79,7 @@ test("switching datasets updates axes, charts, statistics and exports", async ({
   await expect(page.getByRole("button", { name: "Copy the statistics" })).toBeVisible();
 });
 
-test("a temporary CSV survives reload and is available to other clients", async ({ page, browser }) => {
+test("a temporary CSV survives reload and is hidden from other sessions", async ({ page, browser }) => {
   await page.goto("/");
   await expect(page.getByRole("img", { name: "Scatter plot" })).toBeVisible();
   await page.getByLabel("CSV file").setInputFiles({ name: "custom-observations.csv", mimeType: "text/csv",
@@ -93,7 +93,7 @@ test("a temporary CSV survives reload and is available to other clients", async 
     const otherPage = await otherContext.newPage();
     await otherPage.goto("/");
     await expect(otherPage.getByRole("img", { name: "Scatter plot" })).toBeVisible();
-    await expect(otherPage.locator(`option[value="${datasetId}"]`)).toHaveCount(1);
+    await expect(otherPage.locator(`option[value="${datasetId}"]`)).toHaveCount(0);
   } finally {
     await otherContext.close();
   }

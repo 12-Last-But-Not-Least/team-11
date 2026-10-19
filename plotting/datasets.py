@@ -168,16 +168,16 @@ DATASETS = {
 }
 
 
-def get_dataset(dataset_id):
+def get_dataset(dataset_id, session_id=None):
     if dataset_id in DATASETS:
         return DATASETS[dataset_id]
     from plotting.imports import load_import
-    imported = load_import(dataset_id)
+    imported = load_import(dataset_id, session_id)
     if imported is not None:
         return imported
     raise UnknownDataset(f"unknown dataset '{dataset_id}'")
 
 
-def list_datasets():
+def list_datasets(session_id=None):
     from plotting.imports import list_imports
-    return [dataset.metadata() for dataset in [*DATASETS.values(), *list_imports()]]
+    return [dataset.metadata() for dataset in [*DATASETS.values(), *list_imports(session_id)]]

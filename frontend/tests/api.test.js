@@ -24,16 +24,16 @@ describe("createApi", () => {
     const file = new File(["x,y\n1,2"], "my data.csv", { type: "text/csv" });
     const fetch = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ id: "uploaded" }) })
       .mockResolvedValueOnce({ ok: false, status: 422, json: async () => ({ detail: "Invalid CSV" }) });
-    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    const api = createApi({ fetch, baseUrl: "http://api.test", sessionId: "session-a" });
     expect(await api.importCsv(file)).toEqual({ id: "uploaded" });
     expect(fetch).toHaveBeenCalledWith("http://api.test/datasets?filename=my+data.csv", {
-      method: "POST", headers: { "Content-Type": "text/csv" }, body: file,
+      method: "POST", headers: { "Content-Type": "text/csv", "X-Dataset-Session": "session-a" }, body: file,
     });
     await expect(api.importCsv(file)).rejects.toMatchObject({ status: 422, detail: "Invalid CSV" });
   });
   it("loads the catalog and scopes columns and both plots to a dataset", async () => {
     const { fetch, calls } = fakeFetch(Array.from({ length: 4 }, () => ({ status: 200, body: [] })));
-    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    const api = createApi({ fetch, baseUrl: "http://api.test", sessionId: "session-a" });
     await api.getDatasets();
     await api.getColumns("example");
     await api.getScatter({ datasetId: "example", x: "a", y: "b" });
@@ -47,21 +47,21 @@ describe("createApi", () => {
   });
   it("getColumns hits /columns on the configured base URL", async () => {
     const { fetch, calls } = fakeFetch([{ status: 200, body: [{ name: "year" }] }]);
-    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    const api = createApi({ fetch, baseUrl: "http://api.test", sessionId: "session-a" });
     expect(await api.getColumns()).toEqual([{ name: "year" }]);
     expect(calls).toEqual(["http://api.test/columns"]);
   });
 
   it("getScatter sends explicit x, y, width and height", async () => {
     const { fetch, calls } = fakeFetch([{ status: 200, body: { width: 800 } }]);
-    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    const api = createApi({ fetch, baseUrl: "http://api.test", sessionId: "session-a" });
     await api.getScatter({ x: "a", y: "b", width: 800, height: 500 });
     expect(calls[0]).toBe("http://api.test/plot/scatter?x=a&y=b&width=800&height=500");
   });
 
   it("getLine repeats y for each series", async () => {
     const { fetch, calls } = fakeFetch([{ status: 200, body: {} }]);
-    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    const api = createApi({ fetch, baseUrl: "http://api.test", sessionId: "session-a" });
     await api.getLine({ x: "year", ys: ["a", "b"], width: 800, height: 500 });
     expect(calls[0]).toBe("http://api.test/plot/line?x=year&y=a&y=b&width=800&height=500");
   });
@@ -69,7 +69,7 @@ describe("createApi", () => {
   it("turns a 422 into an ApiError carrying the backend detail unchanged", async () => {
     const detail = "unknown column 'zzz'. Available columns: year, falls_norm";
     const { fetch } = fakeFetch([{ status: 422, body: { detail } }]);
-    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    const api = createApi({ fetch, baseUrl: "http://api.test", sessionId: "session-a" });
     await expect(api.getScatter({ x: "zzz", y: "b", width: 1, height: 1 })).rejects.toMatchObject({
       name: "ApiError", status: 422, detail,
     });
@@ -77,7 +77,7 @@ describe("createApi", () => {
 
   it("falls back to an HTTP message when the error body has no detail", async () => {
     const { fetch } = fakeFetch([{ status: 500, body: {} }]);
-    const api = createApi({ fetch, baseUrl: "http://api.test" });
+    const api = createApi({ fetch, baseUrl: "http://api.test", sessionId: "session-a" });
     await expect(api.getColumns()).rejects.toMatchObject({ status: 500, detail: "HTTP 500" });
   });
 

@@ -6,7 +6,7 @@ from threading import Lock
 
 from plotting.datasets import Dataset, parse_csv
 
-IMPORTS = {}  # dataset ID -> in-memory dataset
+IMPORTS = {}  # (session token, dataset ID) -> in-memory dataset
 STORE_LOCK = Lock()
 
 
@@ -25,7 +25,7 @@ def default_axes(numeric, key):
     raise ValueError("CSV needs two nonconstant numeric columns with at least three complete paired rows")
 
 
-def import_csv(content: bytes, filename: str):
+def import_csv(content: bytes, filename: str, session_id: str):
     """Validate a table and keep it in memory until the backend restarts."""
     filename = Path(filename.replace("\\", "/")).name
     if not filename.lower().endswith(".csv"):
@@ -57,15 +57,15 @@ def import_csv(content: bytes, filename: str):
     dataset = Dataset(path=Path(filename), values=numeric, **manifest)
     metadata = dataset.metadata()
     with STORE_LOCK:
-        IMPORTS[dataset_id] = dataset
+        IMPORTS[(session_id, dataset_id)] = dataset
     return metadata
 
 
-def load_import(dataset_id):
+def load_import(dataset_id, session_id=None):
     with STORE_LOCK:
-        return IMPORTS.get(dataset_id)
+        return IMPORTS.get((session_id, dataset_id))
 
 
-def list_imports():
+def list_imports(session_id=None):
     with STORE_LOCK:
-        return list(IMPORTS.values())
+        return [dataset for (owner, _), dataset in IMPORTS.items() if owner == session_id]

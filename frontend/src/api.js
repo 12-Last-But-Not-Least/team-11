@@ -20,7 +20,7 @@ export function buildQuery(params) {
   return q.toString();
 }
 
-export function createApi({ fetch, baseUrl }) {
+export function createApi({ fetch, baseUrl, sessionId = globalThis.crypto.randomUUID() }) {
   const base = baseUrl.replace(/\/$/, "");
 
   async function readResponse(res) {
@@ -39,13 +39,13 @@ export function createApi({ fetch, baseUrl }) {
 
   async function get(path, params) {
     const qs = params ? buildQuery(params) : "";
-    return readResponse(await fetch(`${base}${path}${qs ? `?${qs}` : ""}`));
+    return readResponse(await fetch(`${base}${path}${qs ? `?${qs}` : ""}`, { headers: { "X-Dataset-Session": sessionId } }));
   }
 
   return {
     getDatasets: () => get("/datasets"),
     importCsv: async (file) => readResponse(await fetch(`${base}/datasets?${buildQuery({ filename: file.name })}`, {
-      method: "POST", headers: { "Content-Type": "text/csv" }, body: file,
+      method: "POST", headers: { "Content-Type": "text/csv", "X-Dataset-Session": sessionId }, body: file,
     })),
     getColumns: (datasetId) => get("/columns", { dataset_id: datasetId }),
     getScatter: ({ x, y, width, height, datasetId }) => get("/plot/scatter", { x, y, width, height, dataset_id: datasetId }),
@@ -55,4 +55,16 @@ export function createApi({ fetch, baseUrl }) {
 
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
-export const api = createApi({ fetch: (...args) => globalThis.fetch(...args), baseUrl: API_URL });
+function browserSessionId() {
+  const fresh = globalThis.crypto.randomUUID();
+  try {
+    const key = "dataset-session";
+    const token = globalThis.sessionStorage.getItem(key) || fresh;
+    globalThis.sessionStorage.setItem(key, token);
+    return token;
+  } catch {
+    return fresh; // Without browser storage, the token lasts until page reload.
+  }
+}
+
+export const api = createApi({ fetch: (...args) => globalThis.fetch(...args), baseUrl: API_URL, sessionId: browserSessionId() });

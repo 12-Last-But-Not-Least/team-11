@@ -5,7 +5,8 @@ from main import app
 from plotting import imports
 from plotting.datasets import DATASETS
 
-client = TestClient(app)
+SESSION = "session-a"
+client = TestClient(app, headers={"X-Dataset-Session": SESSION})
 
 
 def upload(content, filename="measurements.csv"):
@@ -13,7 +14,7 @@ def upload(content, filename="measurements.csv"):
                        content=content, headers={"Content-Type": "text/csv"})
 
 
-def test_upload_is_temporary_and_accessible_to_other_clients():
+def test_upload_is_temporary_and_accessible_only_to_its_session():
     response = upload(b"year,sales,cost\n2022,3,4\n2020,1,2\n2021,2,5\n")
     assert response.status_code == 201
     dataset = response.json()
@@ -21,15 +22,30 @@ def test_upload_is_temporary_and_accessible_to_other_clients():
     assert dataset["key"] == "year"
     assert dataset["default_x"] == "sales" and dataset["default_y"] == "cost"
     assert dataset["id"] not in DATASETS
-    other = TestClient(app)
+    other = TestClient(app, headers={"X-Dataset-Session": SESSION})
     assert dataset in other.get("/datasets").json()
-    assert imports.load_import(dataset["id"]).metadata() == dataset
+    assert imports.load_import(dataset["id"], SESSION).metadata() == dataset
     params = {"dataset_id": dataset["id"]}
     scatter = other.get("/plot/scatter", params=params).json()
     line = other.get("/plot/line", params=params).json()
     assert scatter["stats"] == line["stats"] == other.get("/stats", params=params).json()
     assert [p["x"] for p in line["data"]["series"][0]["points"]] == [2020, 2021, 2022]
     assert other.get("/columns", params=params).status_code == 200
+
+    for headers in ({}, {"X-Dataset-Session": "session-b"}):
+        outsider = TestClient(app, headers=headers)
+        assert dataset not in outsider.get("/datasets").json()
+        for endpoint in ("/columns", "/stats", "/plot/scatter", "/plot/line"):
+            assert outsider.get(endpoint, params=params).status_code == 404
+
+
+def test_import_requires_session_header():
+    for token in (None, ""):
+        headers = {} if token is None else {"X-Dataset-Session": token}
+        response = TestClient(app).post("/datasets?filename=test.csv", headers=headers,
+                                        content=b"x,y\n1,2\n2,4\n3,5\n")
+        assert response.status_code == 400
+    assert not imports.IMPORTS
 
 
 def test_restart_loses_imports_but_keeps_bundled_datasets():
@@ -59,7 +75,7 @@ def test_import_names_do_not_control_storage_and_repeated_imports_are_isolated()
     second = upload(b"x,y\n1,5\n2,4\n3,2\n", "../../measurements.csv").json()
     assert first["id"] != second["id"]
     assert first["name"] == "measurements"
-    assert {dataset.id for dataset in imports.list_imports()} == {first["id"], second["id"]}
+    assert {dataset.id for dataset in imports.list_imports(SESSION)} == {first["id"], second["id"]}
     assert client.get("/stats", params={"dataset_id": first["id"]}).json()["r"] > 0
     assert client.get("/stats", params={"dataset_id": second["id"]}).json()["r"] < 0
     assert imports.load_import("../../measurements") is None
@@ -83,7 +99,7 @@ def test_invalid_csv_never_publishes_a_dataset(content, detail):
     response = upload(content)
     assert response.status_code == 422
     assert detail in response.json()["detail"]
-    assert not imports.list_imports()
+    assert not imports.list_imports(SESSION)
     assert len(client.get("/datasets").json()) == len(DATASETS)
 
 
@@ -104,14 +120,14 @@ def test_na_values_remain_numeric_across_requests():
     assert stats["n"] == 3
     assert client.get("/plot/scatter", params=params).json()["stats"] == stats
     assert client.get("/plot/line", params={"dataset_id": dataset["id"], "y": ["x", "y"]}).json()["stats"] == stats
-    assert imports.load_import(dataset["id"]).metadata() == dataset
+    assert imports.load_import(dataset["id"], SESSION).metadata() == dataset
 
 
 def test_rownames_is_an_ordinary_numeric_column():
     dataset = upload(b"rownames,eruptions,waiting\n1,3,70\n2,2,50\n3,4,80\n").json()
     assert (dataset["default_x"], dataset["default_y"]) == ("rownames", "eruptions")
     assert "rownames" in {column["name"] for column in dataset["columns"]}
-    assert imports.load_import(dataset["id"]).metadata() == dataset
+    assert imports.load_import(dataset["id"], SESSION).metadata() == dataset
 
 
 def test_extreme_nondefault_axis_returns_validation_error_instead_of_server_error():

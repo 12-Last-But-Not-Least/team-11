@@ -32,7 +32,7 @@ export function ImportDataset({ api, onImported, busy, setBusy }) {
           {busy ? "Importing…" : "Import CSV"}
         </button>
       </div>
-      <p id="import-help">UTF-8 CSV. Include a header and two numeric columns with at least three complete paired rows. Uploads are temporary and available to everyone using this server. A server restart clears them; keep your original CSV.</p>
+      <p id="import-help">UTF-8 CSV. Include a header and two numeric columns with at least three complete paired rows. Uploads are temporary and available only to this browser session. A server restart clears them; keep your original CSV.</p>
       {error && <p role="alert" className="status--error">{error}</p>}
       {message && <p role="status">{message}</p>}
     </form>
