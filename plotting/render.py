@@ -41,6 +41,13 @@ def nice_ticks(lo, hi, target=6):
     return start, end, ticks, decimals
 
 
+def _pad_range(lo, hi, fraction=0.05):
+    """Expand [lo, hi] by ``fraction`` of the span on each side."""
+    span = hi - lo if hi != lo else 1.0
+    pad = span * fraction
+    return lo - pad, hi + pad
+
+
 def _data_ticks(xs):
     """Integer x values (e.g. years): tick on each data point, pad half a step."""
     lo, hi = min(xs), max(xs)
@@ -191,8 +198,8 @@ def build_scatter(x, y, stats, title="Scatter plot", x_label="x", y_label="y",
                   width=800, height=500, labels=None):
     """labels: optional per-point heading for hover tooltips (e.g. the year)."""
     labels = labels or [""] * len(x)
-    xax = nice_ticks(min(x), max(x))
-    yax = nice_ticks(min(y), max(y))
+    xax = nice_ticks(*_pad_range(min(x), max(x)))
+    yax = nice_ticks(*_pad_range(min(y), max(y)))
     f = _Frame(width, height, xax, yax, title, x_label, y_label)
     seg = _clip_line(stats["slope"], stats["intercept"], min(x), max(x), f.ymin, f.ymax)
     if seg:
@@ -218,9 +225,9 @@ def build_line(x, series, stats, title="Line graph", x_label="x", y_label="y",
     xs = [x[i] for i in order]
     series = [(name, [ys[i] for i in order]) for name, ys in series]
     from_data = _is_int_axis(xs)
-    xax = _data_ticks(xs) if from_data else nice_ticks(min(xs), max(xs))
+    xax = _data_ticks(xs) if from_data else nice_ticks(*_pad_range(min(xs), max(xs)))
     allv = [v for _, ys in series for v in ys]
-    yax = nice_ticks(min(allv), max(allv))
+    yax = nice_ticks(*_pad_range(min(allv), max(allv)))
     f = _Frame(width, height, xax, yax, title, x_label, y_label, x_from_data=from_data)
     legend, sdata = [], []
     for k, (name, ys) in enumerate(series):

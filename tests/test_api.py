@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from plotting import data
-from plotting.render import nice_ticks
+from plotting.render import build_scatter, nice_ticks
 from stats import correlation_stats
 
 client = TestClient(app)
@@ -33,6 +33,22 @@ def test_nice_ticks_cover_range_and_are_clean():
     assert (lo, hi) == (0.0, 1.0) and len(ticks) == 6 and dec == 1
     lo, hi, ticks, _ = nice_ticks(-37, 1234)
     assert lo <= -37 and hi >= 1234
+
+
+def test_scatter_pads_axis_extremes_from_plot_border():
+    """Data on nice bounds (0–1) must sit inset from the plot edges."""
+    x, y = [0.0, 0.5, 1.0], [0.0, 0.5, 1.0]
+    stats = correlation_stats(x, y)
+    spec = build_scatter(x, y, stats)
+    area = spec["data"]["plot_area"]
+    xa, ya = spec["data"]["x_axis"], spec["data"]["y_axis"]
+    assert xa["min"] < min(x) and xa["max"] > max(x)
+    assert ya["min"] < min(y) and ya["max"] > max(y)
+    for c in spec["commands"]:
+        if c["op"] != "circle":
+            continue
+        assert area["left"] < c["x"] < area["right"]
+        assert area["top"] < c["y"] < area["bottom"]
 
 
 # ---------------------------------------------------------------- defaults --
