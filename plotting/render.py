@@ -201,7 +201,8 @@ def build_scatter(x, y, stats, title="Scatter plot", x_label="x", y_label="y",
     xax = nice_ticks(*_pad_range(min(x), max(x)))
     yax = nice_ticks(*_pad_range(min(y), max(y)))
     f = _Frame(width, height, xax, yax, title, x_label, y_label)
-    seg = _clip_line(stats["slope"], stats["intercept"], min(x), max(x), f.ymin, f.ymax)
+    # Span the visible plot box (axis limits), not just the data's x extent.
+    seg = _clip_line(stats["slope"], stats["intercept"], f.xmin, f.xmax, f.ymin, f.ymax)
     if seg:
         pts = [[f.px(v), f.py(stats["slope"] * v + stats["intercept"])] for v in seg]
         f.add({"op": "polyline", "points": pts, "stroke": FIT_COLOR, "width": 2,
@@ -214,7 +215,7 @@ def build_scatter(x, y, stats, title="Scatter plot", x_label="x", y_label="y",
                "points": [{"x": xv, "y": yv, "label": _label(lb, x_label, xv, y_label, yv)}
                           for xv, yv, lb in zip(x, y, labels)]}]
     fit = {"slope": stats["slope"], "intercept": stats["intercept"],
-           "x_min": min(x), "x_max": max(x), "color": FIT_COLOR}
+           "x_min": f.xmin, "x_max": f.xmax, "color": FIT_COLOR}
     return _spec(f, stats, title, x_label, y_label, series, fit)
 
 

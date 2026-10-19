@@ -213,13 +213,16 @@ export function buildScatter(x, y, stats, {
     niceTicks(...padRange(...extent(y))),
     title, xLabel, yLabel,
   );
+  // Span the visible plot box (axis limits), not just the data's x extent.
   // interactive.js evaluates these endpoints directly when drawing the fit.
   // Finite coefficients alone do not guarantee finite multiply/add results.
-  const fitEnds = [xmin, xmax].map((v) => stats.slope * v + stats.intercept);
+  const x0 = frame.xAxis.min, x1 = frame.xAxis.max;
+  const y0 = frame.yAxis.min, y1 = frame.yAxis.max;
+  const fitEnds = [x0, x1].map((v) => stats.slope * v + stats.intercept);
   if (!fitEnds.every((v) => Number.isFinite(v) && Number.isFinite(frame.py(v)))) {
     throw new Error(RANGE_ERROR);
   }
-  const segment = clipLine(stats.slope, stats.intercept, xmin, xmax, frame.yAxis.min, frame.yAxis.max);
+  const segment = clipLine(stats.slope, stats.intercept, x0, x1, y0, y1);
   if (segment) {
     frame.add({ op: "polyline", points: segment.map((v) => [frame.px(v), frame.py(stats.slope * v + stats.intercept)]),
       stroke: FIT_COLOR, width: 2, dash: [6, 4] });
@@ -229,7 +232,7 @@ export function buildScatter(x, y, stats, {
   frame.panel(stats, [{ name: "data", color: COLORS[0] }, { name: "least-squares fit", color: FIT_COLOR }]);
   const series = [{ name: "data", kind: "points", color: COLORS[0], radius: 4.5,
     points: x.map((xv, i) => ({ x: xv, y: y[i], label: pointLabel(labels[i], xLabel, xv, yLabel, y[i]) })) }];
-  const fit = { slope: stats.slope, intercept: stats.intercept, x_min: xmin, x_max: xmax, color: FIT_COLOR };
+  const fit = { slope: stats.slope, intercept: stats.intercept, x_min: x0, x_max: x1, color: FIT_COLOR };
   return frame.spec(stats, series, fit);
 }
 
