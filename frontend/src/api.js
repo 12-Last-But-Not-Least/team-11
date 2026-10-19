@@ -1,6 +1,6 @@
 // Fetch joined values once, then compute statistics and render specs locally.
 // createApi preserves the server adapter; createBrowserApi powers the app.
-import { correlationStats } from "./stats.js";
+import { correlationStats, yearOverYearCorrelation, leaveOneOutCorrelation } from "./stats.js";
 import { buildLine, buildScatter } from "./render.js";
 
 export class ApiError extends Error {
@@ -84,7 +84,12 @@ export function createBrowserApi({ fetch, baseUrl }) {
     const pair = JSON.stringify([x, y]);
     if (!pairs.has(pair)) {
       try {
-        pairs.set(pair, correlationStats(data.values[x], data.values[y]));
+        const xs = data.values[x], ys = data.values[y];
+        pairs.set(pair, {
+          ...correlationStats(xs, ys),
+          year_over_year: yearOverYearCorrelation(data.values[data.key], xs, ys),
+          leave_one_out: leaveOneOutCorrelation(xs, ys),
+        });
       } catch (error) {
         throw new ApiError(422, error.message);
       }

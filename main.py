@@ -47,6 +47,26 @@ class Stats(BaseModel):
     intercept: float
 
 
+class YearOverYearStats(BaseModel):
+    n: int
+    r: Optional[float]
+    p_value: Optional[float]
+    reason: Optional[str]
+
+
+class LeaveOneOutStats(BaseModel):
+    r_min: Optional[float]
+    r_max: Optional[float]
+    valid_count: int
+    undefined_count: int
+    reason: Optional[str]
+
+
+class ExpandedStats(Stats):
+    year_over_year: YearOverYearStats
+    leave_one_out: LeaveOneOutStats
+
+
 class PreviewStats(Stats):
     """Structurally checked, untrusted browser results for a transient preview.
 
@@ -86,6 +106,10 @@ class RenderSpec(BaseModel):
     meta: dict[str, str]
 
 
+class ExpandedRenderSpec(RenderSpec):
+    stats: ExpandedStats
+
+
 class Column(BaseModel):
     name: str
     label: str
@@ -106,12 +130,15 @@ def _rows(*names):
         raise HTTPException(status_code=422, detail=str(e))
 
 
-def _stats(a, b):
+def _stats(a, b, years):
     # Only the legacy routes need the server-side statistics stack.
-    from stats import correlation_stats
+    from stats import correlation_stats, year_over_year_correlation, leave_one_out_correlation
 
     try:
-        return correlation_stats(a, b)
+        result = correlation_stats(a, b)
+        result["year_over_year"] = year_over_year_correlation(years, a, b)
+        result["leave_one_out"] = leave_one_out_correlation(a, b)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -186,20 +213,20 @@ def get_data(column: list[str] = Query([DEFAULT_X, DEFAULT_Y], min_length=1)):
             "labels": {name: display_name(name) for name in rows}}
 
 
-@app.get("/stats", response_model=Stats)
+@app.get("/stats", response_model=ExpandedStats)
 def get_stats(x: str = DEFAULT_X, y: str = DEFAULT_Y):
     rows = _rows(x, y)
-    return _stats(rows[x], rows[y])
+    return _stats(rows[x], rows[y], rows[KEY])
 
 
-@app.get("/plot/scatter", response_model=RenderSpec)
+@app.get("/plot/scatter", response_model=ExpandedRenderSpec)
 def scatter(x: str = DEFAULT_X, y: str = DEFAULT_Y,
             width: int = Width, height: int = Height):
     rows = _rows(x, y)
-    return _scatter_spec(rows, x, y, _stats(rows[x], rows[y]), width, height)
+    return _scatter_spec(rows, x, y, _stats(rows[x], rows[y], rows[KEY]), width, height)
 
 
-@app.get("/plot/line", response_model=RenderSpec)
+@app.get("/plot/line", response_model=ExpandedRenderSpec)
 def line(x: str = KEY, y: list[str] = Query([DEFAULT_X, DEFAULT_Y]),
          width: int = Width, height: int = Height):
     """One line per `y` column against `x` (repeat `y` for more lines).
@@ -209,7 +236,7 @@ def line(x: str = KEY, y: list[str] = Query([DEFAULT_X, DEFAULT_Y]),
     """
     rows = _rows(x, *y)
     ys = list(dict.fromkeys(y))
-    stats = _stats(rows[ys[0]], rows[ys[1]]) if len(ys) > 1 else _stats(rows[x], rows[ys[0]])
+    stats = _stats(rows[ys[0]], rows[ys[1]], rows[KEY]) if len(ys) > 1 else _stats(rows[x], rows[ys[0]], rows[KEY])
     return _line_spec(rows, x, ys, stats, width, height)
 
 

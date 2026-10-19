@@ -167,3 +167,106 @@ export function correlationStats(x, y) {
     p_value: correlationPValue(r, df), slope, intercept,
   };
 }
+
+function validateSeries(series, names) {
+  if (series.some((values) => !isNumericArray(values))) {
+    throw new Error(`${names} must be one-dimensional numeric arrays`);
+  }
+  if (series.some((values) => values.length !== series[0].length)) {
+    throw new Error(`${names} must have the same length`);
+  }
+  for (const values of series) {
+    for (const value of values) {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        throw new Error(`${names} must contain only finite numbers`);
+      }
+    }
+  }
+}
+
+function isConstant(values) {
+  return values.every((value) => value === values[0]);
+}
+
+function correlationOnly(x, y) {
+  // These diagnostics do not need regression coefficients. Normalize first so
+  // an unrepresentable slope between differently scaled series cannot fail them.
+  const ax = axis(x);
+  const ay = axis(y);
+  return correlationStats(
+    x.map((value) => (value - ax.origin) / ax.scale),
+    y.map((value) => (value - ay.origin) / ay.scale),
+  );
+}
+
+function annualChanges(values, pairs) {
+  const changes = pairs.map(([previous, next]) => values[next] - values[previous]);
+  if (changes.every(Number.isFinite)) return changes;
+  // Opposite finite extremes can have an infinite difference. A common scale
+  // keeps annual changes finite without changing their correlation.
+  let scale = 0;
+  for (const [previous, next] of pairs) {
+    scale = Math.max(scale, Math.abs(values[previous]), Math.abs(values[next]));
+  }
+  return pairs.map(([previous, next]) => values[next] / scale - values[previous] / scale);
+}
+
+/** Correlate paired changes between consecutive calendar years. */
+export function yearOverYearCorrelation(years, x, y) {
+  validateSeries([years, x, y], "years, x and y");
+  if (!years.every(Number.isInteger)) throw new Error("years must be integers");
+  const order = Array.from({ length: years.length }, (_, index) => index)
+    .sort((a, b) => years[a] - years[b]);
+  const pairs = [];
+  for (let i = 1; i < order.length; i++) {
+    const previous = order[i - 1];
+    const next = order[i];
+    if (years[next] === years[previous]) throw new Error("years must be unique");
+    if (years[next] - years[previous] === 1) pairs.push([previous, next]);
+  }
+  const n = pairs.length;
+  if (n < 3) {
+    return { n, r: null, p_value: null, reason: "insufficient_changes" };
+  }
+  const xChanges = annualChanges(x, pairs);
+  const yChanges = annualChanges(y, pairs);
+  if (isConstant(xChanges) || isConstant(yChanges)) {
+    return { n, r: null, p_value: null, reason: "constant_changes" };
+  }
+  const result = correlationOnly(xChanges, yChanges);
+  return { n, r: result.r, p_value: result.p_value, reason: null };
+}
+
+/** Correlation range after omitting each paired observation in turn. */
+export function leaveOneOutCorrelation(x, y) {
+  validateSeries([x, y], "x and y");
+  if (x.length < 4) {
+    return {
+      r_min: null, r_max: null, valid_count: 0, undefined_count: 0,
+      reason: "insufficient_data",
+    };
+  }
+  let rMin = Infinity;
+  let rMax = -Infinity;
+  let validCount = 0;
+  let undefinedCount = 0;
+  for (let omitted = 0; omitted < x.length; omitted++) {
+    const remainingX = Array.from(x).filter((_, index) => index !== omitted);
+    const remainingY = Array.from(y).filter((_, index) => index !== omitted);
+    if (isConstant(remainingX) || isConstant(remainingY)) {
+      undefinedCount++;
+      continue;
+    }
+    const { r } = correlationOnly(remainingX, remainingY);
+    rMin = Math.min(rMin, r);
+    rMax = Math.max(rMax, r);
+    validCount++;
+  }
+  return {
+    r_min: validCount ? rMin : null,
+    r_max: validCount ? rMax : null,
+    valid_count: validCount,
+    undefined_count: undefinedCount,
+    reason: validCount ? null : "undefined_correlation",
+  };
+}

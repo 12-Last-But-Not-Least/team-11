@@ -49,6 +49,71 @@ function sentence(text, terms) {
   };
 }
 
+function describeYearOverYear(yoy) {
+  if (!yoy) return [];
+
+  if (yoy.r === null) {
+    const text = yoy.reason === "insufficient_changes"
+      ? `Only ${yoy.n} paired annual changes are available; at least 3 are needed to calculate correlation.`
+      : "Annual-change correlation cannot be calculated because one series changes by the same amount each year.";
+
+    return [sentence(text, [])];
+  }
+
+  const strength = band(yoy.r);
+  const relationship = strength === "weak"
+    ? "a weak linear relationship"
+    : `a ${strength} ${yoy.r < 0 ? "negative" : "positive"} linear relationship`;
+
+  let evidence;
+  if (yoy.p_value === null) {
+    evidence = "A p-value is unavailable.";
+  } else {
+    const pText = yoy.p_value < P_VERY
+      ? "< 0.001"
+      : `= ${formatP(yoy.p_value)}`;
+
+    evidence = yoy.p_value < P_LIKELY
+      ? `There is evidence of correlation (p-value ${pText}).`
+      : `There is insufficient evidence of correlation (p-value ${pText}).`;
+  }
+
+  return [
+    sentence(
+      `Yearly increases and decreases show ${relationship} (r = ${yoy.r.toFixed(3)}, ${yoy.n} paired changes). ` +
+      `${evidence} Annual changes may not be independent, ` +
+      'so interpret this cautiously.',
+      [],
+    ),
+  ];
+}
+
+function describeLeaveOneOut(result) {
+  if (!result) return [];
+
+  if (result.r_min === null || result.r_max === null) {
+    const text = result.reason === "insufficient_data"
+      ? "At least 4 data points are needed to check how leaving out individual points affects correlation."
+      : "Correlation cannot be calculated after leaving out any single data point.";
+
+    return [sentence(text, [])];
+  }
+
+  const total = result.valid_count + result.undefined_count;
+  const skipped = result.undefined_count > 0
+    ? ` Correlation could not be calculated in ${result.undefined_count} of the ${total} cases.`
+    : "";
+
+  return [
+    sentence(
+      `Leaving out one data point at a time gives correlations between ${result.r_min.toFixed(3)} and ${result.r_max.toFixed(3)}. ` +
+      "This shows how much individual points affect the result, " +
+      `not a confidence interval.${skipped}`,
+      [],
+    ),
+  ];
+}
+
 /**
  * @param stats  the backend's stats object
  * @param labels { x, y } display labels
@@ -85,6 +150,6 @@ export function describeStats(stats, labels) {
     headline: HEADLINES[b][direction],
     rLabel: `r = ${stats.r.toFixed(2)}`,
     position: Math.abs(stats.r),
-    sentences: [r2, p, n],
+    sentences: [r2, p, n, ...describeYearOverYear(stats.year_over_year), ...describeLeaveOneOut(stats.leave_one_out)],
   };
 }
