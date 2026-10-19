@@ -9,6 +9,8 @@ export const GLOSSARY = {
   df: "Degrees of freedom for the test: n − 2, the number of points free to vary once the line is fitted.",
   slope: "How much y changes for each one-unit change in x along the fitted line.",
   intercept: "The fitted line's value of y when x is 0.",
+  "year-over-year": "Replace each value with how much it changed from the previous year, then correlate those changes. If r shrinks a lot, a shared time trend may have been inflating the original correlation.",
+  "leave-one-out": "Recompute r after dropping each point in turn. The range of those r values shows how sensitive the result is to individual years.",
 };
 
 /** [backend stats key, display term] in table order. */

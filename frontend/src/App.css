@@ -516,6 +516,19 @@ html {
   padding-top: 20px;
 }
 
+.scale--compact {
+  width: 100%;
+  max-width: 360px;
+  padding-top: 0;
+}
+
+.scale__caption {
+  margin: 0 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-deep);
+}
+
 .scale__bar {
   position: relative;
   display: flex;
@@ -598,18 +611,124 @@ html {
 }
 
 
+/* ---------- step 3: causation checks ---------- */
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  max-width: 760px;
+}
 
+.check {
+  padding: 14px 16px 16px;
+  border-radius: 8px;
+}
 
+.check--try {
+  background: var(--blue-tint);
+  color: var(--blue-deep);
+}
 
+.check--warn {
+  background: var(--red-tint);
+  color: var(--red-deep);
+}
 
+.check__title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+}
 
+.check__lead {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--muted);
+}
 
+.check--try .check__lead {
+  color: var(--blue-deep);
+  opacity: 0.85;
+}
 
+.check-compare {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 28px;
+  margin-bottom: 12px;
+}
 
+.check__takeaway {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22px;
+}
 
+.check__summary {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+}
 
+.check--warn .check__summary {
+  color: var(--red-deep);
+}
 
+.check--try .check__summary {
+  color: var(--blue-deep);
+}
 
+.rrange {
+  margin: 4px 0 14px;
+  max-width: 420px;
+}
+
+.rrange__track {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--white);
+  border: 1px solid var(--rule);
+}
+
+.rrange__span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 5px;
+  background: var(--red);
+  opacity: 0.35;
+}
+
+.rrange__dot {
+  position: absolute;
+  top: -3px;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 2.5px solid var(--ink);
+}
+
+.rrange__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.rrange__legend {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
 
 /* ---------- step 4: actions ---------- */
 .actions {

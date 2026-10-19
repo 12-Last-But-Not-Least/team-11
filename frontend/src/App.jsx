@@ -15,6 +15,8 @@ import { Chart } from "./components/Chart.jsx";
 import { StatsBar } from "./components/StatsBar.jsx";
 import { Verdict } from "./components/Verdict.jsx";
 import { Sentences } from "./components/Sentences.jsx";
+import { TrendCheck } from "./components/TrendCheck.jsx";
+import { LeaveOneOutCheck } from "./components/LeaveOneOutCheck.jsx";
 import { Actions } from "./components/Actions.jsx";
 
 // Product name (team decision 2026-10-12, from Poorva's demo). Single constant on purpose.
@@ -179,6 +181,10 @@ export default function App({ api = defaultApi }) {
             <StatsBar stats={scatter.stats} defaultOpen={false} />
             <Verdict description={description} changed={changed?.headline} />
             <Sentences sentences={description.sentences} changed={changed?.sentences} />
+            <div className="checks">
+              <TrendCheck trend={description.trend} />
+              <LeaveOneOutCheck leaveOneOut={description.leaveOneOut} />
+            </div>
           </Step>
         )}
         {description && (

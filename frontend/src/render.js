@@ -38,6 +38,13 @@ function extent(values) {
   return [lo, hi];
 }
 
+/** Expand [lo, hi] by ``fraction`` of the span on each side so extremes sit inset. */
+function padRange(lo, hi, fraction = 0.05) {
+  const span = hi !== lo ? hi - lo : 1;
+  const pad = span * fraction;
+  return [lo - pad, hi + pad];
+}
+
 function niceTicks(lo, hi, target = 6) {
   if (hi === lo) {
     const pad = Math.max(1, Math.abs(lo) * Number.EPSILON * 4);
@@ -200,7 +207,12 @@ export function buildScatter(x, y, stats, {
   values(x, "x");
   values(y, "y", x.length);
   const [xmin, xmax] = extent(x);
-  const frame = new Frame(width, height, niceTicks(xmin, xmax), niceTicks(...extent(y)), title, xLabel, yLabel);
+  const frame = new Frame(
+    width, height,
+    niceTicks(...padRange(xmin, xmax)),
+    niceTicks(...padRange(...extent(y))),
+    title, xLabel, yLabel,
+  );
   // interactive.js evaluates these endpoints directly when drawing the fit.
   // Finite coefficients alone do not guarantee finite multiply/add results.
   const fitEnds = [xmin, xmax].map((v) => stats.slope * v + stats.intercept);
@@ -229,14 +241,16 @@ export function buildLine(x, series, stats, {
   for (const s of series) values(s.values, s.name, x.length);
   const order = x.map((_, i) => i).sort((a, b) => x[a] - x[b]);
   const xs = order.map((i) => x[i]);
-  const xAxis = xs.length <= 20 && xs.every(Number.isInteger) ? dataTicks(xs) : niceTicks(...extent(xs));
+  const xAxis = xs.length <= 20 && xs.every(Number.isInteger)
+    ? dataTicks(xs)
+    : niceTicks(...padRange(...extent(xs)));
   let ymin = Infinity, ymax = -Infinity;
   for (const s of series) {
     const [lo, hi] = extent(s.values);
     ymin = Math.min(ymin, lo);
     ymax = Math.max(ymax, hi);
   }
-  const frame = new Frame(width, height, xAxis, niceTicks(ymin, ymax), title, xLabel, yLabel);
+  const frame = new Frame(width, height, xAxis, niceTicks(...padRange(ymin, ymax)), title, xLabel, yLabel);
   const legend = [];
   const data = series.map((s, index) => {
     const color = COLORS[index % COLORS.length];

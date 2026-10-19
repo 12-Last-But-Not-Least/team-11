@@ -88,8 +88,8 @@ describe("describeStats: sentences", () => {
   });
 });
 
-describe("describeStats: year-over-year", () => {
-  it("explains annual changes with correlation, sample size and p-value", () => {
+describe("describeStats: year-over-year trend card", () => {
+  it("keeps core sentences free of YoY prose and exposes a trend block", () => {
     const result = describeStats(stats({
       year_over_year: {
         n: 11,
@@ -99,12 +99,14 @@ describe("describeStats: year-over-year", () => {
       },
     }), labels);
 
-    expect(result.sentences.map((s) => s.text)).toContain(
-      "Yearly increases and decreases show a weak linear relationship " +
-      "(r = 0.178, 11 paired changes). " +
-      "There is insufficient evidence of correlation (p-value = 0.600). " +
-      "Annual changes may not be independent, so interpret this cautiously."
-    );
+    expect(result.sentences).toHaveLength(3);
+    expect(result.trend.levels.rLabel).toBe("r = 0.98");
+    expect(result.trend.yoy.rLabel).toBe("r = 0.18");
+    expect(result.trend.takeaway).toBe("The shared time trend may be doing most of the work.");
+    expect(result.trend.summary.text).toContain("year-over-year");
+    expect(result.trend.summary.text).toContain("(r = 0.178, 11 paired changes)");
+    expect(result.trend.summary.text).toContain("There is insufficient evidence of correlation (p-value = 0.600)");
+    expect(result.trend.summary.terms.map((t) => t.term)).toEqual(["year-over-year", "r", "p-value"]);
   });
 
   it.each([
@@ -120,10 +122,7 @@ describe("describeStats: year-over-year", () => {
       },
     }), labels);
 
-    const text = result.sentences
-      .find((s) => s.text.startsWith("Yearly increases")).text;
-
-    expect(text).toContain(`${expected} (p-value`);
+    expect(result.trend.summary.text).toContain(`${expected} (p-value`);
   });
 
   it.each([
@@ -147,12 +146,13 @@ describe("describeStats: year-over-year", () => {
       },
     }), labels);
 
-    expect(result.sentences.map((s) => s.text)).toContain(expected);
+    expect(result.trend.yoy).toBeNull();
+    expect(result.trend.summary.text).toBe(expected);
   });
 });
 
-describe("describeStats: leave-one-out", () => {
-  it("explains the correlation range", () => {
+describe("describeStats: leave-one-out card", () => {
+  it("exposes the correlation range with a glossary term", () => {
     const result = describeStats(stats({
       leave_one_out: {
         r_min: 0.95536,
@@ -163,12 +163,15 @@ describe("describeStats: leave-one-out", () => {
       },
     }), labels);
 
-    expect(result.sentences.map((s) => s.text)).toContain(
-      "Leaving out one data point at a time gives correlations " +
+    expect(result.leaveOneOut.rMin).toBeCloseTo(0.95536);
+    expect(result.leaveOneOut.rMax).toBeCloseTo(0.97360);
+    expect(result.leaveOneOut.summary.text).toBe(
+      "Leaving out one data point at a time (leave-one-out) gives correlations " +
       "between 0.955 and 0.974. " +
       "This shows how much individual points affect the result, " +
       "not a confidence interval."
     );
+    expect(result.leaveOneOut.summary.terms.map((t) => t.term)).toEqual(["leave-one-out"]);
   });
 
   it("reports cases with undefined correlation", () => {
@@ -182,10 +185,7 @@ describe("describeStats: leave-one-out", () => {
       },
     }), labels);
 
-    const text = result.sentences
-      .find((s) => s.text.startsWith("Leaving out")).text;
-
-    expect(text).toContain(
+    expect(result.leaveOneOut.summary.text).toContain(
       "Correlation could not be calculated in 1 of the 4 cases."
     );
   });
@@ -210,6 +210,6 @@ describe("describeStats: leave-one-out", () => {
       },
     }), labels);
 
-    expect(result.sentences.map((s) => s.text)).toContain(expected);
+    expect(result.leaveOneOut.summary.text).toBe(expected);
   });
 });
