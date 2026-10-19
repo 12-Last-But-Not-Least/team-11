@@ -31,11 +31,11 @@ Feature scope and implementation sequence for named datasets and CSV imports.
    Wire the header dropdown to the catalog and dataset defaults. Update all
    worksheet results and exports together. Guard stale dataset/column/plot
    responses; reset old results on dataset changes. Replace year-only copy.
-3. **CSV import and temporary storage** — implemented, awaiting review.
+3. **CSV import and temporary storage** — committed (`c9c8958`).
    Add CSV validation and temporary memory storage, then an import UI with
    understandable feedback. Add successful imports to the catalog and select
    them. Document missing-value rules and storage behavior.
-4. **Sourced default datasets** — pending, after feature development.
+4. **Sourced default datasets** — implemented and approved for commit.
    Verify original sources for the existing examples and add real datasets to
    reach 3–5 defaults. Record source URLs, units, applicable reuse terms, and
    cleaning/normalization steps. A repository filename alone is not provenance.
@@ -97,3 +97,15 @@ Feature scope and implementation sequence for named datasets and CSV imports.
 - Automated backend tests isolate the in-memory registry. Browser tests use
   separate ports (8001/5174), do not reuse running development servers, and
   verify reloads and availability to other clients.
+
+### Reviewed sourced defaults
+
+- All five defaults live in `Data_Clean_UP/data/final/`.
+- The three additions use lowercase snake_case headers and blank missing cells;
+  all original values, rows, and row order are preserved. No normalization.
+- Penguins uses `observation_year` to avoid the legacy cross-file year join.
+  Both Rdatasets files retain their original `rownames` column.
+- Source URLs, header mappings, units, and reuse notes are recorded in
+  `Data_Clean_UP/data/final/README.md`.
+- Existing examples remain unchanged. Their original provenance still needs
+  verification; do not infer it from their repository filenames.

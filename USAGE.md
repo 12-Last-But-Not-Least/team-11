@@ -149,7 +149,7 @@ CORS is open (`*`) so a frontend served from another port can call the API. Tigh
 
 ### Named datasets
 
-`GET /datasets` returns the two existing bundled examples plus temporary imports,
+`GET /datasets` returns five bundled examples (iPhone/falls, ice cream/sharks, Palmer Penguins, Old Faithful, and New York Air Quality) plus temporary imports,
 including IDs, names, descriptions, row counts, numeric columns, ordering key,
 default X/Y axes, and import warnings.
 Use `dataset_id` on every request to select a table independently of other

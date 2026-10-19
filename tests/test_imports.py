@@ -35,7 +35,7 @@ def test_upload_is_temporary_and_accessible_to_other_clients():
 def test_restart_loses_imports_but_keeps_bundled_datasets():
     dataset = upload(b"x,y\n1,2\n2,4\n3,5\n").json()
     imports.IMPORTS.clear()  # equivalent to starting a fresh backend process
-    assert len(client.get("/datasets").json()) == 2
+    assert len(client.get("/datasets").json()) == len(DATASETS)
     assert client.get("/stats", params={"dataset_id": dataset["id"]}).status_code == 404
     assert client.get("/stats?dataset_id=iphone-falls").status_code == 200
 
@@ -84,7 +84,7 @@ def test_invalid_csv_never_publishes_a_dataset(content, detail):
     assert response.status_code == 422
     assert detail in response.json()["detail"]
     assert not imports.list_imports()
-    assert len(client.get("/datasets").json()) == 2
+    assert len(client.get("/datasets").json()) == len(DATASETS)
 
 
 def test_csv_extension_is_required():

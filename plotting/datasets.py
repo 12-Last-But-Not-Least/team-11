@@ -145,6 +145,25 @@ DATASETS = {
                 "normalized_icecream_sharks_merged.csv.",
                 DATA_ROOT / "final" / "normalized_icecream_sharks_merged.csv",
                 "month_index", "Month index (Jan=1)", "ice_cream_index_norm", "attacks_norm", True),
+        Dataset("palmer-penguins", "Palmer Penguins",
+                "Palmer Archipelago penguins, 2007-2009; source: palmerpenguins (CC0). "
+                "Flipper length in mm and body mass in g; original values. "
+                "Row order does not represent time.",
+                DATA_ROOT / "final" / "penguins.csv", "row_number", "Row number",
+                "flipper_length_mm", "body_mass_g", True,
+                warnings=("Rows with missing selected values are excluded from plots and statistics.",)),
+        Dataset("old-faithful", "Old Faithful",
+                "Old Faithful eruption duration and waiting time, both in minutes. "
+                "Source: R datasets / Rdatasets; original values.",
+                DATA_ROOT / "final" / "faithful.csv", "rownames", "Row number",
+                "eruptions", "waiting"),
+        Dataset("air-quality", "New York Air Quality",
+                "Daily New York measurements, May-September 1973. "
+                "Ozone in ppb and solar radiation in Langleys. "
+                "Source: R datasets / Rdatasets; original values.",
+                DATA_ROOT / "final" / "airquality.csv", "rownames", "Row number",
+                "ozone", "solar_r",
+                warnings=("Rows with missing selected values are excluded from plots and statistics.",)),
     )
 }
 

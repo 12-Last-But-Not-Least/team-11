@@ -15,8 +15,8 @@ def test_catalog_has_existing_bundled_examples():
     response = client.get("/datasets")
     assert response.status_code == 200
     catalog = response.json()
-    assert {d["id"] for d in catalog} == {"iphone-falls", "icecream-sharks"}
-    assert len(catalog) == 2
+    assert {d["id"] for d in catalog} == {"iphone-falls", "icecream-sharks", "palmer-penguins", "old-faithful", "air-quality"}
+    assert len(catalog) == 5
     for dataset in catalog:
         params = {"dataset_id": dataset["id"]}
         columns = client.get("/columns", params=params).json()
@@ -30,7 +30,7 @@ def test_catalog_has_existing_bundled_examples():
         stats = client.get("/stats", params=params)
         assert scatter.status_code == line.status_code == stats.status_code == 200
         assert scatter.json()["stats"] == line.json()["stats"] == stats.json()
-        assert stats.json()["n"] == dataset["row_count"]
+        assert stats.json()["n"] == {"palmer-penguins": 342, "air-quality": 111}.get(dataset["id"], dataset["row_count"])
         assert scatter.json()["meta"]["dataset_id"] == dataset["id"]
         assert line.json()["meta"]["dataset_id"] == dataset["id"]
         assert len(scatter.json()["data"]["series"][0]["points"]) == stats.json()["n"]
