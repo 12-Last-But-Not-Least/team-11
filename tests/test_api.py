@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from main import app
 from plotting import data
 from plotting.render import build_scatter, nice_ticks
-from stats import correlation_stats
+from stats import correlation_stats, year_over_year_correlation, leave_one_out_correlation
 
 client = TestClient(app)
 
@@ -196,3 +196,108 @@ def test_data_points_match_pixel_commands():
         px = a["left"] + (p["x"] - xa["min"]) / (xa["max"] - xa["min"]) * (a["right"] - a["left"])
         py = a["bottom"] - (p["y"] - ya["min"]) / (ya["max"] - ya["min"]) * (a["bottom"] - a["top"])
         assert abs(px - c["x"]) < 0.01 and abs(py - c["y"]) < 0.01
+
+# -------------------------------------------- year-over-year correlation --
+def test_yoy_correlation():
+    # Changes: X = [1, 2, 3], Y = [2, 4, 6]
+    result = year_over_year_correlation(
+        [2020, 2021, 2022, 2023],
+        [0, 1, 3, 6],
+        [0, 2, 6, 12],
+    )
+
+    assert result["n"] == 3
+    assert result["r"] == pytest.approx(1.0)
+    assert result["p_value"] == pytest.approx(0.0)
+    assert result["reason"] is None
+
+
+def test_yoy_skips_missing_years():
+    # Exclude the two-year change from 2021 to 2023.
+    # Remaining changes: X = [1, 2, 3], Y = [2, 4, 6]
+    result = year_over_year_correlation(
+        [2020, 2021, 2023, 2024, 2025],
+        [0, 1, 100, 102, 105],
+        [0, 2, 50, 54, 60],
+    )
+
+    assert result["n"] == 3
+    assert result["r"] == pytest.approx(1.0)
+    assert result["reason"] is None
+
+
+def test_yoy_constant_changes():
+    # X increases by 2 every year, so its changes have no variation.
+    result = year_over_year_correlation(
+        [2020, 2021, 2022, 2023],
+        [0, 2, 4, 6],
+        [0, 1, 3, 6],
+    )
+
+    assert result == {
+        "n": 3,
+        "r": None,
+        "p_value": None,
+        "reason": "constant_changes",
+    }
+
+
+def test_yoy_insufficient_changes():
+    # Three years provide only two paired changes.
+    result = year_over_year_correlation(
+        [2020, 2021, 2022],
+        [0, 1, 3],
+        [0, 2, 6],
+    )
+
+    assert result == {
+        "n": 2,
+        "r": None,
+        "p_value": None,
+        "reason": "insufficient_changes",
+    }
+
+# ---------------------------------------------- leave-one-out correlation --
+
+def test_leave_one_out_range():
+    # Removing the last point gives r = 1.
+    # Removing the first point gives r = 0.
+    result = leave_one_out_correlation(
+        [0, 1, 2, 3],
+        [0, 1, 2, 1],
+    )
+
+    assert result["r_min"] == pytest.approx(0.0)
+    assert result["r_max"] == pytest.approx(1.0)
+    assert result["valid_count"] == 4
+    assert result["undefined_count"] == 0
+    assert result["reason"] is None
+
+
+def test_leave_one_out_skips_undefined_case():
+    # Removing the last pair leaves X constant.
+    result = leave_one_out_correlation(
+        [1, 1, 1, 2],
+        [1, 2, 3, 4],
+    )
+
+    assert result["valid_count"] == 3
+    assert result["undefined_count"] == 1
+    assert result["r_min"] == pytest.approx(0.7559289460184544)
+    assert result["r_max"] == pytest.approx(0.944911182523068)
+    assert result["reason"] is None
+
+
+def test_leave_one_out_insufficient_data():
+    result = leave_one_out_correlation(
+        [1, 2, 3],
+        [2, 4, 6],
+    )
+
+    assert result == {
+        "r_min": None,
+        "r_max": None,
+        "valid_count": 0,
+        "undefined_count": 0,
+        "reason": "insufficient_data",
+    }
