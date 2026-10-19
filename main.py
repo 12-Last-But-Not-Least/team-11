@@ -315,7 +315,8 @@ def scatter(x: Optional[str] = None, y: Optional[str] = None,
     x = x if x is not None else (dataset.default_x if dataset else DEFAULT_X)
     y = y if y is not None else (dataset.default_y if dataset else DEFAULT_Y)
     rows = _rows(x, y, dataset=dataset)
-    return _scatter_spec(rows, x, y, _stats(rows[x], rows[y], _calendar_years(rows, dataset)), width, height, dataset)
+    return _preview_render(_scatter_spec, rows, x, y,
+                           _stats(rows[x], rows[y], _calendar_years(rows, dataset)), width, height, dataset)
 
 
 @app.get("/plot/line", response_model=ExpandedRenderSpec)
@@ -335,7 +336,7 @@ def line(x: Optional[str] = None, y: Optional[list[str]] = Query(None, min_lengt
     ys = list(dict.fromkeys(y))
     years = _calendar_years(rows, dataset)
     stats = _stats(rows[ys[0]], rows[ys[1]], years) if len(ys) > 1 else _stats(rows[x], rows[ys[0]], years)
-    return _line_spec(rows, x, ys, stats, width, height, dataset)
+    return _preview_render(_line_spec, rows, x, ys, stats, width, height, dataset)
 
 
 @app.post("/render/scatter", response_model=RenderSpec)

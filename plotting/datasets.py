@@ -58,7 +58,12 @@ def parse_csv(stream, key=None, generated_key=False):
             ignored.append(name)
 
     if key is None:
-        generated_key = not ("year" in numeric and all(v is not None for v in numeric["year"]))
+        years = numeric.get("year")
+        generated_key = not (
+            years is not None
+            and all(value is not None and float(value).is_integer() for value in years)
+            and len(set(years)) == len(rows)
+        )
         key = "row_number" if generated_key else "year"
         while generated_key and key in headers:
             key = "_" + key
