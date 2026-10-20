@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../src/App.jsx";
 import { spec } from "./fakeChart.js";
@@ -38,12 +38,27 @@ describe("re-run choreography", () => {
   });
 
   it("clears highlights when the next run lands with identical sentences", async () => {
-    const user = userEvent.setup();
-    render(<App api={fakeApi([strong, moderate, moderate])} />);
-    await screen.findByRole("list", { name: /what the statistics mean/i });
-    await user.click(screen.getByRole("button", { name: /swap/i }));
-    await waitFor(() => expect(changedItems()).toEqual([true, true, false]));
-    await user.click(screen.getByRole("button", { name: /swap/i })); // same labels, same stats
-    await waitFor(() => expect(changedItems()).toEqual([false, false, false]));
+    const observers = [];
+    const original = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class {
+      constructor(cb) {
+        this.cb = cb;
+        observers.push(this);
+      }
+      observe() {}
+      disconnect() {}
+    };
+    try {
+      const user = userEvent.setup();
+      render(<App api={fakeApi([strong, moderate, moderate])} />);
+      await screen.findByRole("list", { name: /what the statistics mean/i });
+      await user.click(screen.getByRole("button", { name: /swap/i }));
+      await waitFor(() => expect(changedItems()).toEqual([true, true, false]));
+      // a container resize re-runs with the same labels and the same stats
+      act(() => observers.at(-1).cb([{ contentRect: { width: 600 } }]));
+      await waitFor(() => expect(changedItems()).toEqual([false, false, false]));
+    } finally {
+      globalThis.ResizeObserver = original;
+    }
   });
 });
