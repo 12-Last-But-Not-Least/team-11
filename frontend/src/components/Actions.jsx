@@ -21,18 +21,28 @@ function saveBlob(blob, name) {
  */
 export function Actions({ scatterSpec, canvasRef, names, labels, stats }) {
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   useEffect(() => {
-    if (!copied) return;
-    const t = setTimeout(() => setCopied(false), 2000);
+    if (!copied && !copyFailed) return;
+    const t = setTimeout(() => {
+      setCopied(false);
+      setCopyFailed(false);
+    }, 2000);
     return () => clearTimeout(t);
-  }, [copied]);
+  }, [copied, copyFailed]);
 
   const svg = () => window.SvgChart.download(scatterSpec, fileName("scatter", names, "svg"));
   const png = () => canvasRef.current?.toBlob((blob) => blob && saveBlob(blob, fileName("scatter", names, "png")), "image/png");
   const copy = async () => {
-    await navigator.clipboard.writeText(statsToText(stats, labels));
-    setCopied(true);
+    try {
+      await navigator.clipboard.writeText(statsToText(stats, labels));
+      setCopyFailed(false);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+      setCopyFailed(true);
+    }
   };
 
   return (
@@ -47,7 +57,7 @@ export function Actions({ scatterSpec, canvasRef, names, labels, stats }) {
         Copy the statistics
       </button>
       <span className="actions__note" role="status" aria-live="polite">
-        {copied ? "Copied to the clipboard." : ""}
+        {copied ? "Copied to the clipboard." : copyFailed ? "Couldn't copy. Allow clipboard access and try again." : ""}
       </span>
     </div>
   );

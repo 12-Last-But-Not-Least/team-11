@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../src/App.jsx";
 import { spec } from "./fakeChart.js";
@@ -36,9 +36,7 @@ describe("failure paths", () => {
     expect(screen.getByRole("button", { name: /copy the statistics/i })).toBeInTheDocument();
   });
 
-  // Known bug: Actions.copy has no catch, so a refused clipboard write is an unhandled rejection.
-  // Remove `.fails` once Actions.jsx handles the error.
-  it.fails("does not crash when copying to the clipboard is refused", async () => {
+  it("tells the user when copying to the clipboard is refused", async () => {
     const user = userEvent.setup();
     const api = { getColumns: async () => cols, getScatter: async () => spec(), getLine: async () => spec() };
     render(<App api={api} />);
@@ -51,7 +49,8 @@ describe("failure paths", () => {
     await new Promise((r) => setTimeout(r, 50));
     process.off("unhandledRejection", unhandled);
 
-    expect(screen.queryByText(/copied/i)).not.toBeInTheDocument();
+    expect(await screen.findByText(/couldn.t copy/i)).toBeInTheDocument();
+    expect(screen.queryByText(/copied to the clipboard/i)).not.toBeInTheDocument();
     expect(unhandled).not.toHaveBeenCalled();
   });
 });
