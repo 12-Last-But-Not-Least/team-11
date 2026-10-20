@@ -13,6 +13,10 @@ export function useActiveStep(initial = 1) {
   const callbacks = useRef(new Map());
 
   useEffect(() => {
+    // jsdom (and older browsers) may lack IntersectionObserver; keep the
+    // initial active step and skip scroll-spy rather than crashing mount.
+    if (typeof IntersectionObserver === "undefined") return undefined;
+
     const pick = () => {
       let best = null;
       let bestRatio = 0;
