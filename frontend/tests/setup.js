@@ -6,6 +6,15 @@ import { FakeChart } from "./fakeChart.js";
 // exceed Testing Library's default 1s wait under load.
 configure({ asyncUtilTimeout: 4000 });
 
+// jsdom does not implement IntersectionObserver; App's scroll-spy needs a stub.
+if (typeof globalThis.IntersectionObserver === "undefined") {
+  globalThis.IntersectionObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 // interactive.js is loaded by main.jsx in the real page; tests get the fake.
 window.InteractiveChart = FakeChart;
 beforeEach(() => FakeChart.reset());
