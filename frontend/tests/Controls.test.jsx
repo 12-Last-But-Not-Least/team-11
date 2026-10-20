@@ -75,11 +75,10 @@ describe("step 1: choose two things to compare", () => {
     expect(screen.getByText(/^normalized_merged_set\.csv/)).toBeInTheDocument();
   });
 
-  it("offers chart sizes with 800 × 500 selected by default", async () => {
+  it("has no chart-size dropdown (size follows the container)", async () => {
     render(<App api={fakeApi()} />);
-    const size = await screen.findByLabelText(/chart size/i);
-    expect(size).toHaveValue("800x500");
-    expect(within(size).getAllByRole("option").length).toBeGreaterThanOrEqual(3);
+    await screen.findByLabelText(/x axis/i);
+    expect(screen.queryByLabelText(/chart size/i)).not.toBeInTheDocument();
   });
 
   it("reports a backend failure instead of an empty page", async () => {

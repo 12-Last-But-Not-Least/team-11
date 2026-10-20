@@ -1,10 +1,11 @@
 import { MODERATE, STRONG } from "../describe.js";
 
 /** r placed on a Weak / Moderate / Strong ruler; bands follow the thresholds. */
-export function StrengthScale({ position, rLabel, band }) {
+export function StrengthScale({ position, rLabel, band, caption = null, compact = false }) {
   const pct = `${position * 100}%`;
   return (
-    <div className="scale" role="img" aria-label={`Strength of r: ${rLabel}, ${band}`}>
+    <div className={`scale${compact ? " scale--compact" : ""}`} role="img" aria-label={`Strength of r: ${rLabel}, ${band}${caption ? `, ${caption}` : ""}`}>
+      {caption && <p className="scale__caption">{caption}</p>}
       <div className="scale__bar" aria-hidden="true">
         <span className="scale__band scale__band--weak" style={{ width: `${MODERATE * 100}%` }} />
         <span className="scale__band scale__band--moderate" style={{ width: `${(STRONG - MODERATE) * 100}%` }} />

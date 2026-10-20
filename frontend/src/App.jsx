@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api as defaultApi } from "./api.js";
 import { defaultPair, groupBySource, isKey, labelOf } from "./columns.js";
 import { describeStats } from "./describe.js";
@@ -6,7 +6,9 @@ import { diffTexts } from "./diffSentences.js";
 import { keyRange } from "./runMeta.js";
 import { stripStatsPanel } from "./specFilter.js";
 import { HELP } from "./help.js";
-import { DEFAULT_SIZE, parseSize } from "./sizes.js";
+import { parseSize } from "./sizes.js";
+import { useChartSize } from "./useChartSize.js";
+import { useActiveStep } from "./useActiveStep.js";
 import { useRun } from "./useRun.js";
 import { Step } from "./components/Step.jsx";
 import { Controls } from "./components/Controls.jsx";
@@ -14,6 +16,8 @@ import { Chart } from "./components/Chart.jsx";
 import { StatsBar } from "./components/StatsBar.jsx";
 import { Verdict } from "./components/Verdict.jsx";
 import { Sentences } from "./components/Sentences.jsx";
+import { TrendCheck } from "./components/TrendCheck.jsx";
+import { LeaveOneOutCheck } from "./components/LeaveOneOutCheck.jsx";
 import { Actions } from "./components/Actions.jsx";
 
 // Product name (team decision 2026-10-12, from Poorva's demo). Single constant on purpose.
@@ -36,10 +40,13 @@ function Mark() {
 export default function App({ api = defaultApi }) {
   const [cols, setCols] = useState(null);
   const [error, setError] = useState(null);
-  const [sel, setSel] = useState(null); // { x, y, size }
+  const [sel, setSel] = useState(null); // { x, y }
+  const chartsRef = useRef(null);
   const scatterCanvas = useRef(null);
   const scatterChart = useRef(null);
   const lineChart = useRef(null);
+  const chartSize = useChartSize(chartsRef, Boolean(sel));
+  const { active: activeStep, register: registerStep } = useActiveStep(1);
 
   useEffect(() => {
     let live = true;
@@ -48,8 +55,7 @@ export default function App({ api = defaultApi }) {
       .then((c) => {
         if (!live) return;
         setCols(c);
-        const pair = defaultPair(c);
-        setSel(pair ? { ...pair, size: DEFAULT_SIZE } : null);
+        setSel(defaultPair(c));
       })
       .catch((e) => live && setError(e));
     return () => {
@@ -59,7 +65,12 @@ export default function App({ api = defaultApi }) {
 
   const key = cols?.find(isKey);
   const keyLabel = (key?.label ?? "point").toLowerCase();
-  const { forSel, scatter, line, running, error: runError } = useRun(api, sel, key?.name ?? "year");
+  // Size comes from the step-2 container, not a dropdown.
+  const runSel = useMemo(
+    () => (sel && chartSize ? { ...sel, size: chartSize } : null),
+    [sel, chartSize],
+  );
+  const { forSel, scatter, line, running, error: runError } = useRun(api, runSel, key?.name ?? "year");
 
   // steps 3–4 describe the landed run (forSel), not a selection still in flight
   const description = scatter && forSel
@@ -118,7 +129,7 @@ export default function App({ api = defaultApi }) {
           </p>
         )}
         {cols && sel && (
-          <Step n={1} title="Choose two things to compare" help={HELP[1]}>
+          <Step n={1} title="Choose two things to compare" help={HELP[1]} active={activeStep === 1} stepRef={registerStep(1)}>
             <Controls cols={cols} value={sel} onChange={setSel} meta={runMeta} />
           </Step>
         )}
@@ -128,14 +139,17 @@ export default function App({ api = defaultApi }) {
           </p>
         )}
         {sel && (
-          <Step n={2} title="Look at them two ways" help={HELP[2]} busy={running}>
-            {!specs ? (
-              <div className="charts charts--pending" aria-hidden="true" style={{ "--chart-w": `${parseSize(sel.size).width}px` }}>
-                <div className="chart-figure"><div className="chart-skeleton" style={{ aspectRatio: `${parseSize(sel.size).width} / ${parseSize(sel.size).height}` }} /></div>
-              </div>
-            ) : (
-              <>
-                <div className="charts" style={{ "--chart-w": `${scatter.width}px` }}>
+          <Step n={2} title="Look at them two ways" help={HELP[2]} busy={running} active={activeStep === 2} stepRef={registerStep(2)}>
+            <div className={`charts${!specs ? " charts--pending" : ""}`} ref={chartsRef} {...(!specs ? { "aria-hidden": true } : {})}>
+              {!specs ? (
+                <div className="chart-figure">
+                  <div
+                    className="chart-skeleton"
+                    style={{ aspectRatio: `${parseSize(chartSize).width} / ${parseSize(chartSize).height}` }}
+                  />
+                </div>
+              ) : (
+                <>
                   <figure className="chart-figure">
                     <div className="chart-figure__head">
                       <button type="button" className="btn btn--ghost btn--small" onClick={() => scatterChart.current?.reset()}>
@@ -159,20 +173,24 @@ export default function App({ api = defaultApi }) {
                       The same columns over time. If both simply climb {keyLabel} after {keyLabel}, that alone can make the dots line up on the left.
                     </figcaption>
                   </figure>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </Step>
         )}
         {description && (
-          <Step n={3} title="Read what the numbers say" help={HELP[3]} busy={running}>
+          <Step n={3} title="Read what the numbers say" help={HELP[3]} busy={running} active={activeStep === 3} stepRef={registerStep(3)}>
             <StatsBar stats={scatter.stats} defaultOpen={false} />
             <Verdict description={description} changed={changed?.headline} />
             <Sentences sentences={description.sentences} changed={changed?.sentences} />
+            <div className="checks">
+              <TrendCheck trend={description.trend} />
+              <LeaveOneOutCheck leaveOneOut={description.leaveOneOut} />
+            </div>
           </Step>
         )}
         {description && (
-          <Step n={4} title="Save what you found" help={HELP[4]} busy={running} last>
+          <Step n={4} title="Save what you found" help={HELP[4]} busy={running} last active={activeStep === 4} stepRef={registerStep(4)}>
             <Actions
               scatterSpec={scatter}
               canvasRef={scatterCanvas}
